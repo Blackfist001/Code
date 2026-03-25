@@ -1,0 +1,43 @@
+<div class="container">
+    <h2>Encodage manuel</h2>
+    <div class="card">
+        <h3>Ajouter une entrée/sortie manuellement</h3>
+        <form>
+            <label for="id-student">ID de l'étudiant :</label>
+            <input type="text" id="id-student" name="id-student">
+            <br>
+            <br>
+            <label for="name-student">Nom de l'étudiant :</label>
+            <input type="text" id="name-student" name="name-student">
+            <br>
+            <br>
+            <label for="surname-student">Prénom de l'étudiant :</label>
+            <input type="text" id="surname-student" name="surname-student">
+            <br>
+            <br>
+            <label for="input-output">Type d'entrée/sortie :</label>
+            <select name="input-output" id="input-output">
+                <option value="entry">Entrée</option>
+                <option value="lunchtime-exit">Sortie midi</option>
+                <option value="lunchtime-entry">Entrée midi</option>
+                <option value="justified-exit">Sortie justifiée</option>
+            </select>
+            <br>
+            <br>
+            <label for="reason">Raison pour sortie justifiée :</label>
+                <select name="reason" id="reason">
+                <option value="none"></option>
+                <option value="CM">Certificat médical</option>
+                <option value="parent">Justificatif des parents</option>
+                <option value="to-define">à définir</option>
+            </select>
+            <br>
+            <br>
+            <label for="time">Heure :</label>
+            <input type="time" id="time" name="time">
+            <br>
+            <br>
+            <button type="submit">Ajouter</button>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,109 @@
+body{
+font-family: Arial, Helvetica, sans-serif;
+background:#f4f6f9;
+margin:0;
+}
+
+header, footer{
+background:#2c3e50;
+color:white;
+padding:15px;
+text-align:center;
+}
+
+nav{
+background:#34495e;
+padding:10px;
+display:flex;
+gap:15px;
+justify-content: space-between;
+}
+
+nav a{
+color:white;
+text-decoration:none;
+font-weight:bold;
+}
+
+nav a:hover{
+text-decoration:underline;
+}
+
+.container{
+padding:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+margin-bottom:20px;
+border-radius:5px;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column; /* Aligne les champs verticalement */
+  align-items: center;    /* Centre les champs horizontalement */
+  gap: 15px;              /* Ajoute un espacement entre les champs */
+}
+
+/* Optionnel : Ajuster la largeur des inputs si nécessaire */
+.form-container input {
+  width: 100%;
+  max-width: 300px;       /* Largeur maximale pour ne pas que les champs soient trop grands */
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th, td{
+padding:10px;
+border-bottom:1px solid #ddd;
+text-align:left;
+}
+
+th{
+background:#ecf0f1;
+}
+
+.status-ok{
+color:green;
+font-weight:bold;
+}
+
+.status-refuse{
+color:red;
+font-weight:bold;
+}
+
+.status-info{
+color:blue;
+font-weight:bold;
+}
+
+input{
+padding:8px;
+width:300px;
+}
+
+button{
+padding:8px 15px;
+background:#2c3e50;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+button:hover{
+background:#1a252f;
+}
+
+textarea{
+margin-top: 5px;
+padding:8px;
+width:500px;
+height:50px;
+}

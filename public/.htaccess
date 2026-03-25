@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# 1. Empêcher de lister le contenu des dossiers
+Options -Indexes
+
+# 2. Ne pas rediriger si le fichier ou le dossier existe réellement (ex: CSS, JS, Images)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# 3. Envoyer tout le reste vers index.php
+RewriteRule ^(.*)$ index.php [L,QSA]
