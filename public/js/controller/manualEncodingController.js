@@ -1,5 +1,6 @@
 import ManualEncodingView from "../view/manualEncodingView.js";
 import MovementsModel from "../model/movementsModel.js";
+import api from "../api.js";
 
 export default class ManualEncodingController {
 
@@ -12,13 +13,34 @@ export default class ManualEncodingController {
         this.view.render();
     }
 
-    addEncoding(encodingData) {
+    async addEncoding(encodingData) {
         // Valider les données
-        if(!encodingData.idStudent || !encodingData.nameStudent) {
-            alert('Veuillez remplir les champs obligatoires');
+        if(!encodingData.id_etudiant) {
+            alert('Veuillez spécifier l\'ID de l\'etudiant');
             return;
         }
-        // Appeler le model pour ajouter le mouvement
-        this.movementsModel.addMovement(encodingData);
+        
+        try {
+            // Préparer les données
+            const movementData = {
+                id_etudiant: encodingData.id_etudiant,
+                type_passage: encodingData.type_passage || 'entree_matin',
+                statut: encodingData.statut || 'autorise',
+                date_passage: encodingData.date || new Date().toISOString().split('T')[0],
+                heure_passage: encodingData.heure || new Date().toTimeString().split(' ')[0]
+            };
+            
+            const response = await api.addMovement(movementData);
+            
+            if (response.success) {
+                alert('Passage enregistré avec succès');
+                this.view.clearForm();
+            } else {
+                alert(response.message || 'Erreur lors de l\'enregistrement');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur: ' + error.message);
+        }
     }
 }

@@ -14,12 +14,15 @@ class MovementsModel {
 
     public function addMovement($movementData) {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->prepare("INSERT INTO movements (student_id, movement_type, timestamp) VALUES (:student_id, :movement_type, :timestamp)");
+        $stmt = $pdo->prepare("INSERT INTO passages (id_etudiant, date_passage, heure_passage, type_passage, statut) 
+                              VALUES (:id_etudiant, :date_passage, :heure_passage, :type_passage, :statut)");
         try {
             $stmt->execute([
-                ':student_id' => $movementData['student_id'],
-                ':movement_type' => $movementData['movement_type'],
-                ':timestamp' => date('Y-m-d H:i:s')
+                ':id_etudiant' => $movementData['id_etudiant'],
+                ':type_passage' => $movementData['type_passage'],
+                ':statut' => $movementData['statut'] ?? 'autorise',
+                ':date_passage' => date('Y-m-d'),
+                ':heure_passage' => date('H:i:s')
             ]);
         } catch (PDOException $e) {
             error_log('Error adding movement: ' . $e->getMessage());
@@ -33,25 +36,24 @@ class MovementsModel {
         $setClauses = [];
         $params = [':id' => $movementId];
         
-        if (isset($movementData['student_id'])) {
-            $setClauses[] = "student_id = :student_id";
-            $params[':student_id'] = $movementData['student_id'];
+        if (isset($movementData['id_etudiant'])) {
+            $setClauses[] = "id_etudiant = :id_etudiant";
+            $params[':id_etudiant'] = $movementData['id_etudiant'];
         }
-        if (isset($movementData['movement_type'])) {
-            $setClauses[] = "movement_type = :movement_type";
-            $params[':movement_type'] = $movementData['movement_type'];
+        if (isset($movementData['type_passage'])) {
+            $setClauses[] = "type_passage = :type_passage";
+            $params[':type_passage'] = $movementData['type_passage'];
         }
-        if (isset($movementData['reason'])) {
-            $setClauses[] = "reason = :reason";
-            $params[':reason'] = $movementData['reason'];
+        if (isset($movementData['statut'])) {
+            $setClauses[] = "statut = :statut";
+            $params[':statut'] = $movementData['statut'];
         }
         
         if (empty($setClauses)) {
             return;
         }
         
-        $sql = "UPDATE movements SET " . implode(', ', $setClauses) . ", timestamp = :timestamp WHERE id = :id";
-        $params[':timestamp'] = date('Y-m-d H:i:s');
+        $sql = "UPDATE passages SET " . implode(', ', $setClauses) . " WHERE id_passage = :id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
     }
@@ -59,9 +61,9 @@ class MovementsModel {
     public function searchMovements($query) {
         $pdo = $this->db->getPdo();
         // Chercher par nom d'étudiant ou ID
-        $stmt = $pdo->prepare("SELECT m.* FROM movements m 
-            JOIN students s ON m.student_id = s.id 
-            WHERE s.nom LIKE :query OR m.student_id LIKE :query 
+        $stmt = $pdo->prepare("SELECT p.* FROM passages p 
+            JOIN etudiants e ON p.id_etudiant = e.id_etudiant 
+            WHERE e.nom LIKE :query OR e.prenom LIKE :query OR p.id_etudiant LIKE :query 
             LIMIT 50");
         $stmt->execute([':query' => "%$query%"]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -69,14 +71,28 @@ class MovementsModel {
 
     public function getMovementByStudentId($studentId) {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->prepare("SELECT * FROM movements WHERE student_id = :student_id ORDER BY timestamp DESC");
-        $stmt->execute([':student_id' => $studentId]);
+        $stmt = $pdo->prepare("SELECT * FROM passages WHERE id_etudiant = :id_etudiant ORDER BY date_passage DESC, heure_passage DESC");
+        $stmt->execute([':id_etudiant' => $studentId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getAllMovements() {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->query("SELECT * FROM movements ORDER BY timestamp DESC");
+        $stmt = $pdo->query("SELECT * FROM passages ORDER BY date_passage DESC, heure_passage DESC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getMovementsByDate($date) {
+        $pdo = $this->db->getPdo();
+        $stmt = $pdo->prepare("SELECT * FROM passages WHERE date_passage = :date ORDER BY heure_passage DESC");
+        $stmt->execute([':date' => $date]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getMovementsBetweenDates($dateFrom, $dateTo) {
+        $pdo = $this->db->getPdo();
+        $stmt = $pdo->prepare("SELECT * FROM passages WHERE date_passage BETWEEN :date_from AND :date_to ORDER BY date_passage DESC, heure_passage DESC");
+        $stmt->execute([':date_from' => $dateFrom, ':date_to' => $dateTo]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

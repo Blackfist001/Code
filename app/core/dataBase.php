@@ -8,7 +8,7 @@ if (!class_exists('DataBase')) {
 
 		public function __construct() {
 			// Lire la configuration depuis le fichier config.php
-			$config = require __DIR__ . '../config/config.php';
+			$config = require __DIR__ . '/../config/config.php';
 			$dsn = $config['dsn'] ?? '';
 			$user = $config['user'] ?? '';
 			$pass = $config['pass'] ?? '';

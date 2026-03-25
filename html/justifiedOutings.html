@@ -1,35 +1,33 @@
 <div class="container">
     <h2>Sorties justifiées</h2>
+    
+    <div class="card">
+        <h3>Ajouter une sortie justifiée</h3>
+        <div class="form-container">
+            <input type="text" id="justified-student-id" placeholder="ID Étudiant" required>
+            <input type="text" id="justified-reason" placeholder="Raison" required>
+            <button id="btn-add-justified">Enregistrer sortie justifiée</button>
+        </div>
+        <div id="justified-message" class="message"></div>
+    </div>
+
     <div class="card">
         <h3>Liste des sorties justifiées du jour</h3>
+        <button id="btn-refresh-justified">Actualiser</button>
         <table>
             <thead>
                 <tr>
                     <th>Date</th>
                     <th>Heure</th>
                     <th>Nom</th>
+                    <th>Prénom</th>
                     <th>Classe</th>
                     <th>Statut</th>
                     <th>Raison</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td>16/03/2026</td>
-                    <td>14h20</td>
-                    <td>Martin Dupont</td>
-                    <td>4B</td>
-                    <td class="status-ok">Sortie justifiée</td>
-                    <td>Dentiste à 14h00</td>
-                </tr>
-                <tr>
-                    <td>16/03/2026</td>
-                    <td>14h25</td>
-                    <td>Lucas Bernard</td>
-                    <td>3A</td>
-                    <td class="status-ok">Sortie justifiée</td>
-                    <td>Rendez-vous médical à 14h30</td>
-                </tr>
+            <tbody id="justified-outings-body">
+                <!-- Rows will be populated by JavaScript -->
             </tbody>
         </table>
     </div>

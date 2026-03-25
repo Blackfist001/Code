@@ -1,47 +1,34 @@
 <div class="container">
     <h2>Scanner</h2>
     <div class="card">
-
         <h3>Scanner la carte étudiant</h3>
-
-        <p>Nom : Martin Dupont</p>
-        <p>Classe : 4B</p>
-        <p>Passage : Sortie midi</p>
-
-        <p class="status-ok">AUTORISÉ</p>
-        <button>Scanner une autre carte</button>
+        <div class="form-container">
+            <input type="text" id="scan-input" placeholder="Scanner la carte ou entrer l'ID étudiant" autofocus>
+            <button id="btn-submit-scan">Soumettre</button>
+        </div>
+        <div id="scan-result" class="scan-result" style="display:none;">
+            <p id="student-name">Nom : <span id="name-value">---</span></p>
+            <p id="student-class">Classe : <span id="class-value">---</span></p>
+            <p id="scan-type">Passage : <span id="type-value">---</span></p>
+            <p id="scan-status" class="status-ok">STATUT: <span id="status-value">---</span></p>
+        </div>
+        <div id="message" class="message"></div>
     </div>
 
     <div class="card">
-        <h3>Horaire du jour de l'étudiant</h3>
+        <h3>Historique des derniers scans</h3>
         <table>
             <thead>
-            <tr>
-                <th>8h00</th>
-                <th>8h50</th>
-                <th>9h40</th>
-                <th>10h30</th>
-                <th>11h20</th>
-                <th>12h10</th>
-                <th>13h00</th>
-                <th>13h50</th>
-                <th>14h40</th>
-                <th>15h30</th>
-            </tr>
+                <tr>
+                    <th>Heure</th>
+                    <th>Nom</th>
+                    <th>Classe</th>
+                    <th>Passage</th>
+                    <th>Statut</th>
+                </tr>
             </thead>
-            <tbody>
-            <tr>
-                <td>Mathématiques</td>
-                <td>Français</td>
-                <td>Histoire-Géo</td>
-                <td>Anglais</td>
-                <td>Physique-Chimie</td>
-                <td>MIDI</td>
-                <td>EPS</td>
-                <td>Arts Plastiques</td>
-                <td>Musique</td>
-                <td>Technologie</td>
-            </tr>
+            <tbody id="scan-history-body">
+                <!-- Rows will be populated by JavaScript -->
             </tbody>
         </table>    
     </div>

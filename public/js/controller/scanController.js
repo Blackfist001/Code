@@ -1,5 +1,6 @@
 import ScanView from "../view/scanView.js";
 import MovementsModel from "../model/movementsModel.js";
+import api from "../api.js";
 
 export default class ScanController {
 
@@ -10,25 +11,86 @@ export default class ScanController {
 
     loadScan() {
         this.view.render();
+        this.attachEventListeners();
+    }
+
+    attachEventListeners() {
+        // Attendre que le HTML soit chargé
+        setTimeout(() => {
+            const scanInput = document.getElementById('scan-input');
+            if (scanInput) {
+                scanInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.processScan(scanInput.value);
+                        scanInput.value = '';
+                    }
+                });
+            }
+
+            const scanButton = document.getElementById('btn-submit-scan');
+            if (scanButton) {
+                scanButton.addEventListener('click', () => {
+                    const input = document.getElementById('input-id');
+                    if (input && input.value) {
+                        this.processScan(input.value);
+                        input.value = '';
+                    }
+                });
+            }
+        }, 500);
     }
 
     addMovement(movementData) {
         this.model.addMovement(movementData);
     }
 
-    async processScan(movementData) {
-        try {
-            const data = await this.model.save(movementData);
+    async processScan(studentId) {
+        if (!studentId) {
+            this.view.displayMessage('ID étudiant requis', true);
+            return;
+        }
 
-            if (data.success) {
-                const now = new Date().toLocaleTimeString();
-                this.view.renderNewScan(movementData.student_id, "Élève scanné", now);
-                this.view.displayMessage("Succès !");
+        try {
+            // Préparer les données du scan
+            const movementData = {
+                id_etudiant: studentId,
+                type_passage: 'entree_matin',
+                statut: 'autorise'
+            };
+
+            // Envoyer à l'API
+            const response = await api.addMovement(movementData);
+
+            if (response.success) {
+                // Récupérer les infos de l'étudiant
+                const studentResponse = await api.getStudentById(studentId);
+                
+                if (studentResponse.success && studentResponse.result) {
+                    const student = studentResponse.result;
+                    const now = new Date().toLocaleTimeString();
+                    this.view.renderNewScan(
+                        studentId,
+                        `${student.prenom} ${student.nom}`,
+                        now
+                    );
+                    this.view.displayMessage(`Scan: ${student.prenom} ${student.nom}`);
+                }
             } else {
-                this.view.displayMessage(data.message, true);
+                this.view.displayMessage(response.message || 'Erreur lors du scan', true);
             }
         } catch (error) {
-            this.view.displayMessage("Erreur de connexion", true);
+            this.view.displayMessage('Erreur: ' + error.message, true);
+            console.error('Erreur:', error);
+        }
+    }
+
+    async save(movementData) {
+        try {
+            const response = await api.addMovement(movementData);
+            return response;
+        } catch (error) {
+            console.error('Erreur:', error);
+            throw error;
         }
     }
 }

@@ -2,10 +2,25 @@
     <h2>Tableau de bord</h2>
     <div class="card">
         <h3>Statistiques du jour</h3>
-        <p>Entrées matin : 642</p>
-        <p>Sorties midi : 312</p>
-        <p>Présents : 601</p>
-        <p>Absents : 41</p>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-label">Totaux étudiants :</span>
+                <span id="total-students" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Présents :</span>
+                <span id="present-count" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Absents :</span>
+                <span id="absent-count" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Total passages :</span>
+                <span id="total-scans" class="stat-value">0</span>
+            </div>
+        </div>
+        <button id="btn-refresh-stats">Actualiser les statistiques</button>
     </div>
 
     <div class="card">
@@ -21,39 +36,8 @@
                     <th>Statut</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td>16/03/2026</td>
-                    <td>08:05</td>
-                    <td>Dupont Martin</td>
-                    <td>4B</td>
-                    <td>Entrée</td>
-                    <td class="status-ok">Présent</td>
-                </tr>
-                <tr>
-                    <td>16/03/2026</td>
-                    <td>12:10</td>
-                    <td>Bernard Lucas</td>
-                    <td>3A</td>
-                    <td>Sortie midi</td>
-                    <td class="status-ok">Autorisé</td>
-                </tr>
-                <tr>
-                    <td>16/03/2026</td>
-                    <td>08:02</td>
-                    <td>Martin Dupont</td>
-                    <td>4B</td>
-                    <td>Entrée</td>
-                    <td class="status-ok">OK</td>
-                </tr>
-                <tr>
-                    <td>16/03/2026</td>
-                    <td>12:03</td>
-                    <td>Lucas Martin</td>
-                    <td>3A</td>
-                    <td>Sortie midi</td>
-                    <td class="status-ok">Autorisé</td>
-                </tr>
+            <tbody id="movements-table-body">
+                <!-- Rows will be populated by JavaScript -->
             </tbody>
         </table>
     </div>

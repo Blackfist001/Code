@@ -34,7 +34,7 @@ class Router {
                 $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
 
                 [$controllerName, $action] = $handler;
-                $controllerPath = "App\\Controllers\\" . $controllerName;
+                $controllerPath = "App\\Controller\\" . $controllerName;
 
                 if (class_exists($controllerPath)) {
                     $controller = new $controllerPath();

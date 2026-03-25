@@ -1,59 +1,64 @@
 <div class="container">
     <h2>Gestion</h2>
+    
     <div class="card">
-        <h3>Encodage des utilisateurs</h3>
-        <form>
-            <label for="name">Nom :</label>
-            <input type="text" id="name" name="name"><br><br>
-            <label for="password">Mot de passe :</label>
-            <input type="password" id="password" name="password"><br><br>
-            <label for="role">Rôle :</label>
-            <select id="role" name="role">
+        <h3>Ajouter un utilisateur</h3>
+        <div class="form-container">
+            <input type="text" id="user-username" placeholder="Nom d'utilisateur" required>
+            <input type="password" id="user-password" placeholder="Mot de passe" required>
+            <select id="user-role" required>
+                <option value="">-- Rôle --</option>
                 <option value="surveillant">Surveillant</option>
                 <option value="administration">Administration</option>
                 <option value="administrateur">Administrateur</option>
-            </select><br><br>
-            <input type="submit" value="Ajouter">
-        </form>
+            </select>
+            <button id="btn-add-user">Ajouter utilisateur</button>
+        </div>
     </div>
+
     <div class="card">
         <h3>Utilisateurs</h3>
         <table>
             <thead>
                 <tr>
-                    <th>id</th>
-                    <th>Nom</th>
-                    <th>Mot de passe</th>
+                    <th>ID</th>
+                    <th>Nom d'utilisateur</th>
                     <th>Rôle</th>
-                    <th>Modifier</th>
-                    <th>Supprimer</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="users-table-body">
+                <!-- Users will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Ajouter un étudiant</h3>
+        <div class="form-container">
+            <input type="text" id="student-nom" placeholder="Nom" required>
+            <input type="text" id="student-prenom" placeholder="Prénom" required>
+            <input type="text" id="student-classe" placeholder="Classe" required>
+            <input type="email" id="student-email" placeholder="Email">
+            <button id="btn-add-student">Ajouter étudiant</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Étudiants</h3>
+        <table>
+            <thead>
                 <tr>
-                    <td>12345</td>
-                    <td>Dupont</td>
-                    <td>••••••••••</td>
-                    <td>Surveillant</td>
-                    <td><button>Modifier</button></td>
-                    <td><button>Supprimer</button></td>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Classe</th>
+                    <th>Email</th>
+                    <th>Actions</th>
                 </tr>
-                <tr>
-                    <td>123456</td>
-                    <td>Lucas</td>
-                    <td>••••••••••</td>
-                    <td>Administration</td>
-                    <td><button>Modifier</button></td>
-                    <td><button>Supprimer</button></td>
-                </tr>
-                <tr>
-                    <td>1</td>
-                    <td>Pierre</td>
-                    <td>••••••••••</td>
-                    <td>Administrateur</td>
-                    <td><button>Modifier</button></td>
-                    <td><button>Supprimer</button></td>
-                </tr>
+            </thead>
+            <tbody id="students-table-body">
+                <!-- Students will be populated by JavaScript -->
             </tbody>
         </table>
     </div>

@@ -1,5 +1,24 @@
 <div class="container">
     <h2>Historique</h2>
+    
+    <div class="card">
+        <h3>Filtrer par date</h3>
+        <div class="form-container">
+            <label for="date-from">Date de début :</label>
+            <input type="date" id="date-from">
+            <label for="date-to">Date de fin :</label>
+            <input type="date" id="date-to">
+            <button id="btn-filter-dates">Filtrer</button>
+            <button id="btn-export-csv">Exporter CSV</button>
+        </div>
+        <div id="historical-message" class="message"></div>
+    </div>
+
+    <div class="card">
+        <h3>Statistiques par dates</h3>
+        <div id="stats-container"></div>
+    </div>
+
     <div class="card">
         <h3>Derniers passages enregistrés</h3>
         <table>
@@ -8,36 +27,14 @@
                     <th>Date</th>
                     <th>Heure</th>
                     <th>Nom</th>
+                    <th>Prénom</th>
                     <th>Classe</th>
                     <th>Type</th>
                     <th>Statut</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td>16/03/2026</td>
-                    <td>08:05</td>
-                    <td>Dupont Martin</td>
-                    <td>4B</td>
-                    <td>Entrée</td>
-                    <td class="status-info">Présent</td>
-                </tr>
-                <tr>
-                    <td>16/03/2026</td>
-                    <td>12:10</td>
-                    <td>Bernard Lucas</td>
-                    <td>3A</td>
-                    <td>Sortie midi</td>
-                    <td class="status-info">Autorisé</td>
-                </tr>
-                <tr>
-                    <td>16/03/2026</td>
-                    <td>14:30</td>
-                    <td>Durand André</td>
-                    <td>4B</td>
-                    <td>Sortie justifiée</td>
-                    <td class="status-info">Sortie justifiée</td>
-                </tr>
+            <tbody id="passages-table-body">
+                <!-- Rows will be populated by JavaScript -->
             </tbody>
         </table>
     </div>

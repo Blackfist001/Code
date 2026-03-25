@@ -11,7 +11,7 @@
 
         <header>
             <h1>École de Beauvoir</h1>
-            <img src="img/DeBeauvoir.jpg" alt="Logo de l'école" class="logo">
+            <img src="../../public/assets/img/DeBeauvoir.jpg" alt="Logo de l'école" class="logo">
         </header>
 
         <div id="nav">

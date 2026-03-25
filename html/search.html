@@ -1,9 +1,12 @@
 <div class="container">
     <h2>Recherche étudiant</h2>
     <div class="card">
-        <h2>Rechercher</h2>
-        <input type="text" placeholder="Nom ou ID étudiant">
-        <button>Rechercher</button>
+        <h3>Rechercher</h3>
+        <div class="form-container">
+            <input type="text" id="search-input" placeholder="Nom ou ID étudiant">
+            <button id="btn-search">Rechercher</button>
+        </div>
+        <div id="search-message" class="message"></div>
     </div>
 
     <div class="card">
@@ -15,17 +18,12 @@
                     <th>Nom</th>
                     <th>Prénom</th>
                     <th>Classe</th>
+                    <th>Passages</th>
                     <th>Statut</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td>12345</td>
-                    <td>Dupont</td>
-                    <td>Jean</td>
-                    <td>4B</td>
-                    <td class="status-ok">Présent</td>
-                </tr>
+            <tbody id="search-results-body">
+                <!-- Results will be populated by JavaScript -->
             </tbody>
         </table>
     </div>

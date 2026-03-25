@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tests d'Intégration - École de Beauvoir</title>
+    <link rel="stylesheet" href="public/css/style.css">
+    <style>
+        .test-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        .test-button:hover {
+            background: #2980b9;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .loading {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #27ae60;
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Tests d'Intégration - École de Beauvoir</h1>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress"></div>
+        </div>
+        <p id="status">Prêt pour les tests</p>
+
+        <div class="test-section">
+            <h2>1️⃣ Tests API Backend</h2>
+            <button class="test-button" onclick="testGetAllStudents()">Test: getAllStudents</button>
+            <button class="test-button" onclick="testGetAllMovements()">Test: getAllMovements</button>
+            <button class="test-button" onclick="testSearchStudents()">Test: searchStudents</button>
+            <button class="test-button" onclick="testLogin()">Test: Login</button>
+            <div id="api-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>2️⃣ Tests Frontend - Chargement des Vues</h2>
+            <button class="test-button" onclick="testDashboardView()">Test: Dashboard View</button>
+            <button class="test-button" onclick="testScanView()">Test: Scan View</button>
+            <button class="test-button" onclick="testSearchView()">Test: Search View</button>
+            <div id="frontend-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>3️⃣ Tests Complets End-to-End</h2>
+            <button class="test-button" onclick="runAllTests()">▶️ Exécuter tous les tests</button>
+            <button class="test-button" onclick="clearResults()">🧹 Effacer les résultats</button>
+            <div id="all-results"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import api from './public/js/api.js';
+        
+        window.api = api;
+        let testCount = 0;
+        let passedCount = 0;
+
+        function updateProgress() {
+            const progress = testCount > 0 ? (passedCount / testCount) * 100 : 0;
+            document.getElementById('progress').style.width = progress + '%';
+            document.getElementById('status').textContent = `${passedCount}/${testCount} tests réussis`;
+        }
+
+        function addResult(sectionId, testName, success, message) {
+            testCount++;
+            if (success) passedCount++;
+            updateProgress();
+
+            const section = document.getElementById(sectionId);
+            const result = document.createElement('div');
+            result.className = success ? 'test-result success' : 'test-result error';
+            result.innerHTML = `<strong>${testName}:</strong> ${message}`;
+            section.appendChild(result);
+        }
+
+        window.testGetAllStudents = async function() {
+            try {
+                const response = await api.getAllStudents();
+                const success = response.success && response.results && response.results.length > 0;
+                addResult('api-results', 'getAllStudents', success, 
+                    `${response.results?.length || 0} étudiants trouvés`);
+            } catch (error) {
+                addResult('api-results', 'getAllStudents', false, error.message);
+            }
+        };
+
+        window.testGetAllMovements = async function() {
+            try {
+                const response = await api.getAllMovements();
+                const success = response.success && response.results;
+                addResult('api-results', 'getAllMovements', success, 
+                    `${response.results?.length || 0} mouvements trouvés`);
+            } catch (error) {
+                addResult('api-results', 'getAllMovements', false, error.message);
+            }
+        };
+
+        window.testSearchStudents = async function() {
+            try {
+                const response = await api.searchStudents('Martin');
+                const success = response.success && response.results;
+                addResult('api-results', 'searchStudents("Martin")', success, 
+                    `${response.results?.length || 0} résultats trouvés`);
+            } catch (error) {
+                addResult('api-results', 'searchStudents', false, error.message);
+            }
+        };
+
+        window.testLogin = async function() {
+            try {
+                const response = await api.login('admin', 'admin');
+                addResult('api-results', 'login', response.success, 
+                    response.success ? 'Authentification réussie' : response.message || 'Erreur');
+            } catch (error) {
+                addResult('api-results', 'login', false, error.message);
+            }
+        };
+
+        window.testDashboardView = async function() {
+            try {
+                const response = await fetch('html/dashboard.html');
+                const success = response.ok;
+                addResult('frontend-results', 'Dashboard HTML', success, 
+                    success ? 'Template chargé' : 'Erreur 404');
+            } catch (error) {
+                addResult('frontend-results', 'Dashboard HTML', false, error.message);
+            }
+        };
+
+        window.testScanView = async function() {
+            try {
+                const response = await fetch('html/scan.html');
+                const success = response.ok;
+                addResult('frontend-results', 'Scan HTML', success, 
+                    success ? 'Template chargé' : 'Erreur 404');
+            } catch (error) {
+                addResult('frontend-results', 'Scan HTML', false, error.message);
+            }
+        };
+
+        window.testSearchView = async function() {
+            try {
+                const response = await fetch('html/search.html');
+                const success = response.ok;
+                addResult('frontend-results', 'Search HTML', success, 
+                    success ? 'Template chargé' : 'Erreur 404');
+            } catch (error) {
+                addResult('frontend-results', 'Search HTML', false, error.message);
+            }
+        };
+
+        window.runAllTests = async function() {
+            document.getElementById('all-results').innerHTML = '';
+            testCount = 0;
+            passedCount = 0;
+            
+            await testGetAllStudents();
+            await testGetAllMovements();
+            await testSearchStudents();
+            await testLogin();
+            await testDashboardView();
+            await testScanView();
+            await testSearchView();
+
+            const allSection = document.getElementById('all-results');
+            const summary = document.createElement('div');
+            summary.className = passedCount === testCount ? 'test-result success' : 'test-result error';
+            summary.innerHTML = `<strong>Résumé:</strong> ${passedCount}/${testCount} tests réussis (${Math.round(passedCount/testCount*100)}%)`;
+            allSection.appendChild(summary);
+        };
+
+        window.clearResults = function() {
+            document.getElementById('api-results').innerHTML = '';
+            document.getElementById('frontend-results').innerHTML = '';
+            document.getElementById('all-results').innerHTML = '';
+            testCount = 0;
+            passedCount = 0;
+            updateProgress();
+        };
+    </script>
+</body>
+</html>

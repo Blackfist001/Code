@@ -16,7 +16,8 @@ class ScanController {
         header('Content-Type: application/json');
 
         // 2. On récupère les données envoyées par JS (FormData ou $_POST)
-        $studentId = $_POST['student_id'] ?? null;
+        $studentId = $_POST['student_id'] ?? $_POST['id_etudiant'] ?? null;
+        $typePassage = $_POST['type_passage'] ?? $_POST['movement_type'] ?? 'entree_matin';
         
         if (!$studentId) {
             echo json_encode(['success' => false, 'message' => 'ID élève manquant']);
@@ -25,10 +26,12 @@ class ScanController {
 
         // 3. Appel au Modèle pour enregistrer en BDD
         $model = new MovementsModel();
-        $result = $model->addMovement($movementData = [
-            'student_id' => $studentId,
-            'movement_type' => 'entry'
-        ]);
+        $movementData = [
+            'id_etudiant' => $studentId,
+            'type_passage' => $typePassage,
+            'statut' => 'autorise'
+        ];
+        $result = $model->addMovement($movementData);
 
         // 4. On répond au JS
         echo json_encode([

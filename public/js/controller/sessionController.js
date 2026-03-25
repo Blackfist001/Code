@@ -1,4 +1,5 @@
 import SessionView from "../view/sessionView.js";
+import api from "../api.js";
 
 export default class SessionController {
 
@@ -8,26 +9,37 @@ export default class SessionController {
         this.sessionCheck();
     }
 
-    login(username, password) {
-        // TODO: Implémenter la validation avec le backend PHP
-        // Pour l'instant, simulation simple
-        if(username && password) {
-            // Déterminer le rôle basé sur le username (à remplacer par un vrai appel API)
-            let role = 'user';
-            if(username.includes('admin')) {
-                role = 'administrateur';
-            } else if(username.includes('gestion')) {
-                role = 'administration';
-            }
+    async login(username, password) {
+        try {
+            const response = await api.login(username, password);
             
-            sessionStorage.setItem('role', role);
-            this.sessionRole = role;
-            this.sessionCheck();
+            if (response.success) {
+                // Stocker les informations de session
+                const user = response.user;
+                sessionStorage.setItem('user_id', user.id_user);
+                sessionStorage.setItem('username', user.nom);
+                sessionStorage.setItem('role', user.role);
+                
+                this.sessionRole = user.role;
+                this.sessionCheck();
+            } else {
+                alert('Erreur: ' + response.message);
+            }
+        } catch (error) {
+            alert('Erreur de connexion: ' + error.message);
         }
     }
 
     logout() {
+        try {
+            api.logout();
+        } catch (error) {
+            console.error('Erreur lors de la déconnexion:', error);
+        }
+        
         sessionStorage.removeItem('role');
+        sessionStorage.removeItem('user_id');
+        sessionStorage.removeItem('username');
         this.sessionRole = null;
         this.sessionCheck();
     }
@@ -40,7 +52,7 @@ export default class SessionController {
                 this.sessionView.renderAdmin();
             } else if(this.sessionRole === 'administration') {
                 this.sessionView.renderGestion();
-            } else if(this.sessionRole === 'user') {
+            } else if(this.sessionRole === 'surveillant') {
                 this.sessionView.renderUser();
             }
         }

@@ -3,6 +3,7 @@ namespace App\Model;
 
 use App\Core\DataBase;
 use PDO;
+use Exception;
 
 class UsersModel {
     private DataBase $db;
@@ -13,31 +14,45 @@ class UsersModel {
 
     public function getUserByUsername($username) {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE username = :username");
+        $stmt = $pdo->prepare("SELECT * FROM utilisateurs WHERE nom = :username");
         $stmt->execute([':username' => $username]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function getUsers() {
+    public function getAllUsers() {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->query("SELECT * FROM users");
+        $stmt = $pdo->query("SELECT id_user, nom, role FROM utilisateurs");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function createUser($username, $password, $role = 'surveillant') {
+    public function addUser($userData) {
         $pdo = $this->db->getPdo();
+        $username = $userData['username'] ?? $userData['nom'] ?? '';
+        $password = $userData['password'] ?? $userData['mot_de_passe'] ?? '';
+        $role = $userData['role'] ?? 'surveillant';
+
+        if (empty($username) || empty($password)) {
+            return false;
+        }
+
         $stmt = $pdo->prepare("INSERT INTO utilisateurs (nom, mot_de_passe, role) VALUES (:username, :password, :role)");
-        $stmt->execute([
-            ':username' => $username,
-            ':password' => password_hash($password, PASSWORD_DEFAULT),
-            ':role' => $role
-        ]);
+        try {
+            $stmt->execute([
+                ':username' => $username,
+                ':password' => password_hash($password, PASSWORD_DEFAULT),
+                ':role' => $role
+            ]);
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
 
     public function deleteUser($id) {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->prepare("DELETE FROM utilisateurs WHERE id = :id");
+        $stmt = $pdo->prepare("DELETE FROM utilisateurs WHERE id_user = :id");
         $stmt->execute([':id' => $id]);
+        return $stmt->rowCount() > 0;
     }
 
     public function updateUser($id, $updateData) {
@@ -45,26 +60,56 @@ class UsersModel {
         $setClauses = [];
         $params = [':id' => $id];
         
+        // Mapper les noms de champs
+        $fieldMap = [
+            'username' => 'nom',
+            'nom' => 'nom',
+            'password' => 'mot_de_passe',
+            'mot_de_passe' => 'mot_de_passe',
+            'role' => 'role'
+        ];
+
         foreach ($updateData as $key => $value) {
-            $setClauses[] = "$key = :$key";
-            $params[":$key"] = $value;
+            $dbField = $fieldMap[$key] ?? $key;
+            // Hash password if being updated
+            if ($dbField === 'mot_de_passe' && !empty($value)) {
+                $value = password_hash($value, PASSWORD_DEFAULT);
+            }
+            $setClauses[] = "$dbField = :$dbField";
+            $params[":$dbField"] = $value;
         }
         
         if (empty($setClauses)) {
-            return;
+            return false;
         }
         
-        $sql = "UPDATE utilisateurs SET " . implode(', ', $setClauses) . " WHERE id = :id";
+        $sql = "UPDATE utilisateurs SET " . implode(', ', $setClauses) . " WHERE id_user = :id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
+        return $stmt->rowCount() > 0;
+    }
+
+    public function authenticate($username, $password) {
+        $pdo = $this->db->getPdo();
+        $stmt = $pdo->prepare("SELECT * FROM utilisateurs WHERE nom = :username");
+        $stmt->execute([':username' => $username]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($user && password_verify($password, $user['mot_de_passe'])) {
+            return $user;
+        }
+        
+        return null;
     }
 
     public function updateUserPassword($username, $newPassword) {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->prepare("UPDATE users SET password = :password WHERE username = :username");
+        $stmt = $pdo->prepare("UPDATE utilisateurs SET mot_de_passe = :password WHERE nom = :username");
         $stmt->execute([
             ':password' => password_hash($newPassword, PASSWORD_DEFAULT),
             ':username' => $username
         ]);
+        return $stmt->rowCount() > 0;
     }
 }
+
