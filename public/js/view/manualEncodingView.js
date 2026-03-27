@@ -43,7 +43,7 @@ export default class ManualEncodingView {
         // Show/hide reason based on type
         if (typeSelect && reasonSelect) {
             typeSelect.addEventListener('change', () => {
-                if (typeSelect.value === 'sortie_justifiee') {
+                if (typeSelect.value === 'sortie_autorisee') {
                     reasonSelect.style.display = 'block';
                 } else {
                     reasonSelect.style.display = 'none';

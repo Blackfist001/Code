@@ -95,14 +95,15 @@ class UsersModel {
         $stmt->execute([':username' => $username]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        if ($user && password_verify($password, $user['mot_de_passe'])) {
-            return $user;
-        }
-        
-        return null;
-    }
+        error_log('UsersModel authenticate: username=' . $username . ', user=' . json_encode($user));
 
-    public function updateUserPassword($username, $newPassword) {
+        if ($user) {
+            $valid = password_verify($password, $user['mot_de_passe']);
+            error_log('UsersModel password_verify: ' . ($valid ? 'true' : 'false'));
+
+            if ($valid) {
+                return $user;
+            }
         $pdo = $this->db->getPdo();
         $stmt = $pdo->prepare("UPDATE utilisateurs SET mot_de_passe = :password WHERE nom = :username");
         $stmt->execute([
@@ -113,3 +114,4 @@ class UsersModel {
     }
 }
 
+}

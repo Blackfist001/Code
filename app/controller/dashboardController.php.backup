@@ -26,15 +26,15 @@ class DashboardController {
      */
     public function getStats($params = []) {
         header('Content-Type: application/json');
-
+        
         try {
             $students = $this->studentsModel->getAllStudents();
             $movements = $this->movementsModel->getAllMovements();
-
+            
             $presentToday = count(array_filter($movements, function($m) {
                 return $m['date_passage'] === date('Y-m-d');
             }));
-
+            
             $stats = [
                 'success' => true,
                 'total_students' => count($students),
@@ -42,14 +42,13 @@ class DashboardController {
                 'present_today' => $presentToday,
                 'absent_today' => count($students) - $presentToday
             ];
-
+            
             echo json_encode($stats);
         } catch (Exception $e) {
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        }
     }
 
     /**
@@ -91,19 +90,19 @@ class DashboardController {
      */
     public function getRecentMovements($params = []) {
         header('Content-Type: application/json');
-
+        
         try {
             $movements = $this->movementsModel->getAllMovements();
-
+            
             // Trier par date/heure décroissante et prendre les 10 premiers
             usort($movements, function($a, $b) {
                 $timeA = strtotime($a['date_passage'] . ' ' . $a['heure_passage']);
                 $timeB = strtotime($b['date_passage'] . ' ' . $b['heure_passage']);
                 return $timeB - $timeA;
             });
-
+            
             $recent = array_slice($movements, 0, 10);
-
+            
             echo json_encode([
                 'success' => true,
                 'count' => count($recent),

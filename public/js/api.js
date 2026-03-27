@@ -4,7 +4,7 @@
  */
 
 class API {
-    constructor(baseUrl = 'php/api') {
+    constructor(baseUrl = '/api') {
         this.baseUrl = baseUrl;
     }
 
@@ -41,21 +41,21 @@ class API {
      * Recherche les étudiants
      */
     async searchStudents(query) {
-        return this.request(`searchStudents.php?q=${encodeURIComponent(query)}`);
+        return this.request(`students/search?q=${encodeURIComponent(query)}`);
     }
 
     /**
      * Obtient tous les étudiants
      */
     async getAllStudents() {
-        return this.request('getAllStudents.php');
+        return this.request('students');
     }
 
     /**
      * Récupère un étudiant par ID
      */
     async getStudentById(id) {
-        return this.request(`getStudent.php?id=${id}`);
+        return this.request(`students/${id}`);
     }
 
     // ==================== PASSAGES (MOUVEMENTS) ====================
@@ -64,7 +64,7 @@ class API {
      * Ajoute un passage
      */
     async addMovement(movementData) {
-        return this.request('addMovement.php', {
+        return this.request('movements/add', {
             method: 'POST',
             body: JSON.stringify(movementData)
         });
@@ -74,28 +74,28 @@ class API {
      * Recherche les passages
      */
     async searchMovements(query) {
-        return this.request(`searchMovements.php?q=${encodeURIComponent(query)}`);
+        return this.request(`movements/search?q=${encodeURIComponent(query)}`);
     }
 
     /**
      * Obtient tous les passages
      */
     async getAllMovements() {
-        return this.request('getAllMovements.php');
+        return this.request('movements');
     }
 
     /**
      * Obtient les passages d'un étudiant
      */
     async getMovementsByStudentId(studentId) {
-        return this.request(`getStudentMovements.php?id=${studentId}`);
+        return this.request(`movements/student/${studentId}`);
     }
 
     /**
      * Met à jour un passage
      */
     async updateMovement(movementId, movementData) {
-        return this.request('updateMovement.php', {
+        return this.request('movements/update', {
             method: 'POST',
             body: JSON.stringify({ id: movementId, ...movementData })
         });
@@ -107,7 +107,7 @@ class API {
      * Ajoute un utilisateur
      */
     async addUser(userData) {
-        return this.request('addUser.php', {
+        return this.request('users/add', {
             method: 'POST',
             body: JSON.stringify(userData)
         });
@@ -117,14 +117,14 @@ class API {
      * Récupère tous les utilisateurs
      */
     async getAllUsers() {
-        return this.request('getAllUsers.php');
+        return this.request('users');
     }
 
     /**
      * Met à jour un utilisateur
      */
     async updateUser(userId, userData) {
-        return this.request('updateUser.php', {
+        return this.request('users/update', {
             method: 'POST',
             body: JSON.stringify({ id: userId, ...userData })
         });
@@ -134,7 +134,7 @@ class API {
      * Supprime un utilisateur
      */
     async deleteUser(userId) {
-        return this.request('deleteUser.php', {
+        return this.request('users/delete', {
             method: 'POST',
             body: JSON.stringify({ id: userId })
         });
@@ -144,19 +144,77 @@ class API {
      * Authentification
      */
     async login(username, password) {
-        return this.request('login.php', {
+        const response = await fetch('/login', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ username, password })
         });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
     }
 
     /**
      * Déconnexion
      */
     async logout() {
-        return this.request('logout.php', {
-            method: 'POST'
+        const response = await fetch('/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
         });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    }
+
+    /**
+     * Récupère les statistiques
+     */
+    async getStats() {
+        return this.request('stats');
+    }
+
+    /**
+     * Récupère les statistiques par date
+     */
+    async getStatsByDate(dateFrom, dateTo) {
+        return this.request(`stats/dates?date_from=${dateFrom}&date_to=${dateTo}`);
+    }
+
+    /**
+     * Récupère les absents du jour
+     */
+    async getTodayAbsents() {
+        return this.request('absents/today');
+    }
+
+    /**
+     * Récupère les passages (avec filtrage)
+     */
+    async getPassages(dateFrom = null, dateTo = null) {
+        let url = 'passages';
+        if (dateFrom && dateTo) {
+            url += `?date_from=${dateFrom}&date_to=${dateTo}`;
+        }
+        return this.request(url);
+    }
+
+    /**
+     * Export CSV
+     */
+    async exportCSV(dateFrom, dateTo) {
+        const response = await fetch(`${this.baseUrl}/export/csv?date_from=${dateFrom}&date_to=${dateTo}`);
+        return response.blob();
     }
 }
 

@@ -43,6 +43,19 @@ export default class HistoricalController {
     }
 
     async exportCSV(dateFrom, dateTo) {
-        window.location.href = `php/api/exportCSV.php?date_from=${dateFrom}&date_to=${dateTo}`;
+        try {
+            const blob = await api.exportCSV(dateFrom, dateTo);
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `passages_${dateFrom}_${dateTo}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Erreur lors de l\'export:', error);
+            alert('Erreur lors de l\'export CSV');
+        }
     }
 }

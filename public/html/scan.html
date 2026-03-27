@@ -1,0 +1,35 @@
+<div class="container">
+    <h2>Scanner</h2>
+    <div class="card">
+        <h3>Scanner la carte étudiant</h3>
+        <div class="form-container">
+            <input type="text" id="scan-input" placeholder="Scanner la carte ou entrer l'ID étudiant" autofocus>
+            <button id="btn-submit-scan">Soumettre</button>
+        </div>
+        <div id="scan-result" class="scan-result" style="display:none;">
+            <p id="student-name">Nom : <span id="name-value">---</span></p>
+            <p id="student-class">Classe : <span id="class-value">---</span></p>
+            <p id="scan-type">Passage : <span id="type-value">---</span></p>
+            <p id="scan-status" class="status-ok">STATUT: <span id="status-value">---</span></p>
+        </div>
+        <div id="message" class="message"></div>
+    </div>
+
+    <div class="card">
+        <h3>Historique des derniers scans</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Heure</th>
+                    <th>Nom</th>
+                    <th>Classe</th>
+                    <th>Passage</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody id="scan-history-body">
+                <!-- Rows will be populated by JavaScript -->
+            </tbody>
+        </table>    
+    </div>
+</div>

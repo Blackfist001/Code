@@ -23,10 +23,16 @@ class AuthController {
      */
     public function verify($params = []) {
         header('Content-Type: application/json');
-        
+        error_log('AuthController verify called');
+
         try {
             $input = json_decode(file_get_contents('php://input'), true);
-            
+            if (empty($input) && isset($params['username']) && isset($params['password'])) {
+                $input = ['username' => $params['username'], 'password' => $params['password']];
+            }
+
+            error_log('Login input: ' . json_encode($input));
+
             if (!$input || !isset($input['username']) || !isset($input['password'])) {
                 echo json_encode([
                     'success' => false,
@@ -55,7 +61,8 @@ class AuthController {
             } else {
                 echo json_encode([
                     'success' => false,
-                    'message' => 'Identifiants invalides'
+                    'message' => 'Identifiants invalides',
+                    'source' => 'authController'
                 ]);
             }
         } catch (Exception $e) {

@@ -5,9 +5,8 @@ export default class StudentsModel {
     }
 
     searchStudents(query) {
-        // Envoyer à PHP backend
-        fetch(`php/api/searchStudents.php?q=${encodeURIComponent(query)}`)
-            .then(response => response.json())
+        // Utiliser l'API centralisée
+        return api.searchStudents(query)
             .then(data => {
                 if(data.success) {
                     if(data.count === 0) {

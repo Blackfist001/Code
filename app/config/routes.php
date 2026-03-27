@@ -9,6 +9,18 @@ return [
         '/absent' => ['AbsentController', 'index'],
         '/search' => ['SearchController', 'index'],
         '/gestion' => ['GestionController', 'index'],
+
+        // API Routes
+        '/api/students' => ['StudentsController', 'getAll'],
+        '/api/students/{id}' => ['StudentsController', 'getById'],
+        '/api/movements' => ['MovementsController', 'getAll'],
+        '/api/movements/student/{id}' => ['MovementsController', 'getByStudentId'],
+        '/api/users' => ['UsersController', 'getAll'],
+        '/api/passages' => ['MovementsController', 'getPassages'],
+        '/api/stats/dates' => ['DashboardController', 'getStatsByDate'],
+        '/api/stats' => ['DashboardController', 'getStats'],
+        '/api/absents/today' => ['AbsentController', 'getTodayAbsents'],
+        '/api/export/csv' => ['HistoricalController', 'exportCSV'],
     ],
     'POST' => [
         '/login' => ['AuthController', 'verify'],
@@ -17,5 +29,18 @@ return [
         '/gestion/ajouter' => ['GestionController', 'addStudent'],
         '/gestion/supprimer' => ['GestionController', 'deleteStudent'],
         '/absent/ajouter' => ['AbsentController', 'markAbsent'],
+
+        // API Routes
+        '/api/students/search' => ['StudentsController', 'search'],
+        '/api/students/add' => ['StudentsController', 'add'],
+        '/api/students/delete' => ['StudentsController', 'delete'],
+        '/api/movements/add' => ['MovementsController', 'add'],
+        '/api/movements/search' => ['MovementsController', 'search'],
+        '/api/movements/update' => ['MovementsController', 'update'],
+        '/api/users/add' => ['UsersController', 'add'],
+        '/api/users/delete' => ['UsersController', 'delete'],
+        '/api/users/update' => ['UsersController', 'update'],
+        '/api/absents/today' => ['AbsentController', 'getTodayAbsents'],
+        '/api/export/csv' => ['HistoricalController', 'exportCSV'],
     ]
 ];

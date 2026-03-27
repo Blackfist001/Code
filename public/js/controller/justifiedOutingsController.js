@@ -16,7 +16,7 @@ export default class JustifiedOutingsController {
         try {
             const data = {
                 id_etudiant: studentId,
-                type_passage: 'sortie_justifie',
+                type_passage: 'sortie_autorisee',
                 statut: 'sortie_justifie',
                 reason: reason
             };

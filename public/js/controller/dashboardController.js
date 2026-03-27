@@ -12,10 +12,8 @@ export default class DashboardController {
     async loadDashboard() {
         try {
             // Charger les données depuis l'API
-            const statsResponse = await api.request('php/api/getStats.php' || '../../../api.php', {
-                method: 'GET'
-            });
-            
+            const statsResponse = await api.getStats();
+
             if (statsResponse.success) {
                 this.stats = statsResponse;
             }

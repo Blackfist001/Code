@@ -5,9 +5,8 @@ export default class MovementsModel {
     }
 
     searchMovements(query) {
-        // Envoyer à PHP backend
-        fetch(`php/api/searchMovements.php?q=${encodeURIComponent(query)}`)
-            .then(response => response.json())
+        // Utiliser l'API centralisée
+        return api.searchMovements(query)
             .then(data => {
                 if(data.success) {
                     if(data.count === 0) {
@@ -28,58 +27,44 @@ export default class MovementsModel {
     }
 
     addMovement(movementData) {
-        // Envoyer à PHP backend
-        fetch('php/api/addMovement.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(movementData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                alert('Mouvement enregistré avec succès');
-                console.log('Movement added:', data);
-            } else {
-                alert(`Erreur: ${data.message}`);
-                console.error('Error:', data);
-            }
-        })
-        .catch(error => {
-            alert('Erreur lors de l\'enregistrement du mouvement');
-            console.error('Error:', error);
-        });
+        // Utiliser l'API centralisée
+        return api.addMovement(movementData)
+            .then(data => {
+                if(data.success) {
+                    alert('Mouvement enregistré avec succès');
+                    console.log('Movement added:', data);
+                } else {
+                    alert(`Erreur: ${data.message}`);
+                    console.error('Error:', data);
+                }
+            })
+            .catch(error => {
+                alert('Erreur lors de l\'enregistrement du mouvement');
+                console.error('Error:', error);
+            });
     }
 
     updateMovement(movementId, movementData) {
-        // Envoyer à PHP backend
-        fetch('php/api/updateMovement.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({id: movementId, ...movementData})
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                alert('Mouvement mis à jour avec succès');
-                console.log('Movement updated:', data);
-            } else {
-                alert(`Erreur: ${data.message}`);
-                console.error('Error:', data);
-            }
-        })
-        .catch(error => {
-            alert('Erreur lors de la mise à jour du mouvement');
-            console.error('Error:', error);
-        });
+        // Utiliser l'API centralisée
+        return api.updateMovement(movementId, movementData)
+            .then(data => {
+                if(data.success) {
+                    alert('Mouvement mis à jour avec succès');
+                    console.log('Movement updated:', data);
+                } else {
+                    alert(`Erreur: ${data.message}`);
+                    console.error('Error:', data);
+                }
+            })
+            .catch(error => {
+                alert('Erreur lors de la mise à jour du mouvement');
+                console.error('Error:', error);
+            });
     }
 
     async save(movementData) {
         const formData = new FormData();
-        formData.append('student_id', movementData.student_id);
+        formData.append('id_etudiant', movementData.id_etudiant);
 
         const response = await fetch('/scan/ajouter', {
             method: 'POST',

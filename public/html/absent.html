@@ -1,0 +1,37 @@
+<div class="container">
+    <h2>Absents</h2>
+    <div class="card">
+        <h3>Liste des absents du jour</h3>
+        <button id="btn-refresh-absents">Actualiser</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Classe</th>
+                    <th>Raison</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="absents-table-body">
+                <!-- Rows will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card" id="add-absent-form" style="display:none;">
+        <h3>Marquer comme absent</h3>
+        <div class="form-container">
+            <input type="text" id="absent-student-id" placeholder="ID Étudiant" required>
+            <select id="absent-reason">
+                <option value="">-- Raison --</option>
+                <option value="justifie">Justifié</option>
+                <option value="non-justifie">Non justifié</option>
+                <option value="medical">Médical</option>
+            </select>
+            <button id="btn-add-absent">Ajouter</button>
+        </div>
+    </div>
+</div>

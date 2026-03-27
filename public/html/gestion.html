@@ -1,0 +1,65 @@
+<div class="container">
+    <h2>Gestion</h2>
+    
+    <div class="card">
+        <h3>Ajouter un utilisateur</h3>
+        <div class="form-container">
+            <input type="text" id="user-username" placeholder="Nom d'utilisateur" required>
+            <input type="password" id="user-password" placeholder="Mot de passe" required>
+            <select id="user-role" required>
+                <option value="">-- Rôle --</option>
+                <option value="surveillant">Surveillant</option>
+                <option value="administration">Administration</option>
+                <option value="administrateur">Administrateur</option>
+            </select>
+            <button id="btn-add-user">Ajouter utilisateur</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Utilisateurs</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom d'utilisateur</th>
+                    <th>Rôle</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="users-table-body">
+                <!-- Users will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Ajouter un étudiant</h3>
+        <div class="form-container">
+            <input type="text" id="student-nom" placeholder="Nom" required>
+            <input type="text" id="student-prenom" placeholder="Prénom" required>
+            <input type="text" id="student-classe" placeholder="Classe" required>
+            <input type="email" id="student-email" placeholder="Email">
+            <button id="btn-add-student">Ajouter étudiant</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Étudiants</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Classe</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="students-table-body">
+                <!-- Students will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -22,8 +22,8 @@ try {
     // Enregistrer le passage comme absence
     $movementData = [
         'id_etudiant' => $input['id_etudiant'],
-        'type_passage' => 'absence',
-        'statut' => $input['reason'] ?? 'non-justifie',
+        'type_passage' => 'entree_matin',
+        'statut' => $input['reason'] ?? 'absent',
         'date_passage' => date('Y-m-d'),
         'heure_passage' => date('H:i:s')
     ];

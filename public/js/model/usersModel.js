@@ -5,78 +5,57 @@ export default class UsersModel {
     }
 
     addUser(userData) {
-        // Envoyer à PHP backend
-        fetch('php/api/addUser.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                alert(`Utilisateur ${userData.name} ajouté avec succès`);
-                console.log('User added:', data);
-            } else {
-                alert(`Erreur: ${data.message}`);
-                console.error('Error:', data);
-            }
-        })
-        .catch(error => {
-            alert('Erreur lors de l\'ajout de l\'utilisateur');
-            console.error('Error:', error);
-        });
+        // Utiliser l'API centralisée
+        return api.addUser(userData)
+            .then(data => {
+                if(data.success) {
+                    alert(`Utilisateur ${userData.name} ajouté avec succès`);
+                    console.log('User added:', data);
+                } else {
+                    alert(`Erreur: ${data.message}`);
+                    console.error('Error:', data);
+                }
+            })
+            .catch(error => {
+                alert('Erreur lors de l\'ajout de l\'utilisateur');
+                console.error('Error:', error);
+            });
     }
 
     removeUser(userId) {
-        // Envoyer à PHP backend
-        fetch('php/api/deleteUser.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({id: userId})
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                alert('Utilisateur supprimé avec succès');
-                console.log('User removed:', data);
-            } else {
-                alert(`Erreur: ${data.message}`);
-                console.error('Error:', data);
-            }
-        })
-        .catch(error => {
-            alert('Erreur lors de la suppression de l\'utilisateur');
-            console.error('Error:', error);
-        });
+        // Utiliser l'API centralisée
+        return api.deleteUser(userId)
+            .then(data => {
+                if(data.success) {
+                    alert('Utilisateur supprimé avec succès');
+                    console.log('User removed:', data);
+                } else {
+                    alert(`Erreur: ${data.message}`);
+                    console.error('Error:', data);
+                }
+            })
+            .catch(error => {
+                alert('Erreur lors de la suppression de l\'utilisateur');
+                console.error('Error:', error);
+            });
     }
 
     updateUser(userId, userData) {
-        // Envoyer à PHP backend
-        fetch('php/api/updateUser.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({id: userId, ...userData})
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                alert('Utilisateur mis à jour avec succès');
-                console.log('User updated:', data);
-            } else {
-                alert(`Erreur: ${data.message}`);
-                console.error('Error:', data);
-            }
-        })
-        .catch(error => {
-            alert('Erreur lors de la mise à jour de l\'utilisateur');
-            console.error('Error:', error);
-        });
+        // Utiliser l'API centralisée
+        return api.updateUser(userId, userData)
+            .then(data => {
+                if(data.success) {
+                    alert('Utilisateur mis à jour avec succès');
+                    console.log('User updated:', data);
+                } else {
+                    alert(`Erreur: ${data.message}`);
+                    console.error('Error:', data);
+                }
+            })
+            .catch(error => {
+                alert('Erreur lors de la mise à jour de l\'utilisateur');
+                console.error('Error:', error);
+            });
     }
 
     getUsers() {
