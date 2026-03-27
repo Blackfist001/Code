@@ -6,6 +6,7 @@ import JustifiedOutingsController from './justifiedOutingsController.js';
 import SearchController from './searchController.js';
 import HistoricalController from './historicalController.js';
 import GestionController from './gestionController.js';
+import SessionController from './sessionController.js';
 
 export default class RouteController {
 
@@ -27,38 +28,39 @@ export default class RouteController {
         if(this.routes.hasOwnProperty(route)) {
             switch(route) {
                 case 'logout':
-                    this.logout();
+                    const sessionController = new SessionController();
+                    sessionController.logout();
                     break;
                 case 'dashboard':
-                    let dashboardController = new DashboardController();
+                    const dashboardController = new DashboardController();
                     dashboardController.loadDashboard();
                     break;
                 case 'scan':
-                    let scanController = new ScanController();
+                    const scanController = new ScanController();
                     scanController.loadScan();
                     break;
                 case 'manualEncoding':
-                    let manualEncodingController = new ManualEncodingController();
+                    const manualEncodingController = new ManualEncodingController();
                     manualEncodingController.loadManualEncoding();
                     break;
                 case 'absent':
-                    let absentController = new AbsentController();
+                    const absentController = new AbsentController();
                     absentController.loadAbsent();
                     break;
                 case 'justifiedOutings':
-                    let justifiedOutingsController = new JustifiedOutingsController();
+                    const justifiedOutingsController = new JustifiedOutingsController();
                     justifiedOutingsController.loadJustifiedOutings();
                     break;
                 case 'search':
-                    let searchController = new SearchController();
+                    const searchController = new SearchController();
                     searchController.loadSearch();
                     break;
                 case 'historical':
-                    let historicalController = new HistoricalController();
+                    const historicalController = new HistoricalController();
                     historicalController.loadHistorical();
                     break;
                 case 'gestion':
-                    let gestionController = new GestionController();
+                    const gestionController = new GestionController();
                     gestionController.loadGestion();
                     break;
                 
@@ -66,10 +68,5 @@ export default class RouteController {
         } else {
             console.error(`Route ${route} not found`);
         }
-    }
-
-    logout() {
-        sessionStorage.removeItem('role');
-        window.location.reload();
     }
 }

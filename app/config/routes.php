@@ -3,8 +3,10 @@ return [
     'GET' => [
         '/' => ['HomeController', 'index'],
         '/login' => ['AuthController', 'index'],
+        '/logout' => ['AuthController', 'logout'],
         '/scan' => ['ScanController', 'index'],
         '/dashboard' => ['DashboardController', 'index'],
+        '/manualEncoding' => ['ManualEncodingController', 'index'],
         '/historical' => ['HistoricalController', 'index'],
         '/absent' => ['AbsentController', 'index'],
         '/search' => ['SearchController', 'index'],
