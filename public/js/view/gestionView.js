@@ -37,70 +37,6 @@ export default class GestionView {
                 }
             });
         }
-
-        // Add Student Handler
-        const addStudentBtn = document.getElementById('btn-add-student');
-        if (addStudentBtn && this.controller) {
-            addStudentBtn.addEventListener('click', () => {
-                const nom = document.getElementById('student-nom').value;
-                const prenom = document.getElementById('student-prenom').value;
-                const classe = document.getElementById('student-classe').value;
-                const email = document.getElementById('student-email').value;
-                
-                if (nom && prenom && classe) {
-                    const studentData = {
-                        nom: nom,
-                        prenom: prenom,
-                        classe: classe,
-                        email: email
-                    };
-                    this.controller.addStudent(studentData);
-                    document.getElementById('student-nom').value = '';
-                    document.getElementById('student-prenom').value = '';
-                    document.getElementById('student-classe').value = '';
-                    document.getElementById('student-email').value = '';
-                }
-            });
-        }
-    }
-
-    displayStudents(students = []) {
-        const tbody = document.getElementById('students-table-body');
-        if (!tbody) return;
-        
-        tbody.innerHTML = '';
-        
-        if (!students || students.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6">Aucun étudiant</td></tr>';
-            return;
-        }
-        
-        students.forEach(student => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${student.id_etudiant || '---'}</td>
-                <td>${student.nom || '---'}</td>
-                <td>${student.prenom || '---'}</td>
-                <td>${student.classe || '---'}</td>
-                <td>${student.email || '---'}</td>
-                <td>
-                    <button class="btn-delete-student" data-student-id="${student.id_etudiant}">
-                        Supprimer
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-        
-        // Attach delete handlers
-        document.querySelectorAll('.btn-delete-student').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const studentId = e.target.getAttribute('data-student-id');
-                if (this.controller && confirm('Êtes-vous sûr?')) {
-                    this.controller.deleteStudent(studentId);
-                }
-            });
-        });
     }
 
     displayUsers(users = []) {
@@ -110,23 +46,105 @@ export default class GestionView {
         tbody.innerHTML = '';
         
         if (!users || users.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4">Aucun utilisateur</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5">Aucun utilisateur</td></tr>';
             return;
         }
         
         users.forEach(user => {
+            const id = user.id || user.id_user || '';
+            const username = user.username || user.nom || '';
+            const role = user.role || '';
+
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${user.id || '---'}</td>
-                <td>${user.username || '---'}</td>
-                <td>${user.role || '---'}</td>
+                <td>${id || '---'}</td>
+                <td>${username || '---'}</td>
+                <td>${role || '---'}</td>
                 <td>
-                    <button class="btn-delete-user" data-user-id="${user.id}">
+                    <button class="btn-edit-user" data-user-id="${id}" data-username="${username}" data-role="${role}">
+                        Modifier
+                    </button>
+                    <button class="btn-delete-user" data-user-id="${id}">
                         Supprimer
                     </button>
                 </td>
             `;
             tbody.appendChild(row);
         });
+
+        // Attach edit handlers for users
+        document.querySelectorAll('.btn-edit-user').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const userId = e.target.getAttribute('data-user-id');
+                const username = e.target.getAttribute('data-username');
+                const role = e.target.getAttribute('data-role');
+                this.showEditUserForm(userId, username, role);
+            });
+        });
+
+        // Attach delete handlers for users
+        document.querySelectorAll('.btn-delete-user').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const userId = e.target.getAttribute('data-user-id');
+                if (this.controller && confirm('Êtes-vous sûr?')) {
+                    this.controller.deleteUser(userId);
+                }
+            });
+        });
+    }
+
+    showEditUserForm(userId, currentUsername, currentRole) {
+        // Créer un modal ou une section d'édition
+        const editSection = document.createElement('div');
+        editSection.id = 'edit-user-section';
+        editSection.innerHTML = `
+            <div class="card">
+                <h3>Modifier l'utilisateur</h3>
+                <div class="form-container">
+                    <input type="text" id="edit-user-username" placeholder="Nom d'utilisateur" value="${currentUsername}" required>
+                    <input type="password" id="edit-user-password" placeholder="Nouveau mot de passe (laisser vide pour garder l'ancien)">
+                    <select id="edit-user-role" required>
+                        <option value="">-- Rôle --</option>
+                        <option value="surveillant" ${currentRole === 'surveillant' ? 'selected' : ''}>Surveillant</option>
+                        <option value="administration" ${currentRole === 'administration' ? 'selected' : ''}>Administration</option>
+                        <option value="administrateur" ${currentRole === 'administrateur' ? 'selected' : ''}>Administrateur</option>
+                    </select>
+                    <button id="btn-update-user" data-user-id="${userId}">Mettre à jour</button>
+                    <button id="btn-cancel-edit">Annuler</button>
+                </div>
+            </div>
+        `;
+
+        // Insérer après la section d'ajout d'utilisateur
+        const addUserCard = document.querySelector('.card');
+        addUserCard.parentNode.insertBefore(editSection, addUserCard.nextSibling);
+
+        // Attacher les événements
+        document.getElementById('btn-update-user').addEventListener('click', () => {
+            const username = document.getElementById('edit-user-username').value;
+            const password = document.getElementById('edit-user-password').value;
+            const role = document.getElementById('edit-user-role').value;
+            
+            if (username && role) {
+                const userData = {
+                    username: username,
+                    password: password,
+                    role: role
+                };
+                this.controller.updateUser(userId, userData);
+                this.hideEditUserForm();
+            }
+        });
+
+        document.getElementById('btn-cancel-edit').addEventListener('click', () => {
+            this.hideEditUserForm();
+        });
+    }
+
+    hideEditUserForm() {
+        const editSection = document.getElementById('edit-user-section');
+        if (editSection) {
+            editSection.remove();
+        }
     }
 }

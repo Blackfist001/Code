@@ -17,20 +17,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // Délégation d'événements pour la navigation
     document.addEventListener('click', function(event) {
         // Vérifier si c'est un lien de navigation
-        if (event.target.tagName === 'A' && event.target.classList.contains('nav-link')) {
+        if (event.target.tagName === 'A') {
             event.preventDefault();
             let hrefValue = event.target.getAttribute('href');
-            
-            if (hrefValue === '/logout') {
-                session.logout();
-            } else {
-                const route = hrefValue.replace('/', '');
-                window.routeController.navigate(route);
+
+            if (!hrefValue) {
+                return;
             }
+
+            // Normaliser pour logout (avec ou sans slash)
+            if (hrefValue === 'logout' || hrefValue === '/logout') {
+                session.logout();
+                return;
+            }
+
+            // Si chemin absolu, retirer slash
+            let route = hrefValue.startsWith('/') ? hrefValue.slice(1) : hrefValue;
+            window.routeController.navigate(route);
         }
     });
 
-    // Exemple : clic sur un bouton de scan
     const scanButton = document.getElementById('btn-submit-scan');
     if (scanButton) {
         scanButton.addEventListener('click', () => {

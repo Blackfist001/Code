@@ -1,16 +1,13 @@
 <?php
 namespace App\Controller;
 
-use App\Model\StudentsModel;
 use App\Model\UsersModel;
 use Exception;
 
 class GestionController {
-    private StudentsModel $studentsModel;
     private UsersModel $usersModel;
 
     public function __construct() {
-        $this->studentsModel = new StudentsModel();
         $this->usersModel = new UsersModel();
     }
 
@@ -19,102 +16,6 @@ class GestionController {
      */
     public function index() {
         require_once __DIR__ . '/../view/historicalView.php';
-    }
-
-    /**
-     * API : Ajouter un étudiant
-     */
-    public function addStudent($params = []) {
-        header('Content-Type: application/json');
-        
-        try {
-            $input = json_decode(file_get_contents('php://input'), true);
-            
-            if (!$input || empty($input['nom'])) {
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Données invalides'
-                ]);
-                exit;
-            }
-
-            // Insérer via SQL direct (à améliorer avec addStudent method)
-            $pdo = (new \App\Core\DataBase())->getPdo();
-            $stmt = $pdo->prepare("INSERT INTO etudiants (nom, prenom, classe, sourcedId) 
-                                   VALUES (:nom, :prenom, :classe, :sourcedId)");
-            
-            $stmt->execute([
-                ':nom' => $input['nom'],
-                ':prenom' => $input['prenom'] ?? '',
-                ':classe' => $input['classe'] ?? '',
-                ':sourcedId' => $input['sourcedId'] ?? uniqid()
-            ]);
-            
-            echo json_encode([
-                'success' => true,
-                'message' => 'Étudiant ajouté avec succès'
-            ]);
-        } catch (Exception $e) {
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        }
-    }
-
-    /**
-     * API : Lister tous les étudiants
-     */
-    public function listStudents($params = []) {
-        header('Content-Type: application/json');
-        
-        try {
-            $students = $this->studentsModel->getAllStudents();
-            
-            echo json_encode([
-                'success' => true,
-                'count' => count($students),
-                'results' => $students
-            ]);
-        } catch (Exception $e) {
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        }
-    }
-
-    /**
-     * API : Supprimer un étudiant
-     */
-    public function deleteStudent($params = []) {
-        header('Content-Type: application/json');
-        
-        try {
-            $input = json_decode(file_get_contents('php://input'), true);
-            
-            if (!$input || !isset($input['id_etudiant'])) {
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'ID étudiant requis'
-                ]);
-                exit;
-            }
-
-            $pdo = (new \App\Core\DataBase())->getPdo();
-            $stmt = $pdo->prepare("DELETE FROM etudiants WHERE id_etudiant = :id");
-            $stmt->execute([':id' => $input['id_etudiant']]);
-            
-            echo json_encode([
-                'success' => true,
-                'message' => 'Étudiant supprimé'
-            ]);
-        } catch (Exception $e) {
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        }
     }
 
     /**
@@ -140,50 +41,183 @@ class GestionController {
     }
 
     /**
-     * API : Importer des étudiants depuis fichier CSV
+     * API : Ajouter un utilisateur
      */
-    public function importStudents($params = []) {
+    public function addUser($params = []) {
         header('Content-Type: application/json');
         
         try {
-            if (!isset($_FILES['file'])) {
+            $input = json_decode(file_get_contents('php://input'), true);
+            
+            if (!$input || empty($input['username']) || empty($input['password']) || empty($input['role'])) {
                 echo json_encode([
                     'success' => false,
-                    'message' => 'Aucun fichier fourni'
+                    'message' => 'Données invalides : username, password et role requis'
                 ]);
                 exit;
             }
 
-            $file = $_FILES['file']['tmp_name'];
-            $handle = fopen($file, 'r');
-            $count = 0;
-            $pdo = (new \App\Core\DataBase())->getPdo();
+            // Hash du mot de passe
+            $hashedPassword = password_hash($input['password'], PASSWORD_DEFAULT);
             
-            while (($row = fgetcsv($handle)) !== false) {
-                if (count($row) >= 2) {
-                    $stmt = $pdo->prepare("INSERT INTO etudiants (nom, prenom, classe, sourcedId) 
-                                          VALUES (:nom, :prenom, :classe, :sourcedId)");
-                    
-                    $stmt->execute([
-                        ':nom' => $row[0],
-                        ':prenom' => $row[1] ?? '',
-                        ':classe' => $row[2] ?? '',
-                        ':sourcedId' => $row[3] ?? uniqid()
-                    ]);
-                    $count++;
-                }
+            $userData = [
+                'username' => $input['username'],
+                'password' => $hashedPassword,
+                'role' => $input['role']
+            ];
+
+            $result = $this->usersModel->addUser($userData);
+            
+            if ($result) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Utilisateur ajouté avec succès'
+                ]);
+            } else {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Erreur lors de l\'ajout de l\'utilisateur'
+                ]);
             }
-            
-            fclose($handle);
-            
-            echo json_encode([
-                'success' => true,
-                'message' => "$count étudiants importés"
-            ]);
         } catch (Exception $e) {
             echo json_encode([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Erreur: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * API : Mettre à jour un utilisateur
+     */
+    public function updateUser($params = []) {
+        header('Content-Type: application/json');
+        
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+            
+            if (!$input || !isset($input['id'])) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'ID utilisateur requis'
+                ]);
+                exit;
+            }
+
+            $userId = $input['id'];
+            $updateData = [];
+
+            if (isset($input['username'])) {
+                $updateData['username'] = $input['username'];
+            }
+            if (isset($input['password']) && !empty($input['password'])) {
+                $updateData['password'] = password_hash($input['password'], PASSWORD_DEFAULT);
+            }
+            if (isset($input['role'])) {
+                $updateData['role'] = $input['role'];
+            }
+
+            if (empty($updateData)) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Aucune donnée à mettre à jour'
+                ]);
+                exit;
+            }
+
+            $result = $this->usersModel->updateUser($userId, $updateData);
+            
+            if ($result) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Utilisateur mis à jour avec succès'
+                ]);
+            } else {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Erreur lors de la mise à jour de l\'utilisateur'
+                ]);
+            }
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erreur: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * API : Supprimer un utilisateur
+     */
+    public function deleteUser($params = []) {
+        header('Content-Type: application/json');
+        
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+            
+            if (!$input || !isset($input['id'])) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'ID utilisateur requis'
+                ]);
+                exit;
+            }
+
+            $userId = $input['id'];
+            $result = $this->usersModel->deleteUser($userId);
+            
+            if ($result) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Utilisateur supprimé avec succès'
+                ]);
+            } else {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Erreur lors de la suppression de l\'utilisateur'
+                ]);
+            }
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erreur: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * API : Obtenir un utilisateur par ID
+     */
+    public function getUser($params = []) {
+        header('Content-Type: application/json');
+        
+        try {
+            if (!isset($params['id'])) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'ID utilisateur requis'
+                ]);
+                exit;
+            }
+
+            $userId = $params['id'];
+            $user = $this->usersModel->getUserById($userId);
+            
+            if ($user) {
+                echo json_encode([
+                    'success' => true,
+                    'result' => $user
+                ]);
+            } else {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Utilisateur non trouvé'
+                ]);
+            }
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erreur: ' . $e->getMessage()
             ]);
         }
     }

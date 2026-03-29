@@ -24,12 +24,12 @@ export default class RouteController {
         };
     }
 
-    navigate(route) {
+    async navigate(route) {
         if(this.routes.hasOwnProperty(route)) {
             switch(route) {
                 case 'logout':
                     const sessionController = new SessionController();
-                    sessionController.logout();
+                    await sessionController.logout();
                     break;
                 case 'dashboard':
                     const dashboardController = new DashboardController();

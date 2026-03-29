@@ -21,7 +21,7 @@ class UsersModel {
 
     public function getAllUsers() {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->query("SELECT id_user, nom, role FROM utilisateurs");
+        $stmt = $pdo->query("SELECT id_user AS id, nom AS username, role FROM utilisateurs");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -89,6 +89,13 @@ class UsersModel {
         return $stmt->rowCount() > 0;
     }
 
+    public function getUserById($id) {
+        $pdo = $this->db->getPdo();
+        $stmt = $pdo->prepare("SELECT id_user AS id, nom AS username, role FROM utilisateurs WHERE id_user = :id");
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function authenticate($username, $password) {
         $pdo = $this->db->getPdo();
         $stmt = $pdo->prepare("SELECT * FROM utilisateurs WHERE nom = :username");
@@ -104,14 +111,8 @@ class UsersModel {
             if ($valid) {
                 return $user;
             }
-        $pdo = $this->db->getPdo();
-        $stmt = $pdo->prepare("UPDATE utilisateurs SET mot_de_passe = :password WHERE nom = :username");
-        $stmt->execute([
-            ':password' => password_hash($newPassword, PASSWORD_DEFAULT),
-            ':username' => $username
-        ]);
-        return $stmt->rowCount() > 0;
-    }
-}
+        }
 
+        return false;
+    }
 }

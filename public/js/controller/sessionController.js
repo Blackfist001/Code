@@ -30,9 +30,12 @@ export default class SessionController {
         }
     }
 
-    logout() {
+    async logout() {
         try {
-            api.logout();
+            const response = await api.logout();
+            if (!response || !response.success) {
+                console.error('Erreur lors de la déconnexion API:', response);
+            }
         } catch (error) {
             console.error('Erreur lors de la déconnexion:', error);
         }

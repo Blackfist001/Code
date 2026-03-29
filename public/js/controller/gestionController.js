@@ -11,55 +11,20 @@ export default class GestionController {
 
     loadGestion() {
         this.view.render();
-        this.loadStudents();
+        this.loadUsers();
     }
 
-    async loadStudents() {
-        try {
-            const response = await api.request('listStudents.php');
-            
-            if (response.success) {
-                this.view.displayStudents(response.results);
-            }
-        } catch (error) {
-            console.error('Erreur:', error);
-        }
-    }
-
-    async addStudent(studentData) {
-        // Valider les données
-        if(!studentData.nom) {
-            alert('Le nom est obligatoire');
-            return;
-        }
-        
-        try {
-            const response = await api.request('addStudent.php', {
-                method: 'POST',
-                body: JSON.stringify(studentData)
-            });
-            
-            if (response.success) {
-                alert(response.message);
-                this.loadStudents(); // Recharger la liste
-            }
-        } catch (error) {
-            console.error('Erreur:', error);
-            alert('Erreur lors de l\'ajout');
-        }
-    }
-
-    async deleteStudent(studentId) {
-        if (confirm('Êtes-vous sûr de vouloir supprimer cet étudiant?')) {
+    async deleteUser(userId) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur?')) {
             try {
-                const response = await api.request('deleteStudent.php', {
+                const response = await api.request('deleteUser.php', {
                     method: 'POST',
-                    body: JSON.stringify({ id_etudiant: studentId })
+                    body: JSON.stringify({ id: userId })
                 });
-                
+
                 if (response.success) {
                     alert(response.message);
-                    this.loadStudents();
+                    this.loadUsers();
                 }
             } catch (error) {
                 console.error('Erreur:', error);
@@ -82,6 +47,52 @@ export default class GestionController {
             
             if (response.success) {
                 alert(response.message);
+                this.loadUsers();
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    async updateUser(userId, userData) {
+        // Valider les données
+        if(!userData.username || !userData.role) {
+            alert('Le nom d\'utilisateur et le rôle sont obligatoires');
+            return;
+        }
+        
+        try {
+            const updateData = {
+                id: userId,
+                username: userData.username,
+                role: userData.role
+            };
+            
+            // Inclure le mot de passe seulement s'il est fourni
+            if (userData.password && userData.password.trim() !== '') {
+                updateData.password = userData.password;
+            }
+            
+            const response = await api.request('updateUser.php', {
+                method: 'POST',
+                body: JSON.stringify(updateData)
+            });
+            
+            if (response.success) {
+                alert(response.message);
+                this.loadUsers();
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+        async loadUsers() {
+        try {
+            const response = await api.request('getAllUsers.php');
+            
+            if (response.success) {
+                this.view.displayUsers(response.results);
             }
         } catch (error) {
             console.error('Erreur:', error);

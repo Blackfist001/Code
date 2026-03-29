@@ -8,6 +8,7 @@ CREATE TABLE etudiants (
     prenom VARCHAR(100),
     classe VARCHAR(50),
     photo VARCHAR(255),
+    date_naissance DATE,
     autorisation_midi BOOLEAN DEFAULT FALSE
 );
 

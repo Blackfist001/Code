@@ -1,0 +1,2 @@
+﻿"Route","URL","Up","Status","Info","Body"
+"POST /login","http://localhost:8000/login","True","200","OK","{""success"":true,""message"":""Authentification r\u00e9ussie"",""user"":{""id_user"":3,""nom"":""edu"",""mot_de_passe"":""$2y$10$Px\/TqMu.kdwbgoBsLB8WIu91hnOEbMEhdthwVeoqdeRttkrvSeva6"",""role"":""surveillant""}}"

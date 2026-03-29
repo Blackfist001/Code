@@ -4,7 +4,7 @@
  */
 
 class API {
-    constructor(baseUrl = '/api') {
+    constructor(baseUrl = '/php/api') {
         this.baseUrl = baseUrl;
     }
 
@@ -41,21 +41,21 @@ class API {
      * Recherche les étudiants
      */
     async searchStudents(query) {
-        return this.request(`students/search?q=${encodeURIComponent(query)}`);
+        return this.request(`searchStudents.php?q=${encodeURIComponent(query)}`);
     }
 
     /**
      * Obtient tous les étudiants
      */
     async getAllStudents() {
-        return this.request('students');
+        return this.request('getAllStudents.php');
     }
 
     /**
      * Récupère un étudiant par ID
      */
     async getStudentById(id) {
-        return this.request(`students/${id}`);
+        return this.request(`getStudent.php?id=${id}`);
     }
 
     // ==================== PASSAGES (MOUVEMENTS) ====================
@@ -64,7 +64,7 @@ class API {
      * Ajoute un passage
      */
     async addMovement(movementData) {
-        return this.request('movements/add', {
+        return this.request('addMovement.php', {
             method: 'POST',
             body: JSON.stringify(movementData)
         });
@@ -74,28 +74,28 @@ class API {
      * Recherche les passages
      */
     async searchMovements(query) {
-        return this.request(`movements/search?q=${encodeURIComponent(query)}`);
+        return this.request(`searchMovements.php?q=${encodeURIComponent(query)}`);
     }
 
     /**
      * Obtient tous les passages
      */
     async getAllMovements() {
-        return this.request('movements');
+        return this.request('getAllMovements.php');
     }
 
     /**
      * Obtient les passages d'un étudiant
      */
     async getMovementsByStudentId(studentId) {
-        return this.request(`movements/student/${studentId}`);
+        return this.request(`getStudentMovements.php?id=${studentId}`);
     }
 
     /**
      * Met à jour un passage
      */
     async updateMovement(movementId, movementData) {
-        return this.request('movements/update', {
+        return this.request('updateMovement.php', {
             method: 'POST',
             body: JSON.stringify({ id: movementId, ...movementData })
         });
@@ -107,7 +107,7 @@ class API {
      * Ajoute un utilisateur
      */
     async addUser(userData) {
-        return this.request('users/add', {
+        return this.request('addUser.php', {
             method: 'POST',
             body: JSON.stringify(userData)
         });
@@ -117,14 +117,14 @@ class API {
      * Récupère tous les utilisateurs
      */
     async getAllUsers() {
-        return this.request('users');
+        return this.request('getAllUsers.php');
     }
 
     /**
      * Met à jour un utilisateur
      */
     async updateUser(userId, userData) {
-        return this.request('users/update', {
+        return this.request('updateUser.php', {
             method: 'POST',
             body: JSON.stringify({ id: userId, ...userData })
         });
@@ -134,7 +134,7 @@ class API {
      * Supprime un utilisateur
      */
     async deleteUser(userId) {
-        return this.request('users/delete', {
+        return this.request('deleteUser.php', {
             method: 'POST',
             body: JSON.stringify({ id: userId })
         });

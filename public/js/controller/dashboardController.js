@@ -19,9 +19,11 @@ export default class DashboardController {
             }
 
             // Charger les passages récents
-            const movementsResponse = await api.request('getAllMovements.php');
-            if (movementsResponse.success) {
-                this.movements = movementsResponse.results || [];
+            const movementsResponse = await api.getAllMovements();
+            if (movementsResponse && Array.isArray(movementsResponse)) {
+                this.movements = movementsResponse;
+            } else if (movementsResponse && movementsResponse.results) {
+                this.movements = movementsResponse.results;
             }
 
             // Afficher la vue
@@ -33,11 +35,13 @@ export default class DashboardController {
 
     async refreshStats() {
         try {
-            const response = await api.request('getAllMovements.php');
-            if (response.success) {
-                this.movements = response.results || [];
-                this.view.updateMovements(this.movements);
+            const response = await api.getAllMovements();
+            if (response && Array.isArray(response)) {
+                this.movements = response;
+            } else if (response && response.results) {
+                this.movements = response.results;
             }
+            this.view.updateMovements(this.movements);
         } catch (error) {
             console.error('Erreur:', error);
         }
