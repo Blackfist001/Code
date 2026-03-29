@@ -6,7 +6,7 @@ export default class GestionView {
     }
 
     render() {
-        fetch('html/gestion.html')
+        return fetch('html/gestion.html')
             .then(response => response.text())
             .then(data => {
                 this.container.innerHTML = data;

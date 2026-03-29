@@ -9,8 +9,8 @@ export default class GestionController {
         this.usersModel = new UsersModel();
     }
 
-    loadGestion() {
-        this.view.render();
+    async loadGestion() {
+        await this.view.render();
         this.loadUsers();
     }
 

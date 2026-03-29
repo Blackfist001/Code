@@ -7,6 +7,7 @@ export default class SessionView {
     }
 
     renderLogin() {
+            this.nav.innerHTML = '';
             fetch('html/login.html')
                 .then(response => response.text())
                 .then(data => {
