@@ -46,6 +46,16 @@ CREATE TABLE utilisateurs (
     )
 );
 
+CREATE TABLE horaires_cours (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom_classe VARCHAR(50) NOT NULL,
+    matiere VARCHAR(100) NOT NULL,
+    jour_semaine VARCHAR(10) NOT NULL,
+    heure_debut TIME NOT NULL,
+    heure_fin TIME NOT NULL,
+    salle VARCHAR(20)                   
+);
+
 CREATE TABLE logs_sync (
     id_log INT AUTO_INCREMENT PRIMARY KEY,
     date_sync DATETIME,

@@ -26,15 +26,15 @@ class DashboardController {
      */
     public function getStats($params = []) {
         header('Content-Type: application/json');
-
+        
         try {
             $students = $this->studentsModel->getAllStudents();
             $movements = $this->movementsModel->getAllMovements();
-
+            
             $presentToday = count(array_filter($movements, function($m) {
                 return $m['date_passage'] === date('Y-m-d');
             }));
-
+            
             $stats = [
                 'success' => true,
                 'total_students' => count($students),
@@ -42,7 +42,7 @@ class DashboardController {
                 'present_today' => $presentToday,
                 'absent_today' => count($students) - $presentToday
             ];
-
+            
             echo json_encode($stats);
         } catch (Exception $e) {
             echo json_encode([
@@ -53,31 +53,23 @@ class DashboardController {
     }
 
     /**
-     * API : Retourne les statistiques par plage de dates
+     * API : Retourne les passages d'aujourd'hui
      */
-    public function getStatsByDate($params = []) {
+    public function getTodayMovements($params = []) {
         header('Content-Type: application/json');
-
+        
         try {
-            $dateFrom = $_GET['date_from'] ?? date('Y-m-d', strtotime('-7 days'));
-            $dateTo = $_GET['date_to'] ?? date('Y-m-d');
-
             $movements = $this->movementsModel->getAllMovements();
-
-            // Filtrer par date
-            $filteredMovements = array_filter($movements, function($m) use ($dateFrom, $dateTo) {
-                return $m['date_passage'] >= $dateFrom && $m['date_passage'] <= $dateTo;
+            
+            $today = array_filter($movements, function($m) {
+                return $m['date_passage'] === date('Y-m-d');
             });
-
-            $stats = [
+            
+            echo json_encode([
                 'success' => true,
-                'date_from' => $dateFrom,
-                'date_to' => $dateTo,
-                'total_scans' => count($filteredMovements),
-                'unique_students' => count(array_unique(array_column($filteredMovements, 'id_etudiant')))
-            ];
-
-            echo json_encode($stats);
+                'count' => count($today),
+                'results' => array_values($today)
+            ]);
         } catch (Exception $e) {
             echo json_encode([
                 'success' => false,
@@ -91,19 +83,19 @@ class DashboardController {
      */
     public function getRecentMovements($params = []) {
         header('Content-Type: application/json');
-
+        
         try {
             $movements = $this->movementsModel->getAllMovements();
-
+            
             // Trier par date/heure décroissante et prendre les 10 premiers
             usort($movements, function($a, $b) {
                 $timeA = strtotime($a['date_passage'] . ' ' . $a['heure_passage']);
                 $timeB = strtotime($b['date_passage'] . ' ' . $b['heure_passage']);
                 return $timeB - $timeA;
             });
-
+            
             $recent = array_slice($movements, 0, 10);
-
+            
             echo json_encode([
                 'success' => true,
                 'count' => count($recent),

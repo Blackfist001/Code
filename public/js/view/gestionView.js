@@ -104,7 +104,6 @@ export default class GestionView {
                     <input type="text" id="edit-user-username" placeholder="Nom d'utilisateur" value="${currentUsername}" required>
                     <input type="password" id="edit-user-password" placeholder="Nouveau mot de passe (laisser vide pour garder l'ancien)">
                     <select id="edit-user-role" required>
-                        <option value="">-- Rôle --</option>
                         <option value="surveillant" ${currentRole === 'surveillant' ? 'selected' : ''}>Surveillant</option>
                         <option value="administration" ${currentRole === 'administration' ? 'selected' : ''}>Administration</option>
                         <option value="administrateur" ${currentRole === 'administrateur' ? 'selected' : ''}>Administrateur</option>
