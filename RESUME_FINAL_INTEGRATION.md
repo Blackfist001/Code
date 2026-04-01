@@ -301,6 +301,59 @@ L'application **École de Beauvoir - Gestion des Entrées/Sorties** est maintena
 
 ---
 
+# Liste de contrôle post-migration API
+
+1. Authentification
+   - Connexion (login)
+   - Déconnexion (logout)
+2. Étudiants
+   - Liste des étudiants
+   - Recherche d’étudiants
+   - Ajout, modification, suppression d’un étudiant
+   - Récupération d’un étudiant par ID
+3. Mouvements (passages)
+   - Liste des mouvements
+   - Recherche de mouvements
+   - Ajout, modification d’un mouvement
+   - Liste des mouvements d’un étudiant
+4. Utilisateurs
+   - Liste des utilisateurs
+   - Ajout, modification, suppression d’un utilisateur
+5. Statistiques
+   - Statistiques générales
+   - Statistiques par date
+6. Absents
+   - Liste des absents du jour
+   - Marquer un absent
+7. Export
+   - Export CSV
+
+| Fonctionnalité                | Route API                | Testée | Résultat |
+|-------------------------------|--------------------------|--------|----------|
+| Connexion                     | POST /api/login          |        |          |
+| Déconnexion                   | POST /api/logout         |        |          |
+| Liste étudiants               | GET /api/students        |        |          |
+| Recherche étudiants           | POST /api/students/search|        |          |
+| Ajout étudiant                | POST /api/students/add   |        |          |
+| Suppression étudiant          | POST /api/students/delete|        |          |
+| Liste mouvements              | GET /api/movements       |        |          |
+| Recherche mouvements          | POST /api/movements/search|      |          |
+| Ajout mouvement               | POST /api/movements/add  |        |          |
+| Modification mouvement        | POST /api/movements/update|      |          |
+| Liste utilisateurs            | GET /api/users           |        |          |
+| Ajout utilisateur             | POST /api/users/add      |        |          |
+| Modification utilisateur      | POST /api/users/update   |        |          |
+| Suppression utilisateur       | POST /api/users/delete   |        |          |
+| Statistiques générales        | GET /api/stats           |        |          |
+| Statistiques par date         | GET /api/stats/dates     |        |          |
+| Absents du jour               | GET /api/absents/today   |        |          |
+| Marquer absent                | POST /absent/ajouter     |        |          |
+| Export CSV                    | GET /api/export/csv      |        |          |
+
+Complétez ce tableau pour chaque fonctionnalité testée.
+
+---
+
 *Rapport généré automatiquement - 25 mars 2026*  
 *Projet: MVC Student Entry/Exit Management System*  
 *Statut: 85% Complet, Prêt pour Acceptance Testing*

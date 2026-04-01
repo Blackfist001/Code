@@ -13,6 +13,8 @@ return [
         '/gestion' => ['GestionController', 'index'],
 
         // API Routes
+            '/api/login' => ['AuthController', 'verify'],
+            '/api/logout' => ['AuthController', 'logout'],
         '/api/students' => ['StudentsController', 'getAll'],
         '/api/students/{id}' => ['StudentsController', 'getById'],
         '/api/movements' => ['MovementsController', 'getAll'],
@@ -22,6 +24,7 @@ return [
         '/api/stats/dates' => ['DashboardController', 'getStatsByDate'],
         '/api/stats' => ['DashboardController', 'getStats'],
         '/api/absents/today' => ['AbsentController', 'getTodayAbsents'],
+        '/api/absents/add' => ['AbsentController', 'markAbsent'],
         '/api/export/csv' => ['HistoricalController', 'exportCSV'],
     ],
     'POST' => [
@@ -33,6 +36,9 @@ return [
         '/absent/ajouter' => ['AbsentController', 'markAbsent'],
 
         // API Routes
+            '/api/login' => ['AuthController', 'verify'],
+            '/api/logout' => ['AuthController', 'logout'],
+            '/api/absents/add' => ['AbsentController', 'markAbsent'],
         '/api/students/search' => ['StudentsController', 'search'],
         '/api/students/add' => ['StudentsController', 'add'],
         '/api/students/delete' => ['StudentsController', 'delete'],
