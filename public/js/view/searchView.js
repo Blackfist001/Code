@@ -16,28 +16,35 @@ export default class SearchView {
     }
 
     attachSearchHandler() {
-        const button = document.getElementById('btn-search');
-        const input = document.getElementById('search-input');
+        const searchButton = document.getElementById('btn-search');
+        const resetButton = document.getElementById('btn-reset');
         
-        if(button && input) {
-            button.addEventListener('click', (e) => {
+        if(searchButton) {
+            searchButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                const query = input.value;
-                if(query.trim()) {
-                    this.controller.searchStudent(query);
-                }
-            });
-            
-            // Allow search on Enter key
-            input.addEventListener('keypress', (e) => {
-                if(e.key === 'Enter') {
-                    const query = input.value;
-                    if(query.trim()) {
-                        this.controller.searchStudent(query);
-                    }
-                }
+                this.controller.searchStudent();
             });
         }
+        
+        if(resetButton) {
+            resetButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.controller.resetSearch();
+            });
+        }
+        
+        // Allow search on Enter key in any input field
+        const inputs = ['search-sourcedId', 'search-name', 'search-surname'];
+        inputs.forEach(id => {
+            const input = document.getElementById(id);
+            if(input) {
+                input.addEventListener('keypress', (e) => {
+                    if(e.key === 'Enter') {
+                        this.controller.searchStudent();
+                    }
+                });
+            }
+        });
     }
 
     displayResults(results) {
@@ -70,19 +77,10 @@ export default class SearchView {
         if (messageDiv) messageDiv.textContent = `${results.length} résultat(s) trouvé(s)`;
     }
 
-    displayStudentDetails(details) {
-        const tbody = document.getElementById('search-results-body');
-        if (tbody) {
-            tbody.innerHTML = `
-                <tr>
-                    <td>${details.id_etudiant || '---'}</td>
-                    <td>${details.nom || '---'}</td>
-                    <td>${details.prenom || '---'}</td>
-                    <td>${details.classe || '---'}</td>
-                    <td>${details.total_passages || 0}</td>
-                    <td class="status-ok">${details.statut || 'Actif'}</td>
-                </tr>
-            `;
+    clearMessage() {
+        const messageDiv = document.getElementById('search-message');
+        if (messageDiv) {
+            messageDiv.textContent = '';
         }
     }
 }

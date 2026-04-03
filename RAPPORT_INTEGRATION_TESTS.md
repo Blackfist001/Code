@@ -128,7 +128,6 @@ public/js/
     - absentController.js ✅ gestion absents
     - historicalController.js ✅ historique/export
     - manualEncodingController.js ✅ encodage manuel
-    - justifiedOutingsController.js ✅ sorties justifiées
   view/
     - dashboardView.js ✅ affichage tableau de bord
     - scanView.js ✅ affichage scanner
@@ -137,7 +136,6 @@ public/js/
     - historicalView.js ✅ affichage historique
     - gestionView.js ✅ affichage gestion
     - manualEncodingView.js ✅ affichage encodage
-    - justifiedOutingsView.js ✅ affichage sorties
 ```
 
 ### Base de Données ✅
@@ -187,7 +185,7 @@ sortie_ecole (MySQL)
 - `html/historical.html` - Template historique (avec IDs refactorisés)
 - `html/gestion.html` - Template gestion (avec IDs refactorisés)
 - `html/manualEncoding.html` - Template encodage (avec IDs refactorisés)
-- `html/justifiedOutings.html` - Template sorties justifiées (avec IDs refactorisés)
+- `html/justifiedOutings.html` - Template sorties justifiées (supprimé)
 
 ### Vue JS Améliorations ✅
 - `dashboardView.js` - Remplissage stats + historique mouvements
@@ -197,7 +195,6 @@ sortie_ecole (MySQL)
 - `historicalView.js` - Affichage passages + stats/export
 - `gestionView.js` - Affichage étudiants + utilisateurs + formulaires
 - `manualEncodingView.js` - Formulaire encodage + affichage historique
-- `justifiedOutingsView.js` - Affichage sorties justifiées
 
 ---
 

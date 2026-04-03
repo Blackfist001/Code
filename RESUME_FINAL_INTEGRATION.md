@@ -17,7 +17,7 @@ Tous les fichiers HTML du dossier `html/` ont été améliorés avec des IDs sp�
 - ✅ `historical.html` - Refactorisé (filtres + export avec IDs)
 - ✅ `gestion.html` - Refactorisé (gestion étudiants + utilisateurs avec IDs)
 - ✅ `manualEncoding.html` - Refactorisé (formulaire encodage avec IDs)
-- ✅ `justifiedOutings.html` - Refactorisé (sorties justifiées avec IDs)
+- ⛔ `justifiedOutings.html` - supprimé (page sorties justifiées retirée)
 
 ### 2. **Amélioration des Vues JavaScript**
 Toutes les vues ont été augmentées pour remplir dynamiquement le contenu:
@@ -28,7 +28,7 @@ Toutes les vues ont été augmentées pour remplir dynamiquement le contenu:
 - ✅ `historicalView.js` - Affiche passages + stats + export
 - ✅ `gestionView.js` - Affiche & gestion étudiants + utilisateurs
 - ✅ `manualEncodingView.js` - Affiche form + historique encodage
-- ✅ `justifiedOutingsView.js` - Affiche sorties justifiées
+- ⛔ `justifiedOutingsView.js` - supprimé (controller/page non active)
 
 ### 3. **Création d'Endpoints API Manquants**
 Les folowing API endpoints ont été créés:

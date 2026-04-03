@@ -14,13 +14,7 @@ export default class HistoricalController {
 
     async loadPassages(dateFrom = null, dateTo = null) {
         try {
-            let endpoint = 'getPassages.php';
-            
-            if (dateFrom && dateTo) {
-                endpoint += `?date_from=${dateFrom}&date_to=${dateTo}`;
-            }
-            
-            const response = await api.request(endpoint);
+            const response = await api.getPassages(dateFrom, dateTo);
             
             if (response.success) {
                 this.view.displayPassages(response.results);
@@ -32,7 +26,7 @@ export default class HistoricalController {
 
     async getStatsByDate(dateFrom, dateTo) {
         try {
-            const response = await api.request(`getStatsByDate.php?date_from=${dateFrom}&date_to=${dateTo}`);
+            const response = await api.getStatsByDate(dateFrom, dateTo);
             
             if (response.success) {
                 this.view.displayStats(response.results);

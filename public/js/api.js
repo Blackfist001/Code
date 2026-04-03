@@ -40,13 +40,20 @@ class API {
     // ==================== ÉTUDIANTS ====================
     
     /**
-     * Recherche les étudiants
+     * Recherche les étudiants avec filtres avancés
      */
-    async searchStudents(query) {
-        return this.request('students/search', {
-            method: 'POST',
-            body: JSON.stringify({ query })
-        });
+    async searchStudents(filters = {}) {
+        const params = new URLSearchParams();
+        
+        if (filters.id) params.append('id', filters.id);
+        if (filters.sourcedId) params.append('sourcedId', filters.sourcedId);
+        if (filters.name) params.append('name', filters.name);
+        if (filters.surname) params.append('surname', filters.surname);
+        if (filters.classe) params.append('classe', filters.classe);
+        if (filters.statut) params.append('statut', filters.statut);
+        
+        const queryString = params.toString();
+        return this.request(`students/search${queryString ? '?' + queryString : ''}`);
     }
 
     /**
@@ -182,10 +189,51 @@ class API {
     }
 
     /**
+     * Récupère l'emploi du temps d'une classe pour un jour donné
+     */
+    async getScheduleByClass(classe, jour = null) {
+        let endpoint = `schedules/${encodeURIComponent(classe)}`;
+        if (jour) {
+            endpoint += `?jour=${encodeURIComponent(jour)}`;
+        }
+        return this.request(endpoint);
+    }
+
+    /**
      * Récupère les absents du jour
      */
     async getTodayAbsents() {
         return this.request('absents/today');
+    }
+
+    /**
+     * Marque un étudiant absent
+     */
+    async markAbsent(studentId, reason = null) {
+        const payload = { id_etudiant: studentId };
+        if (reason) {
+            payload.reason = reason;
+        }
+
+        return this.request('absents/add', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+    }
+
+    /**
+     * Marque un étudiant absent justifié
+     */
+    async markJustifiedAbsent(studentId, reason = null) {
+        const payload = { id_etudiant: studentId };
+        if (reason) {
+            payload.reason = reason;
+        }
+
+        return this.request('absents/add-justified', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
     }
 
     /**

@@ -69,6 +69,15 @@
 
 ---
 
+## 🆕 Amélioration ajoutée - Recherche avancée
+
+- Implémentation des filtres sur la page de recherche : `ID`, `SourceID`, `Nom`, `Prénom`, `Classe`, `Statut`
+- Mécanisme Frontend : `searchController.js`, `searchView.js`, `studentsModel.js`, `api.js`
+- Mécanisme Backend : `StudentsController::search()`, `StudentsModel::searchStudents()` (filtre dynamique SQL + jointure passages)
+- Résultat : recherche multi-critères fonctionnelle côté UI + API, avec 50 résultats max et pagination future possible
+
+---
+
 ## ⚠️ FICHIERS INCOMPLETS/MANQUANTS
 
 ### A. Contrôleurs PHP Vides (À Implémenter)

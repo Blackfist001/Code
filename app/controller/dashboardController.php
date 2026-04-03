@@ -31,16 +31,18 @@ class DashboardController {
             $students = $this->studentsModel->getAllStudents();
             $movements = $this->movementsModel->getAllMovements();
             
-            $presentToday = count(array_filter($movements, function($m) {
+            $todayMovements = array_filter($movements, function($m) {
                 return $m['date_passage'] === date('Y-m-d');
-            }));
+            });
+            $presentToday = count(array_unique(array_column($todayMovements, 'id_etudiant')));
+            $absentToday = max(0, count($students) - $presentToday);
             
             $stats = [
                 'success' => true,
                 'total_students' => count($students),
                 'total_scans' => count($movements),
                 'present_today' => $presentToday,
-                'absent_today' => count($students) - $presentToday
+                'absent_today' => $absentToday
             ];
             
             echo json_encode($stats);

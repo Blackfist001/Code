@@ -2,7 +2,6 @@ import DashboardController from './dashboardController.js';
 import AbsentController from './absentController.js';
 import ScanController from './scanController.js';
 import ManualEncodingController from './manualEncodingController.js';
-import JustifiedOutingsController from './justifiedOutingsController.js';
 import SearchController from './searchController.js';
 import HistoricalController from './historicalController.js';
 import GestionController from './gestionController.js';
@@ -16,7 +15,6 @@ export default class RouteController {
             'scan': this.loadScan,
             'manualEncoding': this.loadManualEncoding,
             'absent': this.loadAbsent,
-            'justifiedOutings': this.loadJustifiedOutings,
             'search': this.loadSearch,
             'historical': this.loadHistorical,
             'gestion': this.loadGestion,
@@ -46,10 +44,6 @@ export default class RouteController {
                 case 'absent':
                     const absentController = new AbsentController();
                     absentController.loadAbsent();
-                    break;
-                case 'justifiedOutings':
-                    const justifiedOutingsController = new JustifiedOutingsController();
-                    justifiedOutingsController.loadJustifiedOutings();
                     break;
                 case 'search':
                     const searchController = new SearchController();

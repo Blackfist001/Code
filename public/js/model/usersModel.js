@@ -1,3 +1,5 @@
+import api from "../api.js";
+
 export default class UsersModel {
 
     constructor() {
@@ -58,11 +60,18 @@ export default class UsersModel {
             });
     }
 
-    getUsers() {
-        // TODO: Envoyer à PHP backend
-        console.log('Fetching users');
-        console.log('TODO: Implement PHP backend for user retrieval');
-        // Pour l'instant, afficher un message
-        alert('Récupération des utilisateurs lancée (simulé)');
+    async getUsers() {
+        try {
+            const response = await api.getAllUsers();
+            if (response.success) {
+                this.users = response.results;
+                return this.users;
+            }
+            console.warn('usersModel.getUsers: non success response', response);
+            return [];
+        } catch (error) {
+            console.error('Erreur getUsers:', error);
+            return [];
+        }
     }
 }

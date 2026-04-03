@@ -43,15 +43,56 @@ box-shadow:0 2px 5px rgba(0,0,0,0.1);
 
 .form-container {
   display: flex;
-  flex-direction: column; /* Aligne les champs verticalement */
-  align-items: center;    /* Centre les champs horizontalement */
-  gap: 15px;              /* Ajoute un espacement entre les champs */
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.search-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 600px;
+  justify-content: center;
+}
+
+.search-row input,
+.search-row select {
+  flex: 1;
+  padding: 8px;
+  min-width: 120px;
+}
+
+.search-row input:first-child,
+.search-row select:first-child {
+  flex: 1;
 }
 
 /* Optionnel : Ajuster la largeur des inputs si nécessaire */
 .form-container input {
   width: 100%;
-  max-width: 300px;       /* Largeur maximale pour ne pas que les champs soient trop grands */
+  max-width: 300px;
+}
+
+.search-inline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.search-inline input,
+.search-inline select,
+.search-inline button {
+  width: auto;
+  min-width: 140px;
+  margin: 0;
+}
+
+.search-inline button {
+  min-width: 120px;
 }
 
 table{

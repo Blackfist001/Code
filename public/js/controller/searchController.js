@@ -13,36 +13,46 @@ export default class SearchController {
         this.view.render();
     }
 
-    async searchStudent(query) {
-        // Valider la requête
-        if(!query || query.trim() === '') {
-            alert('Veuillez entrer une recherche');
+    async searchStudent() {
+        // Collecter les valeurs des champs de recherche
+        const filters = {
+            sourcedId: document.getElementById('search-sourcedId').value.trim(),
+            name: document.getElementById('search-name').value.trim(),
+            surname: document.getElementById('search-surname').value.trim(),
+            classe: document.getElementById('search-classe').value,
+            statut: document.getElementById('search-statut').value
+        };
+
+        // Vérifier qu'au moins un filtre est rempli
+        const hasFilters = Object.values(filters).some(value => value !== '');
+        if (!hasFilters) {
+            alert('Veuillez entrer au moins un critère de recherche');
             return;
         }
-        
+
         try {
-            const response = await api.searchStudents(query);
-            
-            if (response.success) {
-                this.view.displayResults(response.results);
+            const result = await this.studentsModel.searchStudents(filters);
+
+            if (result.success) {
+                this.view.displayResults(result.results);
             } else {
-                alert(response.message || 'Aucun résultat trouvé');
+                alert(result.message || 'Aucun résultat trouvé');
+                this.view.displayResults([]);
             }
         } catch (error) {
             console.error('Erreur:', error);
             alert('Erreur lors de la recherche');
+            this.view.displayResults([]);
         }
     }
 
-    async getStudentStats(studentId) {
-        try {
-            const response = await api.request(`getStudentStats.php?id=${studentId}`);
-            
-            if (response.success) {
-                this.view.displayStudentDetails(response);
-            }
-        } catch (error) {
-            console.error('Erreur:', error);
-        }
+    resetSearch() {
+        document.getElementById('search-sourcedId').value = '';
+        document.getElementById('search-name').value = '';
+        document.getElementById('search-surname').value = '';
+        document.getElementById('search-classe').value = '';
+        document.getElementById('search-statut').value = '';
+        this.view.displayResults([]);
+        this.view.clearMessage();
     }
 }

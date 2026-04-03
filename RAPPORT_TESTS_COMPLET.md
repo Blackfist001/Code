@@ -148,6 +148,7 @@
 - ✅ **Tous les chemins PHP sont maintenant corrects**
 - ✅ **Base de données correctement mappée**
 - ✅ **API JSON complètement fonctionnelle**
+- ✅ **Recherche avancée implémentée (sourceid, classe, statut, filtres combinés)**
 - ⚠️ **Frontend à intégrer et tester**
 - ⚠️ **Sessions à sécuriser davantage**
 

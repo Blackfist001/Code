@@ -16,6 +16,7 @@ return [
             '/api/login' => ['AuthController', 'verify'],
             '/api/logout' => ['AuthController', 'logout'],
         '/api/students' => ['StudentsController', 'getAll'],
+        '/api/students/search' => ['StudentsController', 'search'],
         '/api/students/{id}' => ['StudentsController', 'getById'],
         '/api/movements' => ['MovementsController', 'getAll'],
         '/api/movements/student/{id}' => ['MovementsController', 'getByStudentId'],
@@ -25,6 +26,8 @@ return [
         '/api/stats' => ['DashboardController', 'getStats'],
         '/api/absents/today' => ['AbsentController', 'getTodayAbsents'],
         '/api/absents/add' => ['AbsentController', 'markAbsent'],
+        '/api/absents/add-justified' => ['AbsentController', 'markJustifiedAbsent'],
+        '/api/schedules/{classe}' => ['SchedulesController', 'getByClass'],
         '/api/export/csv' => ['HistoricalController', 'exportCSV'],
     ],
     'POST' => [

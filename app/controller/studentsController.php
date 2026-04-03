@@ -62,14 +62,27 @@ class StudentsController {
         header('Content-Type: application/json');
 
         try {
-            $query = $_GET['q'] ?? '';
+            $body = json_decode(file_get_contents('php://input'), true) ?: [];
+            $filters = [
+                'id' => $_GET['id'] ?? ($body['id'] ?? ''),
+                'sourcedId' => $_GET['sourcedId'] ?? ($body['sourcedId'] ?? ''),
+                'name' => $_GET['name'] ?? ($body['name'] ?? ''),
+                'surname' => $_GET['surname'] ?? ($body['surname'] ?? ''),
+                'classe' => $_GET['classe'] ?? ($body['classe'] ?? ''),
+                'statut' => $_GET['statut'] ?? ($body['statut'] ?? '')
+            ];
 
-            if (empty($query)) {
-                echo json_encode(['success' => false, 'message' => 'Query requis']);
+            // Vérifier qu'au moins un filtre est fourni
+            $hasFilters = array_filter($filters, function($value) {
+                return !empty(trim($value));
+            });
+
+            if (empty($hasFilters)) {
+                echo json_encode(['success' => false, 'message' => 'Au moins un critère de recherche requis']);
                 return;
             }
 
-            $results = $this->studentsModel->searchStudents($query);
+            $results = $this->studentsModel->searchStudents($filters);
             echo json_encode([
                 'success' => true,
                 'count' => count($results),

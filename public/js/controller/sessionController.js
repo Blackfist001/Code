@@ -21,6 +21,10 @@ export default class SessionController {
                 sessionStorage.setItem('role', user.role);
                 
                 this.sessionRole = user.role;
+
+                // Mettre à jour l'URL sans recharger (SPA)
+                history.replaceState(null, '', '/');
+
                 this.sessionCheck();
             } else {
                 alert('Erreur: ' + response.message);

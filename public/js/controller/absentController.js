@@ -15,7 +15,7 @@ export default class AbsentController {
 
     async loadAbsents() {
         try {
-            const response = await api.request('getTodayAbsents.php');
+            const response = await api.getTodayAbsents();
             
             if (response.success) {
                 this.view.displayAbsents(response.results);
@@ -27,22 +27,17 @@ export default class AbsentController {
 
     async markAbsent(studentId, reason = null) {
         try {
-            const data = {
-                id_etudiant: studentId,
-                reason: reason
-            };
-            
-            const response = await api.request('markAbsent.php', {
-                method: 'POST',
-                body: JSON.stringify(data)
-            });
-            
+            const response = await api.markAbsent(studentId, reason);
             if (response.success) {
                 alert(response.message);
                 this.loadAbsents(); // Recharger la liste
+            } else {
+                alert(response.message || 'Erreur lors de marquage absent');
+                console.error('Error:', response);
             }
         } catch (error) {
             console.error('Erreur:', error);
+            alert('Erreur lors de marquage absent');
         }
     }
 }

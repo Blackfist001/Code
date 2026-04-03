@@ -1,12 +1,10 @@
 import GestionView from "../view/gestionView.js";
-import UsersModel from "../model/usersModel.js";
 import api from "../api.js";
 
 export default class GestionController {
 
     constructor() {
         this.view = new GestionView(this);
-        this.usersModel = new UsersModel();
     }
 
     async loadGestion() {
@@ -17,14 +15,13 @@ export default class GestionController {
     async deleteUser(userId) {
         if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur?')) {
             try {
-                const response = await api.request('deleteUser.php', {
-                    method: 'POST',
-                    body: JSON.stringify({ id: userId })
-                });
+                const response = await api.deleteUser(userId);
 
                 if (response.success) {
                     alert(response.message);
                     this.loadUsers();
+                } else {
+                    alert(response.message || 'Erreur lors de la suppression');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
@@ -40,14 +37,13 @@ export default class GestionController {
         }
         
         try {
-            const response = await api.request('addUser.php', {
-                method: 'POST',
-                body: JSON.stringify(userData)
-            });
+            const response = await api.addUser(userData);
             
             if (response.success) {
                 alert(response.message);
                 this.loadUsers();
+            } else {
+                alert(response.message || 'Erreur lors de l\'ajout');
             }
         } catch (error) {
             console.error('Erreur:', error);
@@ -63,7 +59,6 @@ export default class GestionController {
         
         try {
             const updateData = {
-                id: userId,
                 username: userData.username,
                 role: userData.role
             };
@@ -73,14 +68,13 @@ export default class GestionController {
                 updateData.password = userData.password;
             }
             
-            const response = await api.request('updateUser.php', {
-                method: 'POST',
-                body: JSON.stringify(updateData)
-            });
+            const response = await api.updateUser(userId, updateData);
             
             if (response.success) {
                 alert(response.message);
                 this.loadUsers();
+            } else {
+                alert(response.message || 'Erreur lors de la mise à jour');
             }
         } catch (error) {
             console.error('Erreur:', error);
@@ -89,13 +83,17 @@ export default class GestionController {
 
         async loadUsers() {
         try {
-            const response = await api.request('getAllUsers.php');
+            const response = await api.getAllUsers();
             
             if (response.success) {
                 this.view.displayUsers(response.results);
+            } else {
+                this.view.displayUsers([]);
+                console.warn('Gestion-users: API réponse sans succès', response.message);
             }
         } catch (error) {
             console.error('Erreur:', error);
+            this.view.displayUsers([]);
         }
     }
 }

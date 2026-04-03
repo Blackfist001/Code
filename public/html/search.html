@@ -2,11 +2,30 @@
     <h2>Recherche étudiant</h2>
     <div class="card">
         <h3>Rechercher</h3>
-        <div class="form-container">
-            <input type="text" id="search-id" placeholder="ID de l'étudiant">
-            <input type="text" id="search-name" placeholder="Nom de l'étudiant">
-            <input type="text" id="search-surname" placeholder="Prénom de l'étudiant">
+        <div class="form-container search-inline">
+            <input type="text" id="search-sourcedId" placeholder="Identifiant">
+            <input type="text" id="search-name" placeholder="Nom étudiant">
+            <input type="text" id="search-surname" placeholder="Prénom étudiant">
+            <select id="search-classe">
+                <option value="">Toutes les classes</option>
+                <option value="2A">2A</option>
+                <option value="2B">2B</option>
+                <option value="3A">3A</option>
+                <option value="3B">3B</option>
+                <option value="4A">4A</option>
+                <option value="4B">4B</option>
+                <option value="5A">5A</option>
+                <option value="5B">5B</option>
+                <option value="6A">6A</option>
+                <option value="6B">6B</option>
+            </select>
+            <select id="search-statut">
+                <option value="">Tous les statuts</option>
+                <option value="actif">Actif</option>
+                <option value="inactif">Inactif</option>
+            </select>
             <button id="btn-search">Rechercher</button>
+            <button id="btn-reset">Réinitialiser</button>
         </div>
         <div id="search-message" class="message"></div>
     </div>

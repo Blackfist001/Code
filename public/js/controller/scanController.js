@@ -30,7 +30,7 @@ export default class ScanController {
             const scanButton = document.getElementById('btn-submit-scan');
             if (scanButton) {
                 scanButton.addEventListener('click', () => {
-                    const input = document.getElementById('input-id');
+                    const input = document.getElementById('scan-input');
                     if (input && input.value) {
                         this.processScan(input.value);
                         input.value = '';
@@ -71,9 +71,20 @@ export default class ScanController {
                     this.view.renderNewScan(
                         studentId,
                         `${student.prenom} ${student.nom}`,
-                        now
+                        now,
+                        student.classe || '---'
                     );
                     this.view.displayMessage(`Scan: ${student.prenom} ${student.nom}`);
+
+                    // Récupérer et afficher l'emploi du temps dynamique par classe
+                    const jour = new Date().toLocaleDateString('fr-FR', { weekday: 'long' });
+                    const scheduleResponse = await api.getScheduleByClass(student.classe || 'default', jour);
+
+                    if (scheduleResponse.success) {
+                        this.view.displaySchedule(scheduleResponse.schedule);
+                    } else {
+                        this.view.displaySchedule([]);
+                    }
                 }
             } else {
                 this.view.displayMessage(response.message || 'Erreur lors du scan', true);
