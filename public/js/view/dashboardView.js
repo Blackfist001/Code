@@ -41,7 +41,25 @@ export default class DashboardView {
             return;
         }
 
+        const STATUT_ROUGE = ['absent', 'refuse', 'en_retard'];
+        const STATUT_VERT  = ['present', 'autorise'];
+
         movements.slice(0, 10).forEach(movement => {
+            const statut = movement.statut || '---';
+            const statutClass = STATUT_ROUGE.includes(statut)
+                ? 'status-refuse'
+                : STATUT_VERT.includes(statut)
+                    ? 'status-present'
+                    : '';
+            const statutLabels = {
+                present:          'Présent',
+                autorise:         'Autorisé',
+                refuse:           'Refusé',
+                absent:           'Absent',
+                en_retard:        'En retard',
+                absence_justifie: 'Absence justifiée',
+                sortie_justifie:  'Sortie justifiée',
+            };
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${movement.date_passage || '---'}</td>
@@ -49,7 +67,7 @@ export default class DashboardView {
                 <td>${movement.nom || '---'}</td>
                 <td>${movement.classe || '---'}</td>
                 <td>${movement.type_passage || '---'}</td>
-                <td class="status-ok">${movement.statut || '---'}</td>
+                <td><span class="status-badge ${statutClass}">${statutLabels[statut] ?? statut}</span></td>
             `;
             tbody.appendChild(row);
         });

@@ -13,11 +13,15 @@ if (!class_exists('DataBase')) {
 			$user = $config['user'] ?? '';
 			$pass = $config['pass'] ?? '';
 
+			// S'assurer que le log SQL écrit dans le même fichier que PHP
+			$logFile = __DIR__ . '/../logs/php_errors.log';
+			ini_set('error_log', $logFile);
+
 			try {
 				$this->pdo = new \PDO($dsn, $user, $pass);
 				$this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 			} catch (\PDOException $e) {
-				error_log('PDO connection error: ' . $e->getMessage());
+				error_log('[SQL] PDO connection error: ' . $e->getMessage());
 				throw $e;
 			}
 		}

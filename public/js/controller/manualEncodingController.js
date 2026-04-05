@@ -23,20 +23,22 @@ export default class ManualEncodingController {
         try {
             // Préparer les données
             const movementData = {
-                id_etudiant: encodingData.id_etudiant,
+                id_etudiant:  encodingData.id_etudiant,
                 type_passage: encodingData.type_passage || 'entree_matin',
-                statut: encodingData.statut || 'autorise',
+                statut:       encodingData.statut || 'autorise',
                 date_passage: encodingData.date || new Date().toISOString().split('T')[0],
-                heure_passage: encodingData.heure || new Date().toTimeString().split(' ')[0]
+                heure_passage: encodingData.heure || new Date().toTimeString().split(' ')[0],
+                scan:   false,
+                manual: true,
             };
             
             const response = await api.addMovement(movementData);
-            
+
             if (response.success) {
-                alert('Passage enregistré avec succès');
                 this.view.clearForm();
+                this.view.displayMessage('Passage enregistré avec succès', false);
             } else {
-                alert(response.message || 'Erreur lors de l\'enregistrement');
+                this.view.displayMessage(response.message || 'Erreur lors de l\'enregistrement', true);
             }
         } catch (error) {
             console.error('Erreur:', error);

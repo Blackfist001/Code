@@ -1,3 +1,5 @@
+import api from '../api.js';
+
 export default class AbsentView {
 
     constructor() {
@@ -14,8 +16,29 @@ export default class AbsentView {
             .then(response => response.text())
             .then(data => {
                 this.container.innerHTML = data;
+                this._loadStudents();
                 this.attachEventListeners();
             });
+    }
+
+    async _loadStudents() {
+        try {
+            const response = await api.getAllStudents();
+            this._students = response.success ? (response.results ?? []) : [];
+
+            const classes = [...new Set(this._students.map(s => s.classe).filter(Boolean))].sort();
+            const classeSelect = document.getElementById('absent-classe');
+            if (!classeSelect) return;
+
+            classes.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                classeSelect.appendChild(opt);
+            });
+        } catch (e) {
+            console.error('Erreur chargement étudiants:', e);
+        }
     }
 
     displayAbsents(absents = []) {
@@ -37,7 +60,7 @@ export default class AbsentView {
                 <td>${absent.prenom || '---'}</td>
                 <td>${absent.classe || '---'}</td>
                 <td>${absent.reason || '---'}</td>
-                <td class="status-refuse">Absent</td>
+                <td><span class="status-badge status-refuse">Absent</span></td>
                 <td>
                     <button class="btn-mark-absent" data-student-id="${absent.id_etudiant}">
                         Justifier
@@ -49,18 +72,81 @@ export default class AbsentView {
     }
 
     attachEventListeners() {
-        const refreshBtn = document.getElementById('btn-refresh-absents');
+        const refreshBtn  = document.getElementById('btn-refresh-absents');
+        const classeSelect  = document.getElementById('absent-classe');
+        const nomSelect     = document.getElementById('absent-name');
+        const prenomSelect  = document.getElementById('absent-surname');
+        const addAbsentBtn  = document.getElementById('btn-add-absent');
+
         if (refreshBtn && this.controller) {
-            refreshBtn.addEventListener('click', () => {
-                this.controller.loadAbsents();
+            refreshBtn.addEventListener('click', () => this.controller.loadAbsents());
+        }
+
+        // --- Cascade classe → nom ---
+        if (classeSelect) {
+            classeSelect.addEventListener('change', () => {
+                const classe = classeSelect.value;
+                this._clearStudentSelection();
+                nomSelect.innerHTML = '<option value="">-- Nom --</option>';
+                prenomSelect.innerHTML = '<option value="">-- Prénom --</option>';
+                nomSelect.disabled = true;
+                prenomSelect.disabled = true;
+                if (!classe) return;
+
+                const noms = [...new Set(
+                    (this._students || []).filter(s => s.classe === classe).map(s => s.nom)
+                )].sort();
+                noms.forEach(nom => {
+                    const opt = document.createElement('option');
+                    opt.value = nom;
+                    opt.textContent = nom;
+                    nomSelect.appendChild(opt);
+                });
+                nomSelect.disabled = false;
             });
         }
 
-        const addAbsentBtn = document.getElementById('btn-add-absent');
+        // --- Cascade nom → prénom ---
+        if (nomSelect) {
+            nomSelect.addEventListener('change', () => {
+                const classe = classeSelect.value;
+                const nom    = nomSelect.value;
+                this._clearStudentSelection();
+                prenomSelect.innerHTML = '<option value="">-- Prénom --</option>';
+                prenomSelect.disabled = true;
+                if (!nom) return;
+
+                const etudiants = (this._students || []).filter(s => s.classe === classe && s.nom === nom);
+                etudiants.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.id_etudiant;
+                    opt.textContent = s.prenom;
+                    prenomSelect.appendChild(opt);
+                });
+                prenomSelect.disabled = false;
+
+                if (etudiants.length === 1) {
+                    prenomSelect.value = etudiants[0].id_etudiant;
+                    prenomSelect.dispatchEvent(new Event('change'));
+                }
+            });
+        }
+
+        // --- Prénom → sélectionne étudiant ---
+        if (prenomSelect) {
+            prenomSelect.addEventListener('change', () => {
+                const studentId = prenomSelect.value;
+                if (!studentId) { this._clearStudentSelection(); return; }
+                document.getElementById('absent-student-id').value = studentId;
+                if (addAbsentBtn) addAbsentBtn.disabled = false;
+            });
+        }
+
+        // --- Bouton Ajouter ---
         if (addAbsentBtn && this.controller) {
             addAbsentBtn.addEventListener('click', () => {
                 const studentId = document.getElementById('absent-student-id').value;
-                const reason = document.getElementById('absent-reason').value;
+                const reason    = document.getElementById('absent-reason').value;
                 if (studentId) {
                     this.controller.markAbsent(studentId, reason);
                 }
@@ -79,5 +165,11 @@ export default class AbsentView {
                 }
             });
         }
+    }
+
+    _clearStudentSelection() {
+        document.getElementById('absent-student-id').value = '';
+        const btn = document.getElementById('btn-add-absent');
+        if (btn) btn.disabled = true;
     }
 }

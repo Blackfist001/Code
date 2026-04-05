@@ -25,6 +25,13 @@ class StudentsModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getStudentBySourcedId($sourcedId) {
+        $pdo = $this->db->getPdo();
+        $stmt = $pdo->prepare("SELECT * FROM etudiants WHERE sourcedId = :sourcedId");
+        $stmt->execute([':sourcedId' => $sourcedId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function searchStudents($filters) {
         $pdo = $this->db->getPdo();
         
@@ -119,6 +126,29 @@ class StudentsModel {
         $pdo = $this->db->getPdo();
         $stmt = $pdo->prepare("DELETE FROM etudiants WHERE id_etudiant = :id");
         $stmt->execute([':id' => $id]);
+        return $stmt->rowCount() > 0;
+    }
+
+    public function updateStudent($id, $data) {
+        $pdo = $this->db->getPdo();
+        $setClauses = [];
+        $params = [':id' => $id];
+
+        foreach (['nom', 'prenom', 'classe', 'date_naissance'] as $field) {
+            if (isset($data[$field])) {
+                $setClauses[] = "$field = :$field";
+                $params[":$field"] = $data[$field];
+            }
+        }
+        if (isset($data['autorisation_midi'])) {
+            $setClauses[] = "autorisation_midi = :autorisation_midi";
+            $params[':autorisation_midi'] = $data['autorisation_midi'] ? 1 : 0;
+        }
+
+        if (empty($setClauses)) return false;
+
+        $stmt = $pdo->prepare("UPDATE etudiants SET " . implode(', ', $setClauses) . " WHERE id_etudiant = :id");
+        $stmt->execute($params);
         return $stmt->rowCount() > 0;
     }
 }

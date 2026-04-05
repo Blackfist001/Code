@@ -144,4 +144,31 @@ class StudentsController {
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
     }
+
+    /**
+     * API: Modifier un étudiant
+     */
+    public function update() {
+        header('Content-Type: application/json');
+
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+
+            if (!$input || !isset($input['id'])) {
+                echo json_encode(['success' => false, 'message' => 'ID requis']);
+                return;
+            }
+
+            $id = $input['id'];
+            unset($input['id']);
+
+            $success = $this->studentsModel->updateStudent($id, $input);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Étudiant modifié'
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
 }

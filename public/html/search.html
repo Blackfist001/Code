@@ -2,27 +2,25 @@
     <h2>Recherche étudiant</h2>
     <div class="card">
         <h3>Rechercher</h3>
-        <div class="form-container search-inline">
-            <input type="text" id="search-sourcedId" placeholder="Identifiant">
-            <input type="text" id="search-name" placeholder="Nom étudiant">
-            <input type="text" id="search-surname" placeholder="Prénom étudiant">
-            <select id="search-classe">
+        <div class="form-container" style="flex-direction:row;flex-wrap:wrap;align-items:flex-end;justify-content:flex-start;gap:10px;">
+            <select id="search-classe" style="width:auto;">
                 <option value="">Toutes les classes</option>
-                <option value="2A">2A</option>
-                <option value="2B">2B</option>
-                <option value="3A">3A</option>
-                <option value="3B">3B</option>
-                <option value="4A">4A</option>
-                <option value="4B">4B</option>
-                <option value="5A">5A</option>
-                <option value="5B">5B</option>
-                <option value="6A">6A</option>
-                <option value="6B">6B</option>
             </select>
-            <select id="search-statut">
+            <select id="search-name" style="width:auto;">
+                <option value="">Tous les noms</option>
+            </select>
+            <select id="search-surname" style="width:auto;">
+                <option value="">Tous les prénoms</option>
+            </select>
+            <select id="search-statut" style="width:auto;">
                 <option value="">Tous les statuts</option>
-                <option value="actif">Actif</option>
-                <option value="inactif">Inactif</option>
+                <option value="present">Présent</option>
+                <option value="autorise">Autorisé</option>
+                <option value="en_retard">En retard</option>
+                <option value="absent">Absent</option>
+                <option value="refuse">Refusé</option>
+                <option value="absence_justifie">Absence justifiée</option>
+                <option value="sortie_justifie">Sortie justifiée</option>
             </select>
             <button id="btn-search">Rechercher</button>
             <button id="btn-reset">Réinitialiser</button>
@@ -35,11 +33,12 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Heure</th>
                     <th>Nom</th>
                     <th>Prénom</th>
                     <th>Classe</th>
-                    <th>Passages</th>
+                    <th>Type</th>
                     <th>Statut</th>
                 </tr>
             </thead>

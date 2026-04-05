@@ -70,6 +70,36 @@ class API {
         return this.request(`students/${id}`);
     }
 
+    /**
+     * Ajoute un étudiant
+     */
+    async addStudent(studentData) {
+        return this.request('students/add', {
+            method: 'POST',
+            body: JSON.stringify(studentData)
+        });
+    }
+
+    /**
+     * Modifie un étudiant
+     */
+    async updateStudent(id, data) {
+        return this.request('students/update', {
+            method: 'POST',
+            body: JSON.stringify({ id, ...data })
+        });
+    }
+
+    /**
+     * Supprime un étudiant
+     */
+    async deleteStudent(id) {
+        return this.request('students/delete', {
+            method: 'POST',
+            body: JSON.stringify({ id })
+        });
+    }
+
     // ==================== PASSAGES (MOUVEMENTS) ====================
     
     /**
@@ -80,6 +110,19 @@ class API {
             method: 'POST',
             body: JSON.stringify(movementData)
         });
+    }
+
+    /**
+     * Recherche les passages filtrés par infos étudiant
+     */
+    async searchMovementsByStudent(filters = {}) {
+        const params = new URLSearchParams();
+        if (filters.nom)    params.append('nom',    filters.nom);
+        if (filters.prenom) params.append('prenom', filters.prenom);
+        if (filters.classe) params.append('classe', filters.classe);
+        if (filters.statut) params.append('statut', filters.statut);
+        const qs = params.toString();
+        return this.request(`movements/search-by-student${qs ? '?' + qs : ''}`);
     }
 
     /**
@@ -97,6 +140,23 @@ class API {
      */
     async getAllMovements() {
         return this.request('movements');
+    }
+
+    /**
+     * Obtient les passages d'une date donnée
+     */
+    async getMovementsByDate(date) {
+        return this.request(`passages?date=${date}`);
+    }
+
+    /**
+     * Supprime un passage
+     */
+    async deleteMovement(id) {
+        return this.request('movements/delete', {
+            method: 'POST',
+            body: JSON.stringify({ id })
+        });
     }
 
     /**
@@ -152,6 +212,33 @@ class API {
         return this.request('users/delete', {
             method: 'POST',
             body: JSON.stringify({ id: userId })
+        });
+    }
+
+    // ==================== HORAIRES ====================
+
+    async getAllSchedules() {
+        return this.request('schedules');
+    }
+
+    async addSchedule(data) {
+        return this.request('schedules/add', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    async updateSchedule(id, data) {
+        return this.request('schedules/update', {
+            method: 'POST',
+            body: JSON.stringify({ id, ...data })
+        });
+    }
+
+    async deleteSchedule(id) {
+        return this.request('schedules/delete', {
+            method: 'POST',
+            body: JSON.stringify({ id })
         });
     }
 
@@ -252,6 +339,18 @@ class API {
      */
     async exportCSV(dateFrom, dateTo) {
         return this.request(`export/csv?date_from=${dateFrom}&date_to=${dateTo}`);
+    }
+
+    /**
+     * Enregistre un scan : le backend détermine automatiquement le type de passage
+     * (entree_matin / sortie_midi / retour_midi) et le statut (autorisé, refusé, en retard)
+     * en fonction de l'heure et des données de l'étudiant.
+     */
+    async scanStudent(sourcedId) {
+        return this.request('scan', {
+            method: 'POST',
+            body: JSON.stringify({ sourcedId })
+        });
     }
 }
 

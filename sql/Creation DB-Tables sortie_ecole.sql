@@ -9,7 +9,8 @@ CREATE TABLE etudiants (
     classe VARCHAR(50),
     photo VARCHAR(255),
     date_naissance DATE,
-    autorisation_midi BOOLEAN DEFAULT FALSE
+    autorisation_midi BOOLEAN DEFAULT FALSE,
+    demi_journee_absence INT DEFAULT 0
 );
 
 CREATE TABLE passages (
@@ -18,12 +19,14 @@ CREATE TABLE passages (
     date_passage DATE,
     heure_passage TIME,
     type_passage ENUM(
+        'aucun',
         'entree_matin',
         'sortie_midi',
         'retour_midi',
         'sortie_autorisee'
     ),
     statut ENUM(
+        'present',
         'autorise',
         'refuse',
 		'absence_justifie',

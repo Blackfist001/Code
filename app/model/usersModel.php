@@ -50,6 +50,13 @@ class UsersModel {
 
     public function deleteUser($id) {
         $pdo = $this->db->getPdo();
+        // Vérifier que ce n'est pas l'utilisateur admin (protégé)
+        $check = $pdo->prepare("SELECT nom FROM utilisateurs WHERE id_user = :id");
+        $check->execute([':id' => $id]);
+        $user = $check->fetch(\PDO::FETCH_ASSOC);
+        if ($user && strtolower($user['nom']) === 'admin') {
+            return 'protected';
+        }
         $stmt = $pdo->prepare("DELETE FROM utilisateurs WHERE id_user = :id");
         $stmt->execute([':id' => $id]);
         return $stmt->rowCount() > 0;

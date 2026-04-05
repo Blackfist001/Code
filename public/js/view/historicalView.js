@@ -33,7 +33,25 @@ export default class HistoricalView {
             return;
         }
         
+        const STATUT_ROUGE = ['absent', 'refuse', 'en_retard'];
+        const STATUT_VERT  = ['present', 'autorise'];
+        const statutLabels = {
+            present:          'Présent',
+            autorise:         'Autorisé',
+            refuse:           'Refusé',
+            absent:           'Absent',
+            en_retard:        'En retard',
+            absence_justifie: 'Absence justifiée',
+            sortie_justifie:  'Sortie justifiée',
+        };
+
         passages.slice(0, 50).forEach(passage => {
+            const statut = passage.statut || '---';
+            const statutClass = STATUT_ROUGE.includes(statut)
+                ? 'status-refuse'
+                : STATUT_VERT.includes(statut)
+                    ? 'status-present'
+                    : '';
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${passage.date_passage || '---'}</td>
@@ -42,7 +60,7 @@ export default class HistoricalView {
                 <td>${passage.prenom || '---'}</td>
                 <td>${passage.classe || '---'}</td>
                 <td>${passage.type_passage || '---'}</td>
-                <td class="status-ok">${passage.statut || '---'}</td>
+                <td><span class="status-badge ${statutClass}">${statutLabels[statut] ?? statut}</span></td>
             `;
             tbody.appendChild(row);
         });

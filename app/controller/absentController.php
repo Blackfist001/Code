@@ -26,30 +26,25 @@ class AbsentController {
         
         try {
             $pdo = (new \App\Core\DataBase())->getPdo();
-            
-            // Tous les étudiants
-            $stmtAll = $pdo->query("SELECT * FROM etudiants");
-            $allStudents = $stmtAll->fetchAll(\PDO::FETCH_ASSOC);
-            
-            // Étudiants présents aujourd'hui
-            $stmtPresent = $pdo->prepare("
-                SELECT DISTINCT p.id_etudiant FROM passages p
-                WHERE p.date_passage = :today AND p.statut = 'autorise'
+
+            // Récupérer les passages avec statut 'absent' ou 'absence_justifie' du jour
+            $stmt = $pdo->prepare("
+                SELECT p.id_passage, p.id_etudiant, p.date_passage, p.heure_passage,
+                       p.type_passage, p.statut,
+                       e.nom, e.prenom, e.classe
+                FROM passages p
+                JOIN etudiants e ON p.id_etudiant = e.id_etudiant
+                WHERE p.date_passage = :today
+                  AND p.statut IN ('absent', 'absence_justifie')
+                ORDER BY e.nom, e.prenom
             ");
-            $stmtPresent->execute([':today' => date('Y-m-d')]);
-            $presentStudents = array_map(function($p) {
-                return $p['id_etudiant'];
-            }, $stmtPresent->fetchAll(\PDO::FETCH_ASSOC));
-            
-            // Absents = ceux non présents
-            $absents = array_filter($allStudents, function($student) use ($presentStudents) {
-                return !in_array($student['id_etudiant'], $presentStudents);
-            });
-            
+            $stmt->execute([':today' => date('Y-m-d')]);
+            $absents = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
             echo json_encode([
                 'success' => true,
                 'count' => count($absents),
-                'results' => array_values($absents)
+                'results' => $absents
             ]);
         } catch (Exception $e) {
             echo json_encode([

@@ -13,22 +13,30 @@ export default class ScanView {
             });
     }
 
-    renderNewScan(studentId, name, time, classe = '---') {
+    renderNewScan(name, classe, typeLabel, statut, statutLabel) {
         // Afficher le résultat du scan
         const resultDiv = document.getElementById('scan-result');
         const messageDiv = document.getElementById('message');
-        
+
         if (resultDiv) {
             document.getElementById('name-value').textContent = name;
             document.getElementById('class-value').textContent = classe;
-            document.getElementById('type-value').textContent = 'Passage enregistré';
-            document.getElementById('status-value').textContent = 'ACCEPTÉ';
+            document.getElementById('type-value').textContent = typeLabel;
+
+            const statusEl = document.getElementById('status-value');
+            statusEl.textContent = statutLabel;
+            // Classes CSS pour le code couleur du statut
+            statusEl.className = `status-badge status-${statut}`;
+
             resultDiv.style.display = 'block';
         }
-        
+
         if (messageDiv) {
-            messageDiv.textContent = `Scan enregistré: ${name} à ${time}`;
-            messageDiv.style.color = 'green';
+            const isRefuse = statut === 'refuse';
+            messageDiv.textContent = isRefuse
+                ? `⚠ ${name} — ${statutLabel}`
+                : `✓ ${name} — ${statutLabel}`;
+            messageDiv.style.color = (statut === 'present' || statut === 'autorise') ? 'green' : 'red';
         }
     }
 

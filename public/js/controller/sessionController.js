@@ -25,7 +25,7 @@ export default class SessionController {
                 // Mettre à jour l'URL sans recharger (SPA)
                 history.replaceState(null, '', '/');
 
-                this.sessionCheck();
+                await this.sessionCheck();
             } else {
                 alert('Erreur: ' + response.message);
             }
@@ -48,20 +48,29 @@ export default class SessionController {
         sessionStorage.removeItem('user_id');
         sessionStorage.removeItem('username');
         this.sessionRole = null;
-        this.sessionCheck();
+        await this.sessionCheck();
     }
 
-    sessionCheck() {
-        if(this.sessionRole === null) {
+    async sessionCheck() {
+        if (this.sessionRole === null) {
             this.sessionView.renderLogin();
-        } else {
-            if(this.sessionRole === 'administrateur') {
-                this.sessionView.renderAdmin();
-            } else if(this.sessionRole === 'administration') {
-                this.sessionView.renderGestion();
-            } else if(this.sessionRole === 'surveillant') {
-                this.sessionView.renderUser();
-            }
+            return;
+        }
+
+        let defaultRoute = 'dashboard';
+
+        if (this.sessionRole === 'administrateur') {
+            await this.sessionView.renderAdmin();
+        } else if (this.sessionRole === 'administration') {
+            await this.sessionView.renderGestion();
+        } else if (this.sessionRole === 'surveillant') {
+            await this.sessionView.renderUser();
+            defaultRoute = 'scan';
+        }
+
+        // Naviguer vers la page par défaut une fois la nav injectée
+        if (window.routeController) {
+            window.routeController.navigate(defaultRoute);
         }
     }
 }

@@ -24,14 +24,23 @@
     <div class="card" id="add-absent-form" style="display:none;">
         <h3>Marquer comme absent</h3>
         <div class="form-container">
-            <input type="text" id="absent-student-id" placeholder="ID Étudiant" required>
+            <select id="absent-classe">
+                <option value="">-- Choisir une classe --</option>
+            </select>
+            <select id="absent-name" disabled>
+                <option value="">-- Nom --</option>
+            </select>
+            <select id="absent-surname" disabled>
+                <option value="">-- Prénom --</option>
+            </select>
+            <input type="hidden" id="absent-student-id">
             <select id="absent-reason">
                 <option value="">-- Raison --</option>
                 <option value="justifie">Justifié</option>
                 <option value="non-justifie">Non justifié</option>
                 <option value="medical">Médical</option>
             </select>
-            <button id="btn-add-absent">Ajouter</button>
+            <button id="btn-add-absent" disabled>Ajouter</button>
         </div>
     </div>
 </div>

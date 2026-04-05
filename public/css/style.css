@@ -125,6 +125,13 @@ color:blue;
 font-weight:bold;
 }
 
+/* Statuts de passage pour la page scanner */
+.status-badge     { font-weight: bold; padding: 2px 8px; border-radius: 4px; }
+.status-present   { color: #fff; background: #27ae60; }
+.status-autorise  { color: #fff; background: #27ae60; }
+.status-refuse    { color: #fff; background: #e74c3c; }
+.status-en_retard { color: #fff; background: #e74c3c; }
+
 input{
 padding:8px;
 width:300px;
@@ -147,4 +154,61 @@ margin-top: 5px;
 padding:8px;
 width:500px;
 height:50px;
+}
+
+/* ===== Page Gestion - Sidebar ===== */
+.gestion-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.gestion-sidebar {
+    min-width: 210px;
+    background: #2c3e50;
+    border-radius: 8px;
+    padding: 10px 0;
+    flex-shrink: 0;
+}
+
+.gestion-sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.gestion-nav-item {
+    padding: 13px 20px;
+    color: #bdc3c7;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background 0.15s;
+    border-left: 3px solid transparent;
+}
+
+.gestion-nav-item:hover {
+    background: #34495e;
+    color: #ecf0f1;
+}
+
+.gestion-nav-item.active {
+    background: #3498db;
+    color: #fff;
+    font-weight: bold;
+    border-left-color: #1a6fa8;
+}
+
+.gestion-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.gestion-section table {
+    width: 100%;
+}
+
+#gestion-modal .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }

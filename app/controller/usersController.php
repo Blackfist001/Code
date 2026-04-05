@@ -69,9 +69,11 @@ class UsersController {
                 return;
             }
 
-            $success = $this->usersModel->deleteUser($input['id']);
+            $result = $this->usersModel->deleteUser($input['id']);
 
-            if ($success) {
+            if ($result === 'protected') {
+                echo json_encode(['success' => false, 'message' => 'L\'utilisateur admin ne peut pas être supprimé.']);
+            } elseif ($result) {
                 echo json_encode(['success' => true, 'message' => 'Utilisateur supprimé']);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Erreur lors de la suppression']);

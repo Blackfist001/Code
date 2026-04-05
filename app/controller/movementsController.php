@@ -2,6 +2,9 @@
 namespace App\Controller;
 
 use App\Model\MovementsModel;
+use App\Model\StudentsModel;
+use App\Model\SchedulesModel;
+use App\Core\ScanRules;
 use Exception;
 
 class MovementsController {
@@ -16,23 +19,53 @@ class MovementsController {
      */
     public function add() {
         header('Content-Type: application/json');
+        ob_start();
 
         try {
             $input = json_decode(file_get_contents('php://input'), true);
 
-            if (!$input) {
-                echo json_encode(['success' => false, 'message' => 'Données invalides']);
+            if (!$input || empty($input['id_etudiant'])) {
+                ob_end_clean();
+                echo json_encode(['success' => false, 'message' => 'Données invalides ou id_etudiant manquant']);
                 return;
+            }
+
+            // Pour une entrée matin encodée manuellement, recalculer le statut
+            // via les règles métier (présent vs en_retard selon l'horaire de la classe)
+            if (($input['type_passage'] ?? '') === 'entree_matin') {
+                $student = (new StudentsModel())->getStudentById($input['id_etudiant']);
+                if ($student) {
+                    $heurePassage = $input['heure_passage'] ?? date('H:i:s');
+                    $datePassage  = $input['date_passage']  ?? date('Y-m-d');
+                    $jourSemaine  = strtolower((new \DateTime($datePassage))->format('l'));
+
+                    $cours = (new SchedulesModel())->getScheduleByClassAndDay(
+                        $student['classe'],
+                        $jourSemaine
+                    );
+
+                    $now = \DateTime::createFromFormat('Y-m-d H:i:s', $datePassage . ' ' . $heurePassage)
+                        ?: \DateTime::createFromFormat('Y-m-d H:i',   $datePassage . ' ' . $heurePassage)
+                        ?: new \DateTime();
+
+                    $passagesTypes = $this->movementsModel->getTodayPassageTypes($input['id_etudiant']);
+                    $rules = new ScanRules();
+                    $calcul = $rules->calculer($student, $cours, $passagesTypes, $now);
+                    $input['statut'] = $calcul['statut'];
+                }
             }
 
             $success = $this->movementsModel->addMovement($input);
 
+            ob_end_clean();
             if ($success) {
                 echo json_encode(['success' => true, 'message' => 'Mouvement ajouté']);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'ajout']);
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
+            ob_end_clean();
+            error_log('[MovementsController::add] ' . $e->getMessage());
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
     }
@@ -112,17 +145,69 @@ class MovementsController {
         header('Content-Type: application/json');
 
         try {
-            $dateFrom = $_GET['date_from'] ?? null;
-            $dateTo = $_GET['date_to'] ?? null;
+            $date = $_GET['date'] ?? null;
 
-            // Pour l'instant, récupérer tous les mouvements
-            // TODO: Implémenter le filtrage par date
-            $passages = $this->movementsModel->getAllMovements();
+            if ($date) {
+                $passages = $this->movementsModel->getMovementsByDate($date);
+            } else {
+                $passages = $this->movementsModel->getAllMovements();
+            }
 
             echo json_encode([
                 'success' => true,
                 'count' => count($passages),
                 'results' => $passages
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API: Supprimer un passage
+     */
+    public function delete() {
+        header('Content-Type: application/json');
+
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+
+            if (!$input || !isset($input['id'])) {
+                echo json_encode(['success' => false, 'message' => 'ID requis']);
+                return;
+            }
+
+            $success = $this->movementsModel->deleteMovement($input['id']);
+            if ($success) {
+                echo json_encode(['success' => true, 'message' => 'Passage supprimé']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Passage introuvable']);
+            }
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API: Rechercher les passages par infos étudiant
+     */
+    public function searchByStudent() {
+        header('Content-Type: application/json');
+
+        try {
+            $filters = [
+                'nom'    => $_GET['nom']    ?? '',
+                'prenom' => $_GET['prenom'] ?? '',
+                'classe' => $_GET['classe'] ?? '',
+                'statut' => $_GET['statut'] ?? '',
+                'date'   => $_GET['date']   ?? '',
+            ];
+
+            $results = $this->movementsModel->searchMovementsByStudent($filters);
+            echo json_encode([
+                'success' => true,
+                'count'   => count($results),
+                'results' => $results
             ]);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);

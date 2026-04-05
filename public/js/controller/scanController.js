@@ -4,9 +4,10 @@ import api from "../api.js";
 
 export default class ScanController {
 
-        constructor() {
+    constructor() {
         this.model = new MovementsModel();
         this.view = new ScanView();
+        this.isProcessing = false; // verrou anti-double-scan
     }
 
     loadScan() {
@@ -21,8 +22,9 @@ export default class ScanController {
             if (scanInput) {
                 scanInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
-                        this.processScan(scanInput.value);
+                        const val = scanInput.value.trim();
                         scanInput.value = '';
+                        this.processScan(val);
                     }
                 });
             }
@@ -31,9 +33,10 @@ export default class ScanController {
             if (scanButton) {
                 scanButton.addEventListener('click', () => {
                     const input = document.getElementById('scan-input');
-                    if (input && input.value) {
-                        this.processScan(input.value);
+                    if (input) {
+                        const val = input.value.trim();
                         input.value = '';
+                        this.processScan(val);
                     }
                 });
             }
@@ -44,47 +47,37 @@ export default class ScanController {
         this.model.addMovement(movementData);
     }
 
-    async processScan(studentId) {
-        if (!studentId) {
+    async processScan(sourcedId) {
+        if (!sourcedId) {
             this.view.displayMessage('ID étudiant requis', true);
             return;
         }
 
-        try {
-            // Préparer les données du scan
-            const movementData = {
-                id_etudiant: studentId,
-                type_passage: 'entree_matin',
-                statut: 'autorise'
-            };
+        // Bloquer les appels simultanés (double Enter, Enter + bouton, etc.)
+        if (this.isProcessing) return;
+        this.isProcessing = true;
 
-            // Envoyer à l'API
-            const response = await api.addMovement(movementData);
+        try {
+            // Le backend détermine automatiquement type_passage et statut
+            const response = await api.scanStudent(sourcedId);
 
             if (response.success) {
-                // Récupérer les infos de l'étudiant
-                const studentResponse = await api.getStudentById(studentId);
-                
-                if (studentResponse.success && studentResponse.result) {
-                    const student = studentResponse.result;
-                    const now = new Date().toLocaleTimeString();
-                    this.view.renderNewScan(
-                        studentId,
-                        `${student.prenom} ${student.nom}`,
-                        now,
-                        student.classe || '---'
-                    );
-                    this.view.displayMessage(`Scan: ${student.prenom} ${student.nom}`);
+                const student = response.student;
+                this.view.renderNewScan(
+                    `${student.prenom} ${student.nom}`,
+                    student.classe || '---',
+                    response.type_label,
+                    response.statut,
+                    response.statut_label
+                );
 
-                    // Récupérer et afficher l'emploi du temps dynamique par classe
-                    const jour = new Date().toLocaleDateString('fr-FR', { weekday: 'long' });
-                    const scheduleResponse = await api.getScheduleByClass(student.classe || 'default', jour);
-
-                    if (scheduleResponse.success) {
-                        this.view.displaySchedule(scheduleResponse.schedule);
-                    } else {
-                        this.view.displaySchedule([]);
-                    }
+                // Emploi du temps du jour par classe
+                const jour = new Date().toLocaleDateString('fr-FR', { weekday: 'long' });
+                const scheduleResponse = await api.getScheduleByClass(student.classe || 'default', jour);
+                if (scheduleResponse.success) {
+                    this.view.displaySchedule(scheduleResponse.schedule);
+                } else {
+                    this.view.displaySchedule([]);
                 }
             } else {
                 this.view.displayMessage(response.message || 'Erreur lors du scan', true);
@@ -92,6 +85,9 @@ export default class ScanController {
         } catch (error) {
             this.view.displayMessage('Erreur: ' + error.message, true);
             console.error('Erreur:', error);
+        } finally {
+            // Libérer le verrou après 1 seconde minimum entre deux scans
+            setTimeout(() => { this.isProcessing = false; }, 1000);
         }
     }
 

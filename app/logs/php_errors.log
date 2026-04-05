@@ -1,0 +1,32 @@
+[04-Apr-2026 21:48:18 UTC] Error adding movement: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'manual)
+             VALUES ('17', '2026-04-03', '08:30', 'entree_matin', 'auto' at line 1
+[04-Apr-2026 21:48:18 UTC] [MovementsController::add] SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'manual)
+             VALUES ('17', '2026-04-03', '08:30', 'entree_matin', 'auto' at line 1
+[04-Apr-2026 23:29:48 UTC] AuthController verify called
+[04-Apr-2026 23:29:48 UTC] Login input: {"username":"admin","password":"admin"}
+[04-Apr-2026 23:29:48 UTC] UsersModel authenticate: username=admin, user={"id_user":1,"nom":"admin","mot_de_passe":"$2y$10$xeFjtCqZCiA.3dlDFPGix.zymu3EgfcwE8fH2Wofpd0RbD6HET0s.","role":"administrateur"}
+[04-Apr-2026 23:29:48 UTC] UsersModel password_verify: true
+[04-Apr-2026 23:34:06 UTC] AuthController verify called
+[04-Apr-2026 23:34:06 UTC] Login input: {"username":"admin","password":"admin"}
+[04-Apr-2026 23:34:06 UTC] UsersModel authenticate: username=admin, user={"id_user":1,"nom":"admin","mot_de_passe":"$2y$10$xeFjtCqZCiA.3dlDFPGix.zymu3EgfcwE8fH2Wofpd0RbD6HET0s.","role":"administrateur"}
+[04-Apr-2026 23:34:06 UTC] UsersModel password_verify: true
+[05-Apr-2026 00:04:25 UTC] AuthController verify called
+[05-Apr-2026 00:04:25 UTC] Login input: {"username":"admin","password":"admin"}
+[05-Apr-2026 00:04:25 UTC] UsersModel authenticate: username=admin, user={"id_user":1,"nom":"admin","mot_de_passe":"$2y$10$xeFjtCqZCiA.3dlDFPGix.zymu3EgfcwE8fH2Wofpd0RbD6HET0s.","role":"administrateur"}
+[05-Apr-2026 00:04:25 UTC] UsersModel password_verify: true
+[05-Apr-2026 00:09:19 UTC] AuthController verify called
+[05-Apr-2026 00:09:19 UTC] Login input: {"username":"admin","password":"admin"}
+[05-Apr-2026 00:09:19 UTC] UsersModel authenticate: username=admin, user={"id_user":1,"nom":"admin","mot_de_passe":"$2y$10$xeFjtCqZCiA.3dlDFPGix.zymu3EgfcwE8fH2Wofpd0RbD6HET0s.","role":"administrateur"}
+[05-Apr-2026 00:09:19 UTC] UsersModel password_verify: true
+[05-Apr-2026 00:24:43 UTC] AuthController verify called
+[05-Apr-2026 00:24:43 UTC] Login input: {"username":"admin","password":"admin"}
+[05-Apr-2026 00:24:43 UTC] UsersModel authenticate: username=admin, user={"id_user":1,"nom":"admin","mot_de_passe":"$2y$10$xeFjtCqZCiA.3dlDFPGix.zymu3EgfcwE8fH2Wofpd0RbD6HET0s.","role":"administrateur"}
+[05-Apr-2026 00:24:43 UTC] UsersModel password_verify: true
+[05-Apr-2026 01:13:54 UTC] AuthController verify called
+[05-Apr-2026 01:13:54 UTC] Login input: {"username":"admin","password":"admin"}
+[05-Apr-2026 01:13:54 UTC] UsersModel authenticate: username=admin, user={"id_user":1,"nom":"admin","mot_de_passe":"$2y$10$xeFjtCqZCiA.3dlDFPGix.zymu3EgfcwE8fH2Wofpd0RbD6HET0s.","role":"administrateur"}
+[05-Apr-2026 01:13:54 UTC] UsersModel password_verify: true
+[05-Apr-2026 02:06:24 UTC] AuthController verify called
+[05-Apr-2026 02:06:24 UTC] Login input: {"username":"admin","password":"admin"}
+[05-Apr-2026 02:06:24 UTC] UsersModel authenticate: username=admin, user={"id_user":1,"nom":"admin","mot_de_passe":"$2y$10$xeFjtCqZCiA.3dlDFPGix.zymu3EgfcwE8fH2Wofpd0RbD6HET0s.","role":"administrateur"}
+[05-Apr-2026 02:06:25 UTC] UsersModel password_verify: true
