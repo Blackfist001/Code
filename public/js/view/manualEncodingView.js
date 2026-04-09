@@ -29,10 +29,13 @@ export default class ManualEncodingView {
                 ? response
                 : (response?.results || []);
 
-            const hasManualField = movements.some(m => Object.prototype.hasOwnProperty.call(m, 'manual'));
-            const manualMovements = hasManualField
-                ? movements.filter(m => Number(m.manual) === 1)
-                : movements;
+            const hasManualEncodingField = movements.some(m => Object.prototype.hasOwnProperty.call(m, 'manualEncoding'));
+            const hasLegacyManualField = movements.some(m => Object.prototype.hasOwnProperty.call(m, 'manual'));
+            const manualMovements = hasManualEncodingField
+                ? movements.filter(m => Number(m.manualEncoding) === 1)
+                : (hasLegacyManualField
+                    ? movements.filter(m => Number(m.manual) === 1)
+                    : movements);
 
             tbody.innerHTML = '';
 

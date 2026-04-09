@@ -1,10 +1,10 @@
 -- Migration: demi-journee d'absence automatique a la 3eme heure (matin et apres-midi)
 -- Prerequis:
 --   - event_scheduler active (SET GLOBAL event_scheduler = ON;)
---   - table passages avec colonnes scan/manual
+--   - table passages avec colonnes scan/manualEncoding
 
 ALTER TABLE passages
-    ADD COLUMN IF NOT EXISTS demi_journee INT NOT NULL DEFAULT 0 AFTER manual;
+  ADD COLUMN IF NOT EXISTS demi_journee INT NOT NULL DEFAULT 0 AFTER manualEncoding;
 
 ALTER TABLE passages
     MODIFY COLUMN type_passage ENUM(
@@ -45,7 +45,7 @@ BEGIN
             type_passage,
             statut,
             scan,
-            manual,
+            manualEncoding,
             demi_journee
         )
         SELECT

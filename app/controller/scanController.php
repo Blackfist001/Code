@@ -62,7 +62,7 @@ class ScanController {
                 'type_passage' => $typePassage,
                 'statut'       => $statut,
                 'scan'         => true,
-                'manual'       => false,
+                'manualEncoding' => false,
             ]);
 
             $typeLabels   = ScanRules::typeLabels();

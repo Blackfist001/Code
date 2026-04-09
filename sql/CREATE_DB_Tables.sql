@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS `passages` (
   `type_passage` enum('Aucun','Entrée matin','Sortie midi','Rentrée midi','Entrée après-midi','Sortie autorisée','Journée') DEFAULT NULL,
   `statut` enum('Autorisé','Refusé','Absence justifiée','Sortie justifiée','Absent','En retard','Présent') DEFAULT NULL,
   `scan` tinyint(1) NOT NULL DEFAULT '0',
-  `manual` tinyint(1) NOT NULL DEFAULT '0',
+  `manualEncoding` tinyint(1) NOT NULL DEFAULT '0',
   `demi_journee` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id_passage`),
   KEY `id_etudiant` (`id_etudiant`),

@@ -104,8 +104,8 @@ class MovementsModel {
         $pdo = $this->db->getPdo();
         $dbTypePassage = $this->normalizeTypePassage((string)($movementData['type_passage'] ?? 'Entrée matin'));
         $stmt = $pdo->prepare(
-            "INSERT INTO passages (id_etudiant, date_passage, heure_passage, type_passage, statut, `scan`, `manual`)
-             VALUES (:id_etudiant, :date_passage, :heure_passage, :type_passage, :statut, :scan, :manual)"
+            "INSERT INTO passages (id_etudiant, date_passage, heure_passage, type_passage, statut, `scan`, `manualEncoding`)
+             VALUES (:id_etudiant, :date_passage, :heure_passage, :type_passage, :statut, :scan, :manualEncoding)"
         );
         try {
             $stmt->execute([
@@ -115,7 +115,9 @@ class MovementsModel {
                 ':date_passage' => $movementData['date_passage'] ?? date('Y-m-d'),
                 ':heure_passage'=> $movementData['heure_passage'] ?? date('H:i:s'),
                 ':scan'         => isset($movementData['scan'])   ? (int)(bool)$movementData['scan']   : 0,
-                ':manual'       => isset($movementData['manual']) ? (int)(bool)$movementData['manual'] : 0,
+                ':manualEncoding' => isset($movementData['manualEncoding'])
+                    ? (int)(bool)$movementData['manualEncoding']
+                    : (isset($movementData['manual']) ? (int)(bool)$movementData['manual'] : 0),
             ]);
         } catch (PDOException $e) {
             error_log('Error adding movement: ' . $e->getMessage());

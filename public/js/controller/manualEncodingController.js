@@ -29,7 +29,7 @@ export default class ManualEncodingController {
                 date_passage: encodingData.date || new Date().toISOString().split('T')[0],
                 heure_passage: encodingData.heure || new Date().toTimeString().split(' ')[0],
                 scan:   false,
-                manual: true,
+                manualEncoding: true,
             };
             
             const response = await api.addMovement(movementData);

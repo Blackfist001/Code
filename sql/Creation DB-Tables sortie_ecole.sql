@@ -37,7 +37,7 @@ CREATE TABLE passages (
 		'Présent'
     ),
     scan BOOLEAN DEFAULT FALSE,
-    manual BOOLEAN DEFAULT FALSE,
+    manualEncoding BOOLEAN DEFAULT FALSE,
     demi_journee INT DEFAULT 0,
     FOREIGN KEY (id_etudiant)
     REFERENCES etudiants(id_etudiant)
