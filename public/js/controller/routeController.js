@@ -1,10 +1,10 @@
 import DashboardController from './dashboardController.js';
-import AbsentController from './absentController.js';
+import AbsenceController from './absenceController.js';
 import ScanController from './scanController.js';
 import ManualEncodingController from './manualEncodingController.js';
 import SearchController from './searchController.js';
 import HistoricalController from './historicalController.js';
-import GestionController from './gestionController.js';
+import ManagementController from './managementController.js';
 import SessionController from './sessionController.js';
 
 export default class RouteController {
@@ -42,7 +42,7 @@ export default class RouteController {
                     manualEncodingController.loadManualEncoding();
                     break;
                 case 'absent':
-                    const absentController = new AbsentController();
+                    const absentController = new AbsenceController();
                     absentController.loadAbsent();
                     break;
                 case 'search':
@@ -54,7 +54,7 @@ export default class RouteController {
                     historicalController.loadHistorical();
                     break;
                 case 'gestion':
-                    const gestionController = new GestionController();
+                    const gestionController = new ManagementController();
                     gestionController.loadGestion();
                     break;
                 

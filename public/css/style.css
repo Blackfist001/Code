@@ -128,9 +128,7 @@ font-weight:bold;
 /* Statuts de passage pour la page scanner */
 .status-badge     { font-weight: bold; padding: 2px 8px; border-radius: 4px; }
 .status-present   { color: #fff; background: #27ae60; }
-.status-autorise  { color: #fff; background: #27ae60; }
 .status-refuse    { color: #fff; background: #e74c3c; }
-.status-en_retard { color: #fff; background: #e74c3c; }
 
 input{
 padding:8px;
@@ -211,4 +209,97 @@ height:50px;
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.historical-passages-list {
+  margin-top: 20px;
+  border-top: 1px solid #dce3ea;
+  padding-top: 16px;
+}
+
+.historical-list-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 6px 10px;
+  background: #ecf0f1;
+  border-radius: 6px 6px 0 0;
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: #2c3e50;
+}
+
+.historical-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.historical-list-item {
+  border: 1px solid #e1e6ea;
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  background: #fafbfd;
+}
+
+.historical-date,
+.historical-student,
+.historical-class,
+.historical-type {
+  font-size: 0.95rem;
+}
+
+.historical-date {
+  min-width: 170px;
+  font-weight: bold;
+}
+
+.historical-student {
+  min-width: 160px;
+}
+
+.historical-class,
+.historical-type {
+  min-width: 120px;
+}
+
+.historical-status {
+  min-width: 120px;
+}
+
+.historical-empty {
+  margin: 8px 0 0;
+  color: #5d6d7e;
+  font-style: italic;
+}
+
+.message {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 0.92rem;
+}
+
+.message-info {
+  background: #eef5ff;
+  color: #1f4f82;
+  border: 1px solid #c8ddf7;
+}
+
+.message-warning {
+  background: #fff8e8;
+  color: #7a5a00;
+  border: 1px solid #f3ddb0;
+}
+
+.message-error {
+  background: #fdeeee;
+  color: #8a1f1f;
+  border: 1px solid #f2c5c5;
 }

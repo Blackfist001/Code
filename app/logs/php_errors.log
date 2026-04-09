@@ -30,3 +30,116 @@
 [05-Apr-2026 02:06:24 UTC] Login input: {"username":"admin","password":"admin"}
 [05-Apr-2026 02:06:24 UTC] UsersModel authenticate: username=admin, user={"id_user":1,"nom":"admin","mot_de_passe":"$2y$10$xeFjtCqZCiA.3dlDFPGix.zymu3EgfcwE8fH2Wofpd0RbD6HET0s.","role":"administrateur"}
 [05-Apr-2026 02:06:25 UTC] UsersModel password_verify: true
+[08-Apr-2026 08:07:31 UTC] AuthController verify called
+[08-Apr-2026 08:07:31 UTC] Login input: {"username":"admin","password":"admin"}
+[08-Apr-2026 08:07:31 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[08-Apr-2026 08:07:31 UTC] UsersModel password_verify: true
+[08-Apr-2026 08:46:28 UTC] AuthController verify called
+[08-Apr-2026 08:46:28 UTC] Login input: {"username":"admin","password":"admin"}
+[08-Apr-2026 08:46:28 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[08-Apr-2026 08:46:28 UTC] UsersModel password_verify: true
+[08-Apr-2026 08:52:55 UTC] AuthController verify called
+[08-Apr-2026 08:52:55 UTC] Login input: {"username":"admin","password":"admin"}
+[08-Apr-2026 08:52:55 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[08-Apr-2026 08:52:55 UTC] UsersModel password_verify: true
+[08-Apr-2026 08:56:16 UTC] AuthController verify called
+[08-Apr-2026 08:56:16 UTC] Login input: {"username":"admin","password":"admin"}
+[08-Apr-2026 08:56:16 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[08-Apr-2026 08:56:16 UTC] UsersModel password_verify: true
+[08-Apr-2026 09:00:08 UTC] getAllSchedules: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hc.nom_classe' in 'on clause'
+[08-Apr-2026 09:00:11 UTC] getAllSchedules: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hc.nom_classe' in 'on clause'
+[08-Apr-2026 09:00:19 UTC] getAllSchedules: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hc.nom_classe' in 'on clause'
+[08-Apr-2026 09:00:34 UTC] getAllSchedules: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hc.nom_classe' in 'on clause'
+[08-Apr-2026 09:00:55 UTC] AuthController verify called
+[08-Apr-2026 09:00:55 UTC] Login input: {"username":"admin","password":"admin"}
+[08-Apr-2026 09:00:55 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[08-Apr-2026 09:00:55 UTC] UsersModel password_verify: true
+[08-Apr-2026 09:00:59 UTC] getAllSchedules: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hc.nom_classe' in 'on clause'
+[08-Apr-2026 09:01:29 UTC] getAllSchedules: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hc.nom_classe' in 'on clause'
+[08-Apr-2026 09:11:59 UTC] getAllSchedules: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hc.nom_classe' in 'on clause'
+[08-Apr-2026 09:12:08 UTC] getAllSchedules: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hc.nom_classe' in 'on clause'
+[08-Apr-2026 09:12:23 UTC] AuthController verify called
+[08-Apr-2026 09:12:23 UTC] Login input: {"username":"admin","password":"admin"}
+[08-Apr-2026 09:12:23 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[08-Apr-2026 09:12:23 UTC] UsersModel password_verify: true
+[08-Apr-2026 09:12:27 UTC] getAllSchedules: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hc.nom_classe' in 'on clause'
+[08-Apr-2026 09:12:41 UTC] getAllSchedules: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hc.nom_classe' in 'on clause'
+[08-Apr-2026 09:12:53 UTC] getAllSchedules: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hc.nom_classe' in 'on clause'
+[08-Apr-2026 09:13:12 UTC] getAllSchedules: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hc.nom_classe' in 'on clause'
+[08-Apr-2026 09:31:02 UTC] getAllSchedules: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hc.nom_classe' in 'order clause'
+[08-Apr-2026 09:31:19 UTC] getAllSchedules: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hc.nom_classe' in 'order clause'
+[08-Apr-2026 10:16:31 UTC] getAllSchedules: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hc.id_matiere' in 'on clause'
+[09-Apr-2026 06:43:58 UTC] AuthController verify called
+[09-Apr-2026 06:43:58 UTC] Login input: {"username":"admin","password":"admin"}
+[09-Apr-2026 06:43:58 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[09-Apr-2026 06:43:58 UTC] UsersModel password_verify: true
+[09-Apr-2026 07:10:46 UTC] AuthController verify called
+[09-Apr-2026 07:10:46 UTC] Login input: {"username":"admin","password":"admin"}
+[09-Apr-2026 07:10:46 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[09-Apr-2026 07:10:46 UTC] UsersModel password_verify: true
+[09-Apr-2026 07:12:33 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method App\Controller\DashboardController::getStatsByDate() in C:\ProgsCodes\#ECI\Stage\test\Code\app\core\router.php:43
+Stack trace:
+#0 C:\ProgsCodes\#ECI\Stage\test\Code\public\index.php(20): App\Core\Router->run()
+#1 {main}
+  thrown in C:\ProgsCodes\#ECI\Stage\test\Code\app\core\router.php on line 43
+[09-Apr-2026 08:27:55 UTC] AuthController verify called
+[09-Apr-2026 08:27:55 UTC] Login input: {"username":"admin","password":"admin"}
+[09-Apr-2026 08:27:55 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[09-Apr-2026 08:27:55 UTC] UsersModel password_verify: true
+[09-Apr-2026 09:04:51 UTC] AuthController verify called
+[09-Apr-2026 09:04:51 UTC] Login input: {"username":"admin","password":"admin"}
+[09-Apr-2026 09:04:51 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[09-Apr-2026 09:04:51 UTC] UsersModel password_verify: true
+[09-Apr-2026 09:05:53 UTC] AuthController verify called
+[09-Apr-2026 09:05:53 UTC] Login input: {"username":"admin","password":"admin"}
+[09-Apr-2026 09:05:53 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[09-Apr-2026 09:05:53 UTC] UsersModel password_verify: true
+[09-Apr-2026 09:18:32 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method App\Controller\DashboardController::getStatsByDate() in C:\ProgsCodes\#ECI\Stage\test\Code\app\core\router.php:43
+Stack trace:
+#0 C:\ProgsCodes\#ECI\Stage\test\Code\public\index.php(20): App\Core\Router->run()
+#1 {main}
+  thrown in C:\ProgsCodes\#ECI\Stage\test\Code\app\core\router.php on line 43
+[09-Apr-2026 09:24:25 UTC] AuthController verify called
+[09-Apr-2026 09:24:25 UTC] Login input: {"username":"admin","password":"admin"}
+[09-Apr-2026 09:24:25 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[09-Apr-2026 09:24:26 UTC] UsersModel password_verify: true
+[09-Apr-2026 09:45:53 UTC] AuthController verify called
+[09-Apr-2026 09:45:53 UTC] Login input: {"username":"admin","password":"admin"}
+[09-Apr-2026 09:45:53 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[09-Apr-2026 09:45:53 UTC] UsersModel password_verify: true
+[09-Apr-2026 09:52:19 UTC] AuthController verify called
+[09-Apr-2026 09:52:19 UTC] Login input: {"username":"admin","password":"admin"}
+[09-Apr-2026 09:52:19 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[09-Apr-2026 09:52:20 UTC] UsersModel password_verify: true
+[09-Apr-2026 10:03:47 UTC] AuthController verify called
+[09-Apr-2026 10:03:47 UTC] Login input: {"username":"admin","password":"admin"}
+[09-Apr-2026 10:03:47 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[09-Apr-2026 10:03:47 UTC] UsersModel password_verify: true
+[09-Apr-2026 10:10:46 UTC] AuthController verify called
+[09-Apr-2026 10:10:46 UTC] Login input: {"username":"admin","password":"admin"}
+[09-Apr-2026 10:10:46 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[09-Apr-2026 10:10:46 UTC] UsersModel password_verify: true
+[09-Apr-2026 10:31:21 UTC] Error adding movement: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'scan' in 'field list'
+[09-Apr-2026 10:31:21 UTC] [MovementsController::add] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'scan' in 'field list'
+[09-Apr-2026 10:31:44 UTC] Error adding movement: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'scan' in 'field list'
+[09-Apr-2026 10:31:44 UTC] [MovementsController::add] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'scan' in 'field list'
+[09-Apr-2026 10:44:44 UTC] AuthController verify called
+[09-Apr-2026 10:44:44 UTC] Login input: {"username":"admin","password":"admin"}
+[09-Apr-2026 10:44:44 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[09-Apr-2026 10:44:44 UTC] UsersModel password_verify: true
+[09-Apr-2026 10:50:32 UTC] Error adding movement: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'type_passage' at row 1
+[09-Apr-2026 10:50:32 UTC] [MovementsController::add] SQLSTATE[01000]: Warning: 1265 Data truncated for column 'type_passage' at row 1
+[09-Apr-2026 10:50:53 UTC] Error adding movement: SQLSTATE[01000]: Warning: 1265 Data truncated for column 'type_passage' at row 1
+[09-Apr-2026 10:50:53 UTC] [MovementsController::add] SQLSTATE[01000]: Warning: 1265 Data truncated for column 'type_passage' at row 1
+[09-Apr-2026 11:02:38 UTC] AuthController verify called
+[09-Apr-2026 11:02:38 UTC] Login input: {"username":"admin","password":"admin"}
+[09-Apr-2026 11:02:38 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[09-Apr-2026 11:02:38 UTC] UsersModel password_verify: true
+[09-Apr-2026 11:11:59 UTC] AuthController verify called
+[09-Apr-2026 11:11:59 UTC] Login input: {"username":"admin","password":"admin"}
+[09-Apr-2026 11:11:59 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[09-Apr-2026 11:12:00 UTC] UsersModel password_verify: true
+[09-Apr-2026 11:22:07 UTC] AuthController verify called
+[09-Apr-2026 11:22:07 UTC] Login input: {"username":"admin","password":"admin"}
+[09-Apr-2026 11:22:07 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[09-Apr-2026 11:22:08 UTC] UsersModel password_verify: true

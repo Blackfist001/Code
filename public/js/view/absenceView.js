@@ -1,6 +1,6 @@
 import api from '../api.js';
 
-export default class AbsentView {
+export default class AbsenceView {
 
     constructor() {
         this.container = document.getElementById('container');
@@ -12,7 +12,7 @@ export default class AbsentView {
     }
 
     render() {
-        fetch('html/absent.html')
+        fetch('html/absence.html')
             .then(response => response.text())
             .then(data => {
                 this.container.innerHTML = data;

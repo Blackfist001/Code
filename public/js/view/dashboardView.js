@@ -15,6 +15,14 @@ export default class DashboardView {
             });
     }
 
+    showMessage(message = '', type = 'info') {
+        const box = document.getElementById('dashboard-message');
+        if (!box) return;
+
+        box.textContent = message;
+        box.className = message ? `message message-${type}` : 'message';
+    }
+
     populateStats(stats) {
         if (document.getElementById('total-students')) {
             document.getElementById('total-students').textContent = stats.total_students || 0;
@@ -41,8 +49,8 @@ export default class DashboardView {
             return;
         }
 
-        const STATUT_ROUGE = ['absent', 'refuse', 'en_retard'];
-        const STATUT_VERT  = ['present', 'autorise'];
+        const STATUT_ROUGE = ['Absent', 'Refusé', 'En retard'];
+        const STATUT_VERT  = ['Présent', 'Autorisé'];
 
         movements.slice(0, 10).forEach(movement => {
             const statut = movement.statut || '---';
@@ -51,15 +59,6 @@ export default class DashboardView {
                 : STATUT_VERT.includes(statut)
                     ? 'status-present'
                     : '';
-            const statutLabels = {
-                present:          'Présent',
-                autorise:         'Autorisé',
-                refuse:           'Refusé',
-                absent:           'Absent',
-                en_retard:        'En retard',
-                absence_justifie: 'Absence justifiée',
-                sortie_justifie:  'Sortie justifiée',
-            };
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${movement.date_passage || '---'}</td>
@@ -67,7 +66,7 @@ export default class DashboardView {
                 <td>${movement.nom || '---'}</td>
                 <td>${movement.classe || '---'}</td>
                 <td>${movement.type_passage || '---'}</td>
-                <td><span class="status-badge ${statutClass}">${statutLabels[statut] ?? statut}</span></td>
+                <td><span class="status-badge ${statutClass}">${statut}</span></td>
             `;
             tbody.appendChild(row);
         });
@@ -81,7 +80,6 @@ export default class DashboardView {
         const refreshBtn = document.getElementById('btn-refresh-stats');
         if (refreshBtn) {
             refreshBtn.addEventListener('click', () => {
-                console.log('Refresh stats clicked');
                 window.dispatchEvent(new CustomEvent('refresh-dashboard'));
             });
         }

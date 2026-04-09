@@ -221,6 +221,10 @@ class API {
         return this.request('schedules');
     }
 
+    async getScheduleSlots() {
+        return this.request('schedules/creneaux');
+    }
+
     async addSchedule(data) {
         return this.request('schedules/add', {
             method: 'POST',
@@ -342,8 +346,8 @@ class API {
     }
 
     /**
-     * Enregistre un scan : le backend détermine automatiquement le type de passage
-     * (entree_matin / sortie_midi / retour_midi) et le statut (autorisé, refusé, en retard)
+    * Enregistre un scan : le backend détermine automatiquement le type de passage
+    * (Entrée matin / Sortie midi / Rentrée midi) et le statut (Autorisé, Refusé, En retard)
      * en fonction de l'heure et des données de l'étudiant.
      */
     async scanStudent(sourcedId) {

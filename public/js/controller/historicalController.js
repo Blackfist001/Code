@@ -18,10 +18,29 @@ export default class HistoricalController {
             
             if (response.success) {
                 this.view.displayPassages(response.results);
+            } else {
+                this.view.showMessage(response.message || 'Impossible de charger les passages', 'error');
             }
+
+            // Toujours calculer les stats sur la même plage
+            const statsFrom = dateFrom || this._defaultDateFrom();
+            const statsTo   = dateTo   || this._defaultDateTo();
+            await this.getStatsByDate(statsFrom, statsTo);
         } catch (error) {
             console.error('Erreur:', error);
+            this.view.showMessage('Erreur lors du chargement des données historiques', 'error');
         }
+    }
+
+    _defaultDateFrom() {
+        const d = new Date();
+        d.setMonth(d.getMonth() - 1);
+        d.setDate(1);
+        return d.toISOString().split('T')[0];
+    }
+
+    _defaultDateTo() {
+        return new Date().toISOString().split('T')[0];
     }
 
     async getStatsByDate(dateFrom, dateTo) {
@@ -29,27 +48,36 @@ export default class HistoricalController {
             const response = await api.getStatsByDate(dateFrom, dateTo);
             
             if (response.success) {
-                this.view.displayStats(response.results);
+                const rows = Array.isArray(response.results) ? response.results : [];
+                const totalPassages = rows.reduce((sum, row) => sum + (Number(row.total) || 0), 0);
+                const absentCount = rows.reduce((sum, row) => sum + (Number(row.absents) || 0), 0);
+                const presentCount = Math.max(0, totalPassages - absentCount);
+
+                this.view.displayStats({
+                    total_passages: totalPassages,
+                    absent_count: absentCount,
+                    present_count: presentCount
+                });
+            } else {
+                this.view.showMessage(response.message || 'Impossible de charger les statistiques', 'warning');
             }
         } catch (error) {
             console.error('Erreur:', error);
+            this.view.showMessage('Erreur lors du chargement des statistiques', 'error');
         }
     }
 
     async exportCSV(dateFrom, dateTo) {
         try {
-            const blob = await api.exportCSV(dateFrom, dateTo);
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `passages_${dateFrom}_${dateTo}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
+            const params = new URLSearchParams({
+                date_from: dateFrom,
+                date_to: dateTo
+            });
+            const url = `/api/export/csv?${params.toString()}`;
+            window.location.assign(url);
         } catch (error) {
             console.error('Erreur lors de l\'export:', error);
-            alert('Erreur lors de l\'export CSV');
+            this.view.showMessage('Erreur lors de l\'export CSV', 'error');
         }
     }
 }

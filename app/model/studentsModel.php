@@ -7,29 +7,93 @@ use Exception;
 
 class StudentsModel {
     private DataBase $db;
+    private ClassesModel $classesModel;
 
     public function __construct() {
         $this->db = new DataBase();
+        $this->classesModel = new ClassesModel();
+    }
+
+    private function getClassMapById(): array {
+        $map = [];
+        foreach ($this->classesModel->getAllClasses() as $class) {
+            $map[(int)$class['id_classe']] = $class['classe'];
+        }
+        return $map;
+    }
+
+    private function resolveClassId($classeValue): ?int {
+        if ($classeValue === null || $classeValue === '') {
+            return null;
+        }
+
+        if (is_numeric($classeValue)) {
+            $class = $this->classesModel->getClassById((int)$classeValue);
+            return $class ? (int)$class['id_classe'] : null;
+        }
+
+        $class = $this->classesModel->getClassByName((string)$classeValue);
+        return $class ? (int)$class['id_classe'] : null;
+    }
+
+    private function addClassNamesToStudents(array $students): array {
+        if (empty($students)) {
+            return $students;
+        }
+
+        $classMap = $this->getClassMapById();
+        foreach ($students as &$student) {
+            $rawClasse = $student['classe'] ?? null;
+            $classId = is_numeric($rawClasse) ? (int)$rawClasse : 0;
+            if ($classId > 0) {
+                $student['classe_id'] = $classId;
+            }
+            $student['classe'] = $classMap[$classId] ?? (string)($rawClasse ?? '');
+        }
+        unset($student);
+
+        return $students;
     }
 
     public function getAllStudents() {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->query("SELECT * FROM etudiants");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $pdo->query("SELECT e.* FROM etudiants e");
+        $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->addClassNamesToStudents($students);
     }
 
     public function getStudentById($id) {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->prepare("SELECT * FROM etudiants WHERE id_etudiant = :id");
+        $stmt = $pdo->prepare("
+            SELECT e.*
+            FROM etudiants e
+            WHERE e.id_etudiant = :id
+        ");
         $stmt->execute([':id' => $id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $student = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$student) {
+            return false;
+        }
+
+        $students = $this->addClassNamesToStudents([$student]);
+        return $students[0];
     }
 
     public function getStudentBySourcedId($sourcedId) {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->prepare("SELECT * FROM etudiants WHERE sourcedId = :sourcedId");
+        $stmt = $pdo->prepare("
+            SELECT e.*
+            FROM etudiants e
+            WHERE e.sourcedId = :sourcedId
+        ");
         $stmt->execute([':sourcedId' => $sourcedId]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $student = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$student) {
+            return false;
+        }
+
+        $students = $this->addClassNamesToStudents([$student]);
+        return $students[0];
     }
 
     public function searchStudents($filters) {
@@ -39,28 +103,32 @@ class StudentsModel {
         $params = [];
         
         if (!empty($filters['id'])) {
-            $whereConditions[] = "id_etudiant = :id";
+            $whereConditions[] = "e.id_etudiant = :id";
             $params[':id'] = $filters['id'];
         }
         
         if (!empty($filters['sourcedId'])) {
-            $whereConditions[] = "sourcedId LIKE :sourcedId";
+            $whereConditions[] = "e.sourcedId LIKE :sourcedId";
             $params[':sourcedId'] = "%" . $filters['sourcedId'] . "%";
         }
         
         if (!empty($filters['name'])) {
-            $whereConditions[] = "nom LIKE :name";
+            $whereConditions[] = "e.nom LIKE :name";
             $params[':name'] = "%" . $filters['name'] . "%";
         }
         
         if (!empty($filters['surname'])) {
-            $whereConditions[] = "prenom LIKE :surname";
+            $whereConditions[] = "e.prenom LIKE :surname";
             $params[':surname'] = "%" . $filters['surname'] . "%";
         }
         
         if (!empty($filters['classe'])) {
-            $whereConditions[] = "classe = :classe";
-            $params[':classe'] = $filters['classe'];
+            $classId = $this->resolveClassId($filters['classe']);
+            if ($classId === null) {
+                return [];
+            }
+            $whereConditions[] = "e.classe = :classe_id";
+            $params[':classe_id'] = $classId;
         }
         
         if (!empty($filters['statut'])) {
@@ -88,7 +156,8 @@ class StudentsModel {
         ");
         
         $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->addClassNamesToStudents($students);
     }
 
     public function addStudent($studentData) {
@@ -96,10 +165,11 @@ class StudentsModel {
         $nom = $studentData['nom'] ?? '';
         $prenom = $studentData['prenom'] ?? '';
         $classe = $studentData['classe'] ?? '';
+        $classeId = $this->resolveClassId($classe);
         $photo = $studentData['photo'] ?? 'photos/default.jpg';
         $autorisation_midi = $studentData['autorisation_midi'] ?? 0;
         
-        if (empty($nom) || empty($prenom)) {
+        if (empty($nom) || empty($prenom) || $classeId === null) {
             return false;
         }
 
@@ -112,7 +182,7 @@ class StudentsModel {
             $stmt->execute([
                 ':nom' => $nom,
                 ':prenom' => $prenom,
-                ':classe' => $classe,
+                ':classe' => $classeId,
                 ':photo' => $photo,
                 ':autorisation_midi' => $autorisation_midi
             ]);
@@ -136,6 +206,15 @@ class StudentsModel {
 
         foreach (['nom', 'prenom', 'classe', 'date_naissance'] as $field) {
             if (isset($data[$field])) {
+                if ($field === 'classe') {
+                    $classId = $this->resolveClassId($data[$field]);
+                    if ($classId === null) {
+                        return false;
+                    }
+                    $setClauses[] = "$field = :$field";
+                    $params[":$field"] = $classId;
+                    continue;
+                }
                 $setClauses[] = "$field = :$field";
                 $params[":$field"] = $data[$field];
             }

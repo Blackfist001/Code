@@ -13,13 +13,13 @@ SELECT
     e.id_etudiant,
     CURDATE(),
     '00:01:00',
-    'entree_matin',
-    'absent'
+    'Journée',
+    'Absent'
 FROM etudiants e
 WHERE DAYOFWEEK(CURDATE()) BETWEEN 2 AND 6
 AND NOT EXISTS (
     SELECT 1 FROM passages p
     WHERE p.id_etudiant = e.id_etudiant
     AND p.date_passage = CURDATE()
-    AND p.type_passage = 'entree_matin'
+    AND p.type_passage = 'Journée'
 );

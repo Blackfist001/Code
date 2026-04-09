@@ -16,7 +16,12 @@ try {
     }
 
     echo "\n=== DONNÉES ÉTUDIANTS (premiers 5) ===\n";
-    $stmt = $pdo->query("SELECT id_etudiant, sourcedId, nom, prenom, classe FROM etudiants LIMIT 5");
+    $stmt = $pdo->query("
+        SELECT e.id_etudiant, e.sourcedId, e.nom, e.prenom, c.classe as classe
+        FROM etudiants e
+        LEFT JOIN classes c ON e.classe = c.id_classe
+        LIMIT 5
+    ");
     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($students as $student) {

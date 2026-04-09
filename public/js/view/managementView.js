@@ -1,4 +1,4 @@
-export default class GestionView {
+export default class ManagementView {
 
     constructor(controller) {
         this.controller = controller;
@@ -40,7 +40,7 @@ export default class GestionView {
     }
 
     render() {
-        return fetch('html/gestion.html')
+        return fetch('html/management.html')
             .then(response => response.text())
             .then(data => {
                 this.container.innerHTML = data;

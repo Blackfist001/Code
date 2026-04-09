@@ -2,13 +2,43 @@
 namespace App\Controller;
 
 use App\Model\MovementsModel;
+use App\Model\ClassesModel;
 use Exception;
 
 class HistoricalController {
     private MovementsModel $movementsModel;
+    private ClassesModel $classesModel;
 
     public function __construct() {
         $this->movementsModel = new MovementsModel();
+        $this->classesModel = new ClassesModel();
+    }
+
+    private function getClassMapById(): array {
+        $map = [];
+        foreach ($this->classesModel->getAllClasses() as $class) {
+            $map[(int)$class['id_classe']] = $class['classe'];
+        }
+        return $map;
+    }
+
+    private function enrichClasseNom(array $rows): array {
+        if (empty($rows)) {
+            return $rows;
+        }
+
+        $classMap = $this->getClassMapById();
+        foreach ($rows as &$row) {
+            $rawClasse = $row['classe'] ?? null;
+            $classId = is_numeric($rawClasse) ? (int)$rawClasse : 0;
+            if ($classId > 0) {
+                $row['classe_id'] = $classId;
+            }
+            $row['classe'] = $classMap[$classId] ?? (string)($rawClasse ?? '');
+        }
+        unset($row);
+
+        return $rows;
     }
 
     /**
@@ -32,7 +62,7 @@ class HistoricalController {
             
             $pdo = (new \App\Core\DataBase())->getPdo();
             
-            $query = "SELECT p.*, e.nom, e.prenom, e.classe 
+            $query = "SELECT p.*, e.nom, e.prenom, e.classe
                       FROM passages p
                       JOIN etudiants e ON p.id_etudiant = e.id_etudiant
                       WHERE p.date_passage BETWEEN :date_from AND :date_to";
@@ -56,7 +86,7 @@ class HistoricalController {
             
             $stmt = $pdo->prepare($query);
             $stmt->execute($bindParams);
-            $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $results = $this->enrichClasseNom($stmt->fetchAll(\PDO::FETCH_ASSOC));
             
             echo json_encode([
                 'success' => true,
@@ -86,9 +116,9 @@ class HistoricalController {
             $query = "SELECT 
                         p.date_passage,
                         COUNT(*) as total,
-                        SUM(CASE WHEN p.type_passage = 'entree_matin' THEN 1 ELSE 0 END) as entrees,
-                        SUM(CASE WHEN p.type_passage = 'sortie_midi' THEN 1 ELSE 0 END) as sorties,
-                        SUM(CASE WHEN p.statut = 'absent' THEN 1 ELSE 0 END) as absents
+                        SUM(CASE WHEN p.type_passage = 'Entrée matin' THEN 1 ELSE 0 END) as entrees,
+                        SUM(CASE WHEN p.type_passage = 'Sortie midi' THEN 1 ELSE 0 END) as sorties,
+                        SUM(CASE WHEN p.statut = 'Absent' THEN 1 ELSE 0 END) as absents
                       FROM passages p
                       WHERE p.date_passage BETWEEN :date_from AND :date_to
                       GROUP BY p.date_passage
@@ -121,10 +151,15 @@ class HistoricalController {
         try {
             $dateFrom = $_GET['date_from'] ?? date('Y-m-01', strtotime('-1 month'));
             $dateTo = $_GET['date_to'] ?? date('Y-m-d');
+
+            // Nettoyer les dates pour le nom de fichier.
+            $safeDateFrom = preg_replace('/[^0-9\-]/', '', (string)$dateFrom);
+            $safeDateTo = preg_replace('/[^0-9\-]/', '', (string)$dateTo);
+            $filename = sprintf('Historique_Passages_%s_%s.csv', $safeDateFrom, $safeDateTo);
             
             $pdo = (new \App\Core\DataBase())->getPdo();
             
-            $query = "SELECT p.*, e.nom, e.prenom, e.classe 
+            $query = "SELECT p.*, e.nom, e.prenom, e.classe
                       FROM passages p
                       JOIN etudiants e ON p.id_etudiant = e.id_etudiant
                       WHERE p.date_passage BETWEEN :date_from AND :date_to
@@ -135,13 +170,19 @@ class HistoricalController {
                 ':date_from' => $dateFrom,
                 ':date_to' => $dateTo
             ]);
-            $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $results = $this->enrichClasseNom($stmt->fetchAll(\PDO::FETCH_ASSOC));
             
             // Préparer le CSV
-            header('Content-Type: text/csv');
-            header('Content-Disposition: attachment; filename="passages_' . date('Y-m-d') . '.csv"');
+            if (ob_get_length()) {
+                ob_clean();
+            }
+            header('Content-Type: text/csv; charset=UTF-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+            header('Pragma: no-cache');
             
             $output = fopen('php://output', 'w');
+            fwrite($output, "\xEF\xBB\xBF");
             
             // En-têtes
             fputcsv($output, ['Date', 'Heure', 'Nom', 'Prénom', 'Classe', 'Type', 'Statut']);
@@ -153,14 +194,16 @@ class HistoricalController {
                     $row['heure_passage'],
                     $row['nom'],
                     $row['prenom'],
-                    $row['classe'],
+                    $row['classe'] ?? '',
                     $row['type_passage'],
                     $row['statut']
                 ]);
             }
             
             fclose($output);
+            exit;
         } catch (Exception $e) {
+            header('Content-Type: application/json');
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
@@ -181,22 +224,22 @@ class HistoricalController {
             $pdo = (new \App\Core\DataBase())->getPdo();
             
             $query = "SELECT 
-                        e.classe,
+                                                e.classe as classe,
                         COUNT(DISTINCT e.id_etudiant) as total_students,
                         COUNT(p.id_passage) as total_passages,
-                        COUNT(DISTINCT CASE WHEN p.statut = 'absent' THEN p.id_etudiant END) as total_absents
+                        COUNT(DISTINCT CASE WHEN p.statut = 'Absent' THEN p.id_etudiant END) as total_absents
                       FROM etudiants e
                       LEFT JOIN passages p ON e.id_etudiant = p.id_etudiant 
                                             AND p.date_passage BETWEEN :date_from AND :date_to
-                      GROUP BY e.classe
-                      ORDER BY e.classe";
+                                            GROUP BY e.classe
+                                            ORDER BY e.classe";
             
             $stmt = $pdo->prepare($query);
             $stmt->execute([
                 ':date_from' => $dateFrom,
                 ':date_to' => $dateTo
             ]);
-            $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $results = $this->enrichClasseNom($stmt->fetchAll(\PDO::FETCH_ASSOC));
             
             echo json_encode([
                 'success' => true,

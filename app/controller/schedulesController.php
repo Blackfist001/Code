@@ -36,6 +36,20 @@ class SchedulesController {
         }
     }
 
+    public function getCreneaux() {
+        header('Content-Type: application/json');
+        try {
+            $creneaux = $this->schedulesModel->getAllCreneaux();
+            echo json_encode([
+                'success' => true,
+                'count' => count($creneaux),
+                'results' => $creneaux
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
     public function getAll() {
         header('Content-Type: application/json');
         try {
@@ -50,7 +64,11 @@ class SchedulesController {
         header('Content-Type: application/json');
         try {
             $input = json_decode(file_get_contents('php://input'), true);
-            if (!$input || empty($input['nom_classe']) || empty($input['matiere']) || empty($input['jour_semaine'])) {
+            $hasClasse = !empty($input['id_classe']) || !empty($input['classe']);
+            $hasMatiere = !empty($input['id_matiere']) || !empty($input['matiere']);
+            $hasCreneauDebut = !empty($input['id_creneau_debut']) || !empty($input['heure_debut']);
+            $hasCreneauFin = !empty($input['id_creneau_fin']) || !empty($input['heure_fin']);
+            if (!$input || !$hasClasse || !$hasMatiere || empty($input['jour_semaine']) || !$hasCreneauDebut || !$hasCreneauFin) {
                 echo json_encode(['success' => false, 'message' => 'Champs obligatoires manquants']);
                 return;
             }
@@ -73,8 +91,10 @@ class SchedulesController {
             }
             $id = (int)$input['id'];
             unset($input['id']);
-            $this->schedulesModel->updateSchedule($id, $input);
-            echo json_encode(['success' => true, 'message' => 'Horaire modifié']);
+            $success = $this->schedulesModel->updateSchedule($id, $input);
+            echo json_encode($success
+                ? ['success' => true,  'message' => 'Horaire modifié']
+                : ['success' => false, 'message' => 'Erreur lors de la modification']);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }

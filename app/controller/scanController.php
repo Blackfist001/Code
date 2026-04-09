@@ -80,7 +80,7 @@ class ScanController {
                     'id'                => $student['id_etudiant'],
                     'nom'               => $student['nom'],
                     'prenom'            => $student['prenom'],
-                    'classe'            => $student['classe'],
+                    'classe'            => $student['classe'] ?? '',
                     'autorisation_midi' => (bool)$student['autorisation_midi'],
                 ],
             ]);

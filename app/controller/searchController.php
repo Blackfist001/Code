@@ -3,15 +3,59 @@ namespace App\Controller;
 
 use App\Model\StudentsModel;
 use App\Model\MovementsModel;
+use App\Model\ClassesModel;
 use Exception;
 
 class SearchController {
     private StudentsModel $studentsModel;
     private MovementsModel $movementsModel;
+    private ClassesModel $classesModel;
 
     public function __construct() {
         $this->studentsModel = new StudentsModel();
         $this->movementsModel = new MovementsModel();
+        $this->classesModel = new ClassesModel();
+    }
+
+    private function getClassMapById(): array {
+        $map = [];
+        foreach ($this->classesModel->getAllClasses() as $class) {
+            $map[(int)$class['id_classe']] = $class['classe'];
+        }
+        return $map;
+    }
+
+    private function resolveClassId($classeValue): ?int {
+        if ($classeValue === null || $classeValue === '') {
+            return null;
+        }
+
+        if (is_numeric($classeValue)) {
+            $class = $this->classesModel->getClassById((int)$classeValue);
+            return $class ? (int)$class['id_classe'] : null;
+        }
+
+        $class = $this->classesModel->getClassByName((string)$classeValue);
+        return $class ? (int)$class['id_classe'] : null;
+    }
+
+    private function enrichClasseNom(array $rows): array {
+        if (empty($rows)) {
+            return $rows;
+        }
+
+        $classMap = $this->getClassMapById();
+        foreach ($rows as &$row) {
+            $rawClasse = $row['classe'] ?? null;
+            $classId = is_numeric($rawClasse) ? (int)$rawClasse : 0;
+            if ($classId > 0) {
+                $row['classe_id'] = $classId;
+            }
+            $row['classe'] = $classMap[$classId] ?? (string)($rawClasse ?? '');
+        }
+        unset($row);
+
+        return $rows;
     }
 
     /**
@@ -87,8 +131,17 @@ class SearchController {
             }
             
             if (!empty($classe)) {
-                $query .= " AND e.classe = :classe";
-                $params[':classe'] = $classe;
+                $classId = $this->resolveClassId($classe);
+                if ($classId === null) {
+                    echo json_encode([
+                        'success' => true,
+                        'count' => 0,
+                        'results' => []
+                    ]);
+                    return;
+                }
+                $query .= " AND e.classe = :classe_id";
+                $params[':classe_id'] = $classId;
             }
             
             if (!empty($dateFrom)) {
@@ -103,7 +156,7 @@ class SearchController {
             
             $stmt = $pdo->prepare($query);
             $stmt->execute($params);
-            $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $results = $this->enrichClasseNom($stmt->fetchAll(\PDO::FETCH_ASSOC));
             
             echo json_encode([
                 'success' => true,
@@ -139,11 +192,11 @@ class SearchController {
             $movements = $this->movementsModel->getMovementByStudentId($studentId);
             
             $totalPresences = count(array_filter($movements, function($m) {
-                return $m['statut'] === 'autorise';
+                return $m['statut'] === 'Autorisé';
             }));
             
             $totalAbsences = count(array_filter($movements, function($m) {
-                return $m['statut'] === 'absent';
+                return $m['statut'] === 'Absent';
             }));
             
             echo json_encode([

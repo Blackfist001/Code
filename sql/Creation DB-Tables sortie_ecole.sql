@@ -19,21 +19,26 @@ CREATE TABLE passages (
     date_passage DATE,
     heure_passage TIME,
     type_passage ENUM(
-        'aucun',
-        'entree_matin',
-        'sortie_midi',
-        'retour_midi',
-        'sortie_autorisee'
+        'Aucun',
+        'Entrée matin',
+        'Sortie midi',
+        'Rentrée midi',
+        'Entrée après-midi',
+        'Sortie autorisée',
+        'Journée'
     ),
     statut ENUM(
-        'present',
-        'autorise',
-        'refuse',
-		'absence_justifie',
-		'sortie_justifie',
-		'absent',
-		'en_retard'
+        'Autorisé',
+        'Refusé',
+		'Absence justifiée',
+		'Sortie justifiée',
+		'Absent',
+		'En retard',
+		'Présent'
     ),
+    scan BOOLEAN DEFAULT FALSE,
+    manual BOOLEAN DEFAULT FALSE,
+    demi_journee INT DEFAULT 0,
     FOREIGN KEY (id_etudiant)
     REFERENCES etudiants(id_etudiant)
 );
@@ -49,14 +54,30 @@ CREATE TABLE utilisateurs (
     )
 );
 
+CREATE TABLE matieres (
+    id_matiere INT AUTO_INCREMENT PRIMARY KEY,
+    matiere VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE creneau_horaire (
+    id_creneau INT AUTO_INCREMENT PRIMARY KEY,
+    creneau TIME DEFAULT '00:00:00'
+);
+
 CREATE TABLE horaires_cours (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nom_classe VARCHAR(50) NOT NULL,
-    matiere VARCHAR(100) NOT NULL,
+    id_classe INT NOT NULL,
+    id_matiere INT NOT NULL,
     jour_semaine VARCHAR(10) NOT NULL,
-    heure_debut TIME NOT NULL,
-    heure_fin TIME NOT NULL,
-    salle VARCHAR(20)                   
+    id_creneau_debut INT NOT NULL,
+    id_creneau_fin INT NOT NULL,
+    salle VARCHAR(20),
+    FOREIGN KEY (id_creneau_debut)
+    REFERENCES creneau_horaire(id_creneau),
+    FOREIGN KEY (id_creneau_fin)
+    REFERENCES creneau_horaire(id_creneau),
+    FOREIGN KEY (id_matiere)
+    REFERENCES matieres(id_matiere)
 );
 
 CREATE TABLE logs_sync (

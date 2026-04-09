@@ -4,7 +4,7 @@ namespace App\Controller;
 use App\Model\UsersModel;
 use Exception;
 
-class GestionController {
+class ManagementController {
     private UsersModel $usersModel;
 
     public function __construct() {

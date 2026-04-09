@@ -9,6 +9,21 @@ export default class HistoricalView {
         this.controller = controller;
     }
 
+    _getDateRange() {
+        return {
+            dateFrom: document.getElementById('date-from')?.value || '',
+            dateTo: document.getElementById('date-to')?.value || ''
+        };
+    }
+
+    showMessage(message = '', type = 'info') {
+        const box = document.getElementById('historical-message');
+        if (!box) return;
+
+        box.textContent = message;
+        box.className = `message message-${type}`;
+    }
+
     render() {
         fetch('html/historical.html')
             .then(response => response.text())
@@ -23,27 +38,32 @@ export default class HistoricalView {
     }
 
     displayPassages(passages = []) {
-        const tbody = document.getElementById('passages-table-body');
-        if (!tbody) return;
-        
-        tbody.innerHTML = '';
-        
+        const listContainer = document.getElementById('historical-passages-list');
+        if (!listContainer) return;
+
+        listContainer.innerHTML = '';
+
         if (!passages || passages.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7">Aucun passage enregistré</td></tr>';
+            listContainer.innerHTML = '<p class="historical-empty">Aucun passage enregistré pour cette période.</p>';
             return;
         }
         
-        const STATUT_ROUGE = ['absent', 'refuse', 'en_retard'];
-        const STATUT_VERT  = ['present', 'autorise'];
-        const statutLabels = {
-            present:          'Présent',
-            autorise:         'Autorisé',
-            refuse:           'Refusé',
-            absent:           'Absent',
-            en_retard:        'En retard',
-            absence_justifie: 'Absence justifiée',
-            sortie_justifie:  'Sortie justifiée',
-        };
+        const STATUT_ROUGE = ['Absent', 'Refusé', 'En retard'];
+        const STATUT_VERT  = ['Présent', 'Autorisé'];
+
+        const header = document.createElement('div');
+        header.className = 'historical-list-header';
+        header.innerHTML = `
+            <span class="historical-date">Date &amp; Heure</span>
+            <span class="historical-student">Nom Prénom</span>
+            <span class="historical-class">Classe</span>
+            <span class="historical-type">Type</span>
+            <span class="historical-status">Statut</span>
+        `;
+        listContainer.appendChild(header);
+
+        const list = document.createElement('ul');
+        list.className = 'historical-list';
 
         passages.slice(0, 50).forEach(passage => {
             const statut = passage.statut || '---';
@@ -52,18 +72,19 @@ export default class HistoricalView {
                 : STATUT_VERT.includes(statut)
                     ? 'status-present'
                     : '';
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${passage.date_passage || '---'}</td>
-                <td>${passage.heure_passage || '---'}</td>
-                <td>${passage.nom || '---'}</td>
-                <td>${passage.prenom || '---'}</td>
-                <td>${passage.classe || '---'}</td>
-                <td>${passage.type_passage || '---'}</td>
-                <td><span class="status-badge ${statutClass}">${statutLabels[statut] ?? statut}</span></td>
+            const item = document.createElement('li');
+            item.className = 'historical-list-item';
+            item.innerHTML = `
+                <span class="historical-date">${passage.date_passage || '---'} ${passage.heure_passage || '---'}</span>
+                <span class="historical-student">${passage.nom || '---'} ${passage.prenom || ''}</span>
+                <span class="historical-class">${passage.classe || '---'}</span>
+                <span class="historical-type">${passage.type_passage || '---'}</span>
+                <span class="status-badge ${statutClass}">${statut}</span>
             `;
-            tbody.appendChild(row);
+            list.appendChild(item);
         });
+
+        listContainer.appendChild(list);
     }
 
     displayStats(stats = {}) {
@@ -90,24 +111,34 @@ export default class HistoricalView {
         const filterBtn = document.getElementById('btn-filter-dates');
         if (filterBtn && this.controller) {
             filterBtn.addEventListener('click', () => {
-                const dateFrom = document.getElementById('date-from').value;
-                const dateTo = document.getElementById('date-to').value;
-                if (dateFrom && dateTo) {
-                    this.controller.getStatsByDate(dateFrom, dateTo);
-                    this.controller.loadPassages(dateFrom, dateTo);
+                const { dateFrom, dateTo } = this._getDateRange();
+                this.showMessage('');
+
+                // Les deux vides = retour à la vue complète par défaut.
+                if (!dateFrom && !dateTo) {
+                    this.controller.loadPassages();
+                    return;
                 }
+
+                // Une seule date n'est pas une plage valide.
+                if (!dateFrom || !dateTo) {
+                    this.showMessage('Veuillez sélectionner une date de début et une date de fin', 'warning');
+                    return;
+                }
+
+                this.controller.loadPassages(dateFrom, dateTo);
             });
         }
 
         const exportBtn = document.getElementById('btn-export-csv');
         if (exportBtn && this.controller) {
             exportBtn.addEventListener('click', () => {
-                const dateFrom = document.getElementById('date-from').value;
-                const dateTo = document.getElementById('date-to').value;
+                const { dateFrom, dateTo } = this._getDateRange();
+                this.showMessage('');
                 if (dateFrom && dateTo) {
                     this.controller.exportCSV(dateFrom, dateTo);
                 } else {
-                    alert('Veuillez sélectionner une plage de dates');
+                    this.showMessage('Veuillez sélectionner une plage de dates', 'warning');
                 }
             });
         }

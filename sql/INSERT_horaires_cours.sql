@@ -6,7 +6,17 @@ USE sortie_ecole;
 
 TRUNCATE TABLE horaires_cours;
 
-INSERT INTO horaires_cours (nom_classe, matiere, jour_semaine, heure_debut, heure_fin, salle) VALUES
+DROP TEMPORARY TABLE IF EXISTS tmp_horaires_cours_import;
+CREATE TEMPORARY TABLE tmp_horaires_cours_import (
+	nom_classe VARCHAR(10) NOT NULL,
+	matiere VARCHAR(100) NOT NULL,
+	jour_semaine VARCHAR(10) NOT NULL,
+	heure_debut TIME NOT NULL,
+	heure_fin TIME NOT NULL,
+	salle VARCHAR(20) NULL
+);
+
+INSERT INTO tmp_horaires_cours_import (nom_classe, matiere, jour_semaine, heure_debut, heure_fin, salle) VALUES
 
 -- 2A
 ('2A','Mathématiques','lundi','08:15','09:00','101'),
@@ -131,3 +141,38 @@ INSERT INTO horaires_cours (nom_classe, matiere, jour_semaine, heure_debut, heur
 ('2B','EPS','vendredi','14:20','15:05','Gymnase'),
 ('2B','Technologie','vendredi','15:10','15:55','209'),
 ('2B','Arts Plastiques','vendredi','16:00','16:45','210');
+
+-- Ajouter les matières qui n'existent pas encore
+INSERT INTO matieres (matiere)
+SELECT DISTINCT t.matiere
+FROM tmp_horaires_cours_import t
+LEFT JOIN matieres m ON m.matiere = t.matiere
+WHERE m.id_matiere IS NULL;
+
+-- Ajouter les créneaux manquants (debut + fin)
+INSERT INTO creneau_horaire (creneau)
+SELECT c.creneau
+FROM (
+	SELECT DISTINCT heure_debut AS creneau FROM tmp_horaires_cours_import
+	UNION
+	SELECT DISTINCT heure_fin AS creneau FROM tmp_horaires_cours_import
+) c
+LEFT JOIN creneau_horaire ch ON ch.creneau = c.creneau
+WHERE ch.id_creneau IS NULL;
+
+-- Inserer dans la table cible via les IDs de references
+INSERT INTO horaires_cours (id_classe, id_matiere, jour_semaine, id_creneau_debut, id_creneau_fin, salle)
+SELECT
+	cl.id_classe,
+	m.id_matiere,
+	t.jour_semaine,
+	cd.id_creneau,
+	cf.id_creneau,
+	t.salle
+FROM tmp_horaires_cours_import t
+JOIN classes cl ON cl.classe = t.nom_classe
+JOIN matieres m ON m.matiere = t.matiere
+JOIN creneau_horaire cd ON cd.creneau = t.heure_debut
+JOIN creneau_horaire cf ON cf.creneau = t.heure_fin;
+
+DROP TEMPORARY TABLE IF EXISTS tmp_horaires_cours_import;

@@ -82,12 +82,12 @@ class ScanRules {
      */
     private function regleArrivee(float $heure, ?float $limiteRetard): array {
         if ($limiteRetard !== null && $heure > $limiteRetard) {
-            $statut = 'en_retard';
+            $statut = 'En retard';
         } else {
-            $statut = 'present';
+            $statut = 'Présent';
         }
 
-        return ['type_passage' => 'entree_matin', 'statut' => $statut];
+        return ['type_passage' => 'Entrée matin', 'statut' => $statut];
     }
 
     /**
@@ -95,22 +95,22 @@ class ScanRules {
      */
     private function regleMidi(array $student, array $passagesTypes, \DateTime $now): array {
         // Si déjà sorti sans être revenu → c'est un retour
-        if (in_array('sortie_midi', $passagesTypes) && !in_array('retour_midi', $passagesTypes)) {
-            return ['type_passage' => 'retour_midi', 'statut' => 'autorise'];
+        if (in_array('Sortie midi', $passagesTypes, true) && !in_array('Rentrée midi', $passagesTypes, true)) {
+            return ['type_passage' => 'Rentrée midi', 'statut' => 'Autorisé'];
         }
 
         // Première sortie midi
         $age = $this->age($student['date_naissance'] ?? null, $now);
 
         if ($age !== null && $age >= 18) {
-            $statut = 'autorise'; // Majeur : libre
+            $statut = 'Autorisé'; // Majeur : libre
         } elseif (!empty($student['autorisation_midi'])) {
-            $statut = 'autorise'; // Autorisation parentale
+            $statut = 'Autorisé'; // Autorisation parentale
         } else {
-            $statut = 'refuse';   // Mineur sans autorisation
+            $statut = 'Refusé';   // Mineur sans autorisation
         }
 
-        return ['type_passage' => 'sortie_midi', 'statut' => $statut];
+        return ['type_passage' => 'Sortie midi', 'statut' => $statut];
     }
 
     // -----------------------------------------------------------------------
@@ -176,23 +176,25 @@ class ScanRules {
 
     public static function typeLabels(): array {
         return [
-            'entree_matin'     => 'Arrivée matin',
-            'sortie_midi'      => 'Sortie midi',
-            'retour_midi'      => 'Retour midi',
-            'sortie_autorisee' => 'Sortie autorisée',
-            'aucun'            => 'Aucun',
+            'Aucun' => 'Aucun',
+            'Entrée matin' => 'Entrée matin',
+            'Sortie midi' => 'Sortie midi',
+            'Rentrée midi' => 'Rentrée midi',
+            'Entrée après-midi' => 'Entrée après-midi',
+            'Sortie autorisée' => 'Sortie autorisée',
+            'Journée' => 'Journée',
         ];
     }
 
     public static function statutLabels(): array {
         return [
-            'present'          => 'Présent',
-            'autorise'         => 'Autorisé',
-            'refuse'           => 'Refusé',
-            'en_retard'        => 'En retard',
-            'absent'           => 'Absent',
-            'absence_justifie' => 'Absence justifiée',
-            'sortie_justifie'  => 'Sortie justifiée',
+            'Autorisé' => 'Autorisé',
+            'Refusé' => 'Refusé',
+            'Absence justifiée' => 'Absence justifiée',
+            'Sortie justifiée' => 'Sortie justifiée',
+            'Absent' => 'Absent',
+            'En retard' => 'En retard',
+            'Présent' => 'Présent',
         ];
     }
 }

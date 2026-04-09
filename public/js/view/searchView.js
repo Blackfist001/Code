@@ -134,23 +134,8 @@ export default class SearchView {
             return;
         }
 
-        const STATUT_ROUGE = ['absent', 'refuse', 'en_retard'];
-        const STATUT_VERT  = ['present', 'autorise'];
-        const statutLabels = {
-            present:          'Présent',
-            autorise:         'Autorisé',
-            refuse:           'Refusé',
-            absent:           'Absent',
-            en_retard:        'En retard',
-            absence_justifie: 'Absence justifiée',
-            sortie_justifie:  'Sortie justifiée',
-        };
-        const typeLabels = {
-            entree_matin:     'Entrée matin',
-            sortie_midi:      'Sortie midi',
-            retour_midi:      'Retour midi',
-            sortie_autorisee: 'Sortie autorisée',
-        };
+        const STATUT_ROUGE = ['Absent', 'Refusé', 'En retard'];
+        const STATUT_VERT  = ['Présent', 'Autorisé'];
 
         results.forEach(passage => {
             const statut = passage.statut || '---';
@@ -166,8 +151,8 @@ export default class SearchView {
                 <td>${passage.nom || '---'}</td>
                 <td>${passage.prenom || '---'}</td>
                 <td>${passage.classe || '---'}</td>
-                <td>${typeLabels[passage.type_passage] ?? passage.type_passage ?? '---'}</td>
-                <td><span class="status-badge ${statutClass}">${statutLabels[statut] ?? statut}</span></td>
+                <td>${passage.type_passage || '---'}</td>
+                <td><span class="status-badge ${statutClass}">${statut}</span></td>
             `;
             tbody.appendChild(row);
         });

@@ -1,7 +1,7 @@
 <?php
 namespace App\View;
 
-class AbsentView {
+class AbsenceView {
     public function render($data) {
         return $data;
     }

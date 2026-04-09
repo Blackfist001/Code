@@ -4,12 +4,15 @@ export default class ScanView {
         this.container = document.getElementById('container');
     }
 
-    render() {
+    render(onReady = null) {
         fetch('html/scan.html')
             .then(response => response.text())
             .then(data => {
                 this.container.innerHTML = data;
                 this.scanHistory = [];
+                if (typeof onReady === 'function') {
+                    onReady();
+                }
             });
     }
 
@@ -24,19 +27,19 @@ export default class ScanView {
             document.getElementById('type-value').textContent = typeLabel;
 
             const statusEl = document.getElementById('status-value');
+            const isPositive = statut === 'Présent' || statut === 'Autorisé';
             statusEl.textContent = statutLabel;
-            // Classes CSS pour le code couleur du statut
-            statusEl.className = `status-badge status-${statut}`;
+            statusEl.className = `status-badge ${isPositive ? 'status-present' : 'status-refuse'}`;
 
             resultDiv.style.display = 'block';
         }
 
         if (messageDiv) {
-            const isRefuse = statut === 'refuse';
+            const isRefuse = statut === 'Refusé';
             messageDiv.textContent = isRefuse
                 ? `⚠ ${name} — ${statutLabel}`
                 : `✓ ${name} — ${statutLabel}`;
-            messageDiv.style.color = (statut === 'present' || statut === 'autorise') ? 'green' : 'red';
+            messageDiv.style.color = (statut === 'Présent' || statut === 'Autorisé') ? 'green' : 'red';
         }
     }
 
@@ -49,7 +52,6 @@ export default class ScanView {
         const timeSlots = [
             {label: '8H15', value: '08:15'},
             {label: '9H05', value: '09:05'},
-            {label: '9H55', value: '09:55'},
             {label: '10H10', value: '10:10'},
             {label: '11H00', value: '11:00'},
             {label: '11H50', value: '11:50'},

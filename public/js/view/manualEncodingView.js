@@ -14,8 +14,48 @@ export default class ManualEncodingView {
                 this.container.innerHTML = data;
                 this._loadClasses();
                 this.attachEventListeners();
+                this.refreshHistory();
             })
             .catch(error => console.error('Error loading manual encoding:', error));
+    }
+
+    async refreshHistory() {
+        const tbody = document.getElementById('encoding-history-body');
+        if (!tbody) return;
+
+        try {
+            const response = await api.getAllMovements();
+            const movements = Array.isArray(response)
+                ? response
+                : (response?.results || []);
+
+            const hasManualField = movements.some(m => Object.prototype.hasOwnProperty.call(m, 'manual'));
+            const manualMovements = hasManualField
+                ? movements.filter(m => Number(m.manual) === 1)
+                : movements;
+
+            tbody.innerHTML = '';
+
+            if (!manualMovements.length) {
+                tbody.innerHTML = '<tr><td colspan="6">Aucun encodage manuel enregistré</td></tr>';
+                return;
+            }
+
+            manualMovements.slice(0, 15).forEach(movement => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${movement.date_passage || '---'}</td>
+                    <td>${movement.heure_passage || '---'}</td>
+                    <td>${movement.nom || '---'}</td>
+                    <td>${movement.prenom || '---'}</td>
+                    <td>${movement.type_passage || '---'}</td>
+                    <td>${movement.raison || movement.reason || '---'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        } catch (error) {
+            tbody.innerHTML = '<tr><td colspan="6">Erreur lors du chargement de l\'historique</td></tr>';
+        }
     }
 
     // Charge la liste des classes depuis l'API et alimente le select
@@ -23,14 +63,19 @@ export default class ManualEncodingView {
         try {
             const response = await api.getAllStudents();
             const students = response.success ? response.results ?? response : response;
-            const classes = [...new Set((Array.isArray(students) ? students : []).map(s => s.classe).filter(Boolean))].sort();
             this._students = Array.isArray(students) ? students : [];
 
+            const classes = [...new Set((this._students || [])
+                .map(student => student?.classe)
+                .filter(value => value !== null && value !== undefined && String(value).trim() !== '')
+                .map(value => String(value).trim()))]
+                .sort((a, b) => String(a).localeCompare(String(b), 'fr', { numeric: true, sensitivity: 'base' }));
+
             const classeSelect = document.getElementById('encoding-classe');
-            classes.forEach(c => {
+            classes.forEach(className => {
                 const opt = document.createElement('option');
-                opt.value = c;
-                opt.textContent = c;
+                opt.value = className;
+                opt.textContent = className;
                 classeSelect.appendChild(opt);
             });
         } catch (e) {
@@ -48,7 +93,7 @@ export default class ManualEncodingView {
 
         // --- Classe choisie → alimente le select Nom ---
         classeSelect.addEventListener('change', () => {
-            const classe = classeSelect.value;
+            const classe = String(classeSelect.value || '').trim();
             this._clearStudentSelection();
 
             // Reset selects
@@ -60,7 +105,10 @@ export default class ManualEncodingView {
             if (!classe) return;
 
             const noms = [...new Set(
-                (this._students || []).filter(s => s.classe === classe).map(s => s.nom)
+                (this._students || [])
+                    .filter(s => String(s?.classe || '').trim() === classe)
+                    .map(s => s.nom)
+                    .filter(Boolean)
             )].sort();
 
             noms.forEach(nom => {
@@ -74,7 +122,7 @@ export default class ManualEncodingView {
 
         // --- Nom choisi → alimente le select Prénom ---
         nomSelect.addEventListener('change', () => {
-            const classe = classeSelect.value;
+            const classe = String(classeSelect.value || '').trim();
             const nom    = nomSelect.value;
             this._clearStudentSelection();
 
@@ -83,7 +131,7 @@ export default class ManualEncodingView {
 
             if (!nom) return;
 
-            const etudiants = (this._students || []).filter(s => s.classe === classe && s.nom === nom);
+            const etudiants = (this._students || []).filter(s => String(s?.classe || '').trim() === classe && s.nom === nom);
             etudiants.forEach(s => {
                 const opt = document.createElement('option');
                 opt.value = s.id_etudiant;
@@ -127,16 +175,16 @@ export default class ManualEncodingView {
                 type_passage: type,
                 date:  document.getElementById('encoding-date').value  || new Date().toISOString().split('T')[0],
                 heure: document.getElementById('encoding-time').value  || new Date().toTimeString().split(' ')[0],
-                statut: type === 'sortie_midi' || type === 'retour_midi' || type === 'sortie_autorisee'
-                    ? 'autorise'
-                    : 'present', // sera recalculé côté serveur pour entree_matin
+                statut: type === 'Sortie midi' || type === 'Rentrée midi' || type === 'Sortie autorisée'
+                    ? 'Autorisé'
+                    : 'Présent', // sera recalculé côté serveur pour Entrée matin
             };
             this.controller.addEncoding(encodingData);
         });
 
         // --- Afficher/masquer la raison ---
         typeSelect.addEventListener('change', () => {
-            reasonSelect.style.display = typeSelect.value === 'sortie_autorisee' ? 'block' : 'none';
+            reasonSelect.style.display = typeSelect.value === 'Sortie autorisée' ? 'block' : 'none';
         });
     }
 
@@ -154,7 +202,7 @@ export default class ManualEncodingView {
         document.getElementById('encoding-name-student').disabled = true;
         document.getElementById('encoding-surname-student').innerHTML = '<option value="">-- Prénom --</option>';
         document.getElementById('encoding-surname-student').disabled = true;
-        document.getElementById('encoding-type').value = 'entree_matin';
+        document.getElementById('encoding-type').value = 'Entrée matin';
         document.getElementById('encoding-date').value = '';
         document.getElementById('encoding-time').value = '';
         document.getElementById('encoding-reason').style.display = 'none';

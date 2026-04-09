@@ -2,20 +2,50 @@
 namespace App\Controller;
 
 use App\Model\MovementsModel;
+use App\Model\ClassesModel;
 use Exception;
 
-class AbsentController {
+class AbsenceController {
     private MovementsModel $movementsModel;
+    private ClassesModel $classesModel;
 
     public function __construct() {
         $this->movementsModel = new MovementsModel();
+        $this->classesModel = new ClassesModel();
+    }
+
+    private function getClassMapById(): array {
+        $map = [];
+        foreach ($this->classesModel->getAllClasses() as $class) {
+            $map[(int)$class['id_classe']] = $class['classe'];
+        }
+        return $map;
+    }
+
+    private function enrichClasseNom(array $rows): array {
+        if (empty($rows)) {
+            return $rows;
+        }
+
+        $classMap = $this->getClassMapById();
+        foreach ($rows as &$row) {
+            $rawClasse = $row['classe'] ?? null;
+            $classId = is_numeric($rawClasse) ? (int)$rawClasse : 0;
+            if ($classId > 0) {
+                $row['classe_id'] = $classId;
+            }
+            $row['classe'] = $classMap[$classId] ?? (string)($rawClasse ?? '');
+        }
+        unset($row);
+
+        return $rows;
     }
 
     /**
      * Affiche la page des absences
      */
     public function index() {
-        require_once __DIR__ . '/../view/absentView.php';
+        require_once __DIR__ . '/../view/absenceView.php';
     }
 
     /**
@@ -27,19 +57,19 @@ class AbsentController {
         try {
             $pdo = (new \App\Core\DataBase())->getPdo();
 
-            // Récupérer les passages avec statut 'absent' ou 'absence_justifie' du jour
+            // Récupérer les passages avec statut 'Absent' ou 'Absence justifiée' du jour
             $stmt = $pdo->prepare("
                 SELECT p.id_passage, p.id_etudiant, p.date_passage, p.heure_passage,
                        p.type_passage, p.statut,
-                       e.nom, e.prenom, e.classe
+                                             e.nom, e.prenom, e.classe
                 FROM passages p
                 JOIN etudiants e ON p.id_etudiant = e.id_etudiant
                 WHERE p.date_passage = :today
-                  AND p.statut IN ('absent', 'absence_justifie')
+                  AND p.statut IN ('Absent', 'Absence justifiée')
                 ORDER BY e.nom, e.prenom
             ");
             $stmt->execute([':today' => date('Y-m-d')]);
-            $absents = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                        $absents = $this->enrichClasseNom($stmt->fetchAll(\PDO::FETCH_ASSOC));
 
             echo json_encode([
                 'success' => true,
@@ -83,8 +113,8 @@ class AbsentController {
                 ':id_etudiant' => $input['id_etudiant'],
                 ':date_passage' => date('Y-m-d'),
                 ':heure_passage' => date('H:i:s'),
-                ':type_passage' => 'absent',
-                ':statut' => 'absent'
+                ':type_passage' => 'Journée',
+                ':statut' => 'Absent'
             ]);
             
             echo json_encode([
@@ -127,8 +157,8 @@ class AbsentController {
                 ':id_etudiant' => $input['id_etudiant'],
                 ':date_passage' => date('Y-m-d'),
                 ':heure_passage' => date('H:i:s'),
-                ':type_passage' => 'absence_justifie',
-                ':statut' => 'absence_justifie'
+                ':type_passage' => 'Journée',
+                ':statut' => 'Absence justifiée'
             ]);
             
             echo json_encode([
@@ -160,7 +190,7 @@ class AbsentController {
                       FROM etudiants e
                       JOIN passages p ON e.id_etudiant = p.id_etudiant
                       WHERE p.date_passage BETWEEN :date_from AND :date_to
-                      AND p.statut IN ('absent', 'absence_justifie')";
+                      AND p.statut IN ('Absent', 'Absence justifiée')";
             
             $bindParams = [
                 ':date_from' => $dateFrom,
@@ -176,7 +206,7 @@ class AbsentController {
             
             $stmt = $pdo->prepare($query);
             $stmt->execute($bindParams);
-            $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $results = $this->enrichClasseNom($stmt->fetchAll(\PDO::FETCH_ASSOC));
             
             echo json_encode([
                 'success' => true,

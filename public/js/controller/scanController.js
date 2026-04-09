@@ -11,36 +11,32 @@ export default class ScanController {
     }
 
     loadScan() {
-        this.view.render();
-        this.attachEventListeners();
+        this.view.render(() => this.attachEventListeners());
     }
 
     attachEventListeners() {
-        // Attendre que le HTML soit chargé
-        setTimeout(() => {
-            const scanInput = document.getElementById('scan-input');
-            if (scanInput) {
-                scanInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        const val = scanInput.value.trim();
-                        scanInput.value = '';
-                        this.processScan(val);
-                    }
-                });
-            }
+        const scanInput = document.getElementById('scan-input');
+        if (scanInput) {
+            scanInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const val = scanInput.value.trim();
+                    scanInput.value = '';
+                    this.processScan(val);
+                }
+            });
+        }
 
-            const scanButton = document.getElementById('btn-submit-scan');
-            if (scanButton) {
-                scanButton.addEventListener('click', () => {
-                    const input = document.getElementById('scan-input');
-                    if (input) {
-                        const val = input.value.trim();
-                        input.value = '';
-                        this.processScan(val);
-                    }
-                });
-            }
-        }, 500);
+        const scanButton = document.getElementById('btn-submit-scan');
+        if (scanButton) {
+            scanButton.addEventListener('click', () => {
+                const input = document.getElementById('scan-input');
+                if (input) {
+                    const val = input.value.trim();
+                    input.value = '';
+                    this.processScan(val);
+                }
+            });
+        }
     }
 
     addMovement(movementData) {

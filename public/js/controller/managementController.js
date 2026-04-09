@@ -1,10 +1,10 @@
-import GestionView from "../view/gestionView.js";
+import ManagementView from "../view/managementView.js";
 import api from "../api.js";
 
-export default class GestionController {
+export default class ManagementController {
 
     constructor() {
-        this.view = new GestionView(this);
+        this.view = new ManagementView(this);
     }
 
     async loadGestion() {

@@ -1,10 +1,10 @@
-import AbsentView from '../view/absentView.js';
+import AbsenceView from '../view/absenceView.js';
 import api from '../api.js';
 
-export default class AbsentController {
+export default class AbsenceController {
 
     constructor() {
-        this.view = new AbsentView();
+        this.view = new AbsenceView();
         this.view.setController(this);
     }
 

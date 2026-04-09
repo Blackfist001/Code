@@ -34,13 +34,40 @@ class DashboardController {
             $todayMovements = array_filter($movements, function($m) {
                 return $m['date_passage'] === date('Y-m-d');
             });
-            $presentToday = count(array_unique(array_column($todayMovements, 'id_etudiant')));
-            $absentToday = max(0, count($students) - $presentToday);
+
+            $presentStatus = ['Présent', 'Autorisé', 'En retard'];
+            $absentStatus = ['Absent', 'Absence justifiée'];
+
+            $presentIds = [];
+            $absentIds = [];
+
+            foreach ($todayMovements as $movement) {
+                $studentId = isset($movement['id_etudiant']) ? (int)$movement['id_etudiant'] : 0;
+                if ($studentId <= 0) {
+                    continue;
+                }
+
+                $status = $movement['statut'] ?? '';
+                if (in_array($status, $presentStatus, true)) {
+                    $presentIds[$studentId] = true;
+                }
+                if (in_array($status, $absentStatus, true)) {
+                    $absentIds[$studentId] = true;
+                }
+            }
+
+            // Un élève compté présent aujourd'hui ne doit pas être aussi compté absent.
+            foreach (array_keys($presentIds) as $presentId) {
+                unset($absentIds[$presentId]);
+            }
+
+            $presentToday = count($presentIds);
+            $absentToday = count($absentIds);
             
             $stats = [
                 'success' => true,
                 'total_students' => count($students),
-                'total_scans' => count($movements),
+                'total_scans' => count($todayMovements),
                 'present_today' => $presentToday,
                 'absent_today' => $absentToday
             ];

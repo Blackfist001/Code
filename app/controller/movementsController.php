@@ -31,8 +31,8 @@ class MovementsController {
             }
 
             // Pour une entrée matin encodée manuellement, recalculer le statut
-            // via les règles métier (présent vs en_retard selon l'horaire de la classe)
-            if (($input['type_passage'] ?? '') === 'entree_matin') {
+            // via les règles métier (Présent vs En retard selon l'horaire de la classe)
+            if (($input['type_passage'] ?? '') === 'Entrée matin') {
                 $student = (new StudentsModel())->getStudentById($input['id_etudiant']);
                 if ($student) {
                     $heurePassage = $input['heure_passage'] ?? date('H:i:s');
@@ -40,7 +40,7 @@ class MovementsController {
                     $jourSemaine  = strtolower((new \DateTime($datePassage))->format('l'));
 
                     $cours = (new SchedulesModel())->getScheduleByClassAndDay(
-                        $student['classe'],
+                        $student['classe'] ?? '',
                         $jourSemaine
                     );
 
