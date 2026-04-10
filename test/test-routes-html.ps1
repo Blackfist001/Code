@@ -1,13 +1,13 @@
-$base = "http://localhost:8000"
+﻿$base = "http://localhost:8000"
 $staticRoutes = @(
     "/html/login.html",
     "/html/scan.html",
     "/html/dashboard.html",
     "/html/manualEncoding.html",
     "/html/historical.html",
-    "/html/absent.html",
-    "/html/search .html",
-    "/html/gestion.html",
+    "/html/absence.html",
+    "/html/search.html",
+    "/html/management.html",
     "/html/layout.html",
     "/html/navAdmin.html",
     "/html/navGestion.html",

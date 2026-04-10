@@ -1,0 +1,16 @@
+# === Dépendances ===
+/vendor/
+
+# === Fichiers de config sensibles ===
+app/config/smartschool.php
+app/config/oneroster.php
+
+# === Logs ===
+app/logs/*.log
+app/logs/
+
+# === Fichiers temporaires ===
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db

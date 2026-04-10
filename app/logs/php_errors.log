@@ -143,3 +143,107 @@ Stack trace:
 [09-Apr-2026 11:22:07 UTC] Login input: {"username":"admin","password":"admin"}
 [09-Apr-2026 11:22:07 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
 [09-Apr-2026 11:22:08 UTC] UsersModel password_verify: true
+[09-Apr-2026 13:31:24 UTC] AuthController verify called
+[09-Apr-2026 13:31:24 UTC] Login input: {"username":"admin","password":"admin"}
+[09-Apr-2026 13:31:24 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[09-Apr-2026 13:31:24 UTC] UsersModel password_verify: true
+[09-Apr-2026 13:47:23 UTC] AuthController verify called
+[09-Apr-2026 13:47:23 UTC] Login input: {"username":"edu","password":"edu"}
+[09-Apr-2026 13:47:23 UTC] UsersModel authenticate: username=edu, user={"id_user":3,"nom":"edu","mot_de_passe":"$2y$10$Px\/TqMu.kdwbgoBsLB8WIu91hnOEbMEhdthwVeoqdeRttkrvSeva6","role":"surveillant"}
+[09-Apr-2026 13:47:23 UTC] UsersModel password_verify: true
+[09-Apr-2026 13:47:52 UTC] AuthController verify called
+[09-Apr-2026 13:47:52 UTC] Login input: {"username":"gestion","password":"gestion"}
+[09-Apr-2026 13:47:52 UTC] UsersModel authenticate: username=gestion, user={"id_user":2,"nom":"gestion","mot_de_passe":"$2y$10$5HFwa02tiWIsH6WfJFl\/TeM6eq4nAsIINuo3JrItdhL31exI5h9.W","role":"administration"}
+[09-Apr-2026 13:47:53 UTC] UsersModel password_verify: true
+[09-Apr-2026 13:53:37 UTC] AuthController verify called
+[09-Apr-2026 13:53:37 UTC] Login input: {"username":"admin","password":"admin"}
+[09-Apr-2026 13:53:37 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[09-Apr-2026 13:53:37 UTC] UsersModel password_verify: true
+[09-Apr-2026 13:53:37 UTC] AuthController verify called
+[09-Apr-2026 13:53:37 UTC] Login input: {"username":"admin","password":"admin"}
+[09-Apr-2026 13:53:37 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[09-Apr-2026 13:53:37 UTC] UsersModel password_verify: true
+[10-Apr-2026 08:03:19 UTC] AuthController verify called
+[10-Apr-2026 08:03:19 UTC] Login input: {"username":"admin","password":"admin"}
+[10-Apr-2026 08:03:19 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[10-Apr-2026 08:03:19 UTC] UsersModel password_verify: true
+[10-Apr-2026 08:41:34 UTC] AuthController verify called
+[10-Apr-2026 08:41:34 UTC] Login input: {"username":"admin","password":"admin"}
+[10-Apr-2026 08:41:34 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[10-Apr-2026 08:41:34 UTC] UsersModel password_verify: true
+[10-Apr-2026 08:49:17 UTC] AuthController verify called
+[10-Apr-2026 08:49:17 UTC] Login input: {"username":"admin","password":"admin"}
+[10-Apr-2026 08:49:17 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[10-Apr-2026 08:49:17 UTC] UsersModel password_verify: true
+[10-Apr-2026 09:00:02 UTC] AuthController verify called
+[10-Apr-2026 09:00:02 UTC] Login input: {"username":"admin","password":"admin"}
+[10-Apr-2026 09:00:02 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[10-Apr-2026 09:00:02 UTC] UsersModel password_verify: true
+[10-Apr-2026 09:05:06 UTC] AuthController verify called
+[10-Apr-2026 09:05:06 UTC] Login input: {"username":"admin","password":"admin"}
+[10-Apr-2026 09:05:06 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[10-Apr-2026 09:05:06 UTC] UsersModel password_verify: true
+[10-Apr-2026 09:09:57 UTC] AuthController verify called
+[10-Apr-2026 09:09:57 UTC] Login input: {"username":"admin","password":"admin"}
+[10-Apr-2026 09:09:57 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[10-Apr-2026 09:09:57 UTC] UsersModel password_verify: true
+[10-Apr-2026 09:33:00 UTC] AuthController verify called
+[10-Apr-2026 09:33:00 UTC] Login input: {"username":"admin","password":"admin"}
+[10-Apr-2026 09:33:01 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[10-Apr-2026 09:33:01 UTC] UsersModel password_verify: true
+[10-Apr-2026 11:41:16 UTC] AuthController verify called
+[10-Apr-2026 11:41:16 UTC] Login input: {"username":"admin","password":"admin"}
+[10-Apr-2026 11:41:16 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[10-Apr-2026 11:41:17 UTC] UsersModel password_verify: true
+[10-Apr-2026 12:13:14 UTC] AuthController verify called
+[10-Apr-2026 12:13:14 UTC] Login input: {"username":"gestion","password":"gestion"}
+[10-Apr-2026 12:13:14 UTC] UsersModel authenticate: username=gestion, user={"id_user":2,"nom":"gestion","mot_de_passe":"$2y$10$5HFwa02tiWIsH6WfJFl\/TeM6eq4nAsIINuo3JrItdhL31exI5h9.W","role":"administration"}
+[10-Apr-2026 12:13:14 UTC] UsersModel password_verify: true
+[10-Apr-2026 12:13:29 UTC] AuthController verify called
+[10-Apr-2026 12:13:29 UTC] Login input: {"username":"admin","password":"admin"}
+[10-Apr-2026 12:13:29 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[10-Apr-2026 12:13:29 UTC] UsersModel password_verify: true
+[10-Apr-2026 12:30:07 UTC] AuthController verify called
+[10-Apr-2026 12:30:07 UTC] Login input: {"password":"admin","username":"admin"}
+[10-Apr-2026 12:30:07 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[10-Apr-2026 12:30:07 UTC] UsersModel password_verify: true
+[10-Apr-2026 12:30:08 UTC] AuthController verify called
+[10-Apr-2026 12:30:08 UTC] Login input: {"password":"gestion","username":"gestion"}
+[10-Apr-2026 12:30:08 UTC] UsersModel authenticate: username=gestion, user={"id_user":2,"nom":"gestion","mot_de_passe":"$2y$10$5HFwa02tiWIsH6WfJFl\/TeM6eq4nAsIINuo3JrItdhL31exI5h9.W","role":"administration"}
+[10-Apr-2026 12:30:08 UTC] UsersModel password_verify: true
+[10-Apr-2026 12:30:08 UTC] AuthController verify called
+[10-Apr-2026 12:30:08 UTC] Login input: {"password":"edu","username":"edu"}
+[10-Apr-2026 12:30:08 UTC] UsersModel authenticate: username=edu, user={"id_user":3,"nom":"edu","mot_de_passe":"$2y$10$Px\/TqMu.kdwbgoBsLB8WIu91hnOEbMEhdthwVeoqdeRttkrvSeva6","role":"surveillant"}
+[10-Apr-2026 12:30:08 UTC] UsersModel password_verify: true
+[10-Apr-2026 12:30:23 UTC] AuthController verify called
+[10-Apr-2026 12:30:23 UTC] Login input: {"password":"admin","username":"admin"}
+[10-Apr-2026 12:30:23 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[10-Apr-2026 12:30:23 UTC] UsersModel password_verify: true
+[10-Apr-2026 12:31:59 UTC] AuthController verify called
+[10-Apr-2026 12:31:59 UTC] Login input: {"username":"edu","password":"edu"}
+[10-Apr-2026 12:31:59 UTC] UsersModel authenticate: username=edu, user={"id_user":3,"nom":"edu","mot_de_passe":"$2y$10$Px\/TqMu.kdwbgoBsLB8WIu91hnOEbMEhdthwVeoqdeRttkrvSeva6","role":"surveillant"}
+[10-Apr-2026 12:31:59 UTC] UsersModel password_verify: true
+[10-Apr-2026 12:32:51 UTC] AuthController verify called
+[10-Apr-2026 12:32:51 UTC] Login input: {"username":"gestion","password":"gestion"}
+[10-Apr-2026 12:32:51 UTC] UsersModel authenticate: username=gestion, user={"id_user":2,"nom":"gestion","mot_de_passe":"$2y$10$5HFwa02tiWIsH6WfJFl\/TeM6eq4nAsIINuo3JrItdhL31exI5h9.W","role":"administration"}
+[10-Apr-2026 12:32:51 UTC] UsersModel password_verify: true
+[10-Apr-2026 12:38:26 UTC] AuthController verify called
+[10-Apr-2026 12:38:26 UTC] Login input: {"username":"admin","password":"admin"}
+[10-Apr-2026 12:38:26 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[10-Apr-2026 12:38:26 UTC] UsersModel password_verify: true
+[10-Apr-2026 13:54:06 UTC] AuthController verify called
+[10-Apr-2026 13:54:06 UTC] Login input: {"username":"edu","password":"edu"}
+[10-Apr-2026 13:54:06 UTC] UsersModel authenticate: username=edu, user={"id_user":3,"nom":"edu","mot_de_passe":"$2y$10$Px\/TqMu.kdwbgoBsLB8WIu91hnOEbMEhdthwVeoqdeRttkrvSeva6","role":"surveillant"}
+[10-Apr-2026 13:54:06 UTC] UsersModel password_verify: true
+[10-Apr-2026 13:54:18 UTC] AuthController verify called
+[10-Apr-2026 13:54:18 UTC] Login input: {"username":"edu","password":"edu"}
+[10-Apr-2026 13:54:18 UTC] UsersModel authenticate: username=edu, user={"id_user":3,"nom":"edu","mot_de_passe":"$2y$10$Px\/TqMu.kdwbgoBsLB8WIu91hnOEbMEhdthwVeoqdeRttkrvSeva6","role":"surveillant"}
+[10-Apr-2026 13:54:18 UTC] UsersModel password_verify: true
+[10-Apr-2026 13:57:24 UTC] AuthController verify called
+[10-Apr-2026 13:57:24 UTC] Login input: {"username":"admin","password":"admin"}
+[10-Apr-2026 13:57:24 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[10-Apr-2026 13:57:25 UTC] UsersModel password_verify: true
+[10-Apr-2026 13:58:10 UTC] AuthController verify called
+[10-Apr-2026 13:58:10 UTC] Login input: {"username":"admin","password":"admin"}
+[10-Apr-2026 13:58:10 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[10-Apr-2026 13:58:10 UTC] UsersModel password_verify: true

@@ -129,7 +129,7 @@ export default class SearchView {
         tbody.innerHTML = '';
 
         if (!results || results.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7">Aucun résultat trouvé</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8">Aucun résultat trouvé</td></tr>';
             if (messageDiv) messageDiv.textContent = 'Aucun passage trouvé';
             return;
         }
@@ -144,6 +144,8 @@ export default class SearchView {
                 : STATUT_VERT.includes(statut)
                     ? 'status-present'
                     : '';
+            const totalDemiJournees = Number(passage.total_demi_journees) || 0;
+            const demiJourneeClass = totalDemiJournees >= 9 ? 'demi-journee-critical' : '';
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${passage.date_passage || '---'}</td>
@@ -151,6 +153,7 @@ export default class SearchView {
                 <td>${passage.nom || '---'}</td>
                 <td>${passage.prenom || '---'}</td>
                 <td>${passage.classe || '---'}</td>
+                <td><span class="${demiJourneeClass}">${totalDemiJournees}</span></td>
                 <td>${passage.type_passage || '---'}</td>
                 <td><span class="status-badge ${statutClass}">${statut}</span></td>
             `;

@@ -90,18 +90,25 @@ export default class HistoricalView {
     displayStats(stats = {}) {
         const statsContainer = document.getElementById('stats-container');
         if (!statsContainer) return;
+
+        const orderedStats = [
+            ['Absents', stats.absent_count || 0],
+            ['Présents', stats.present_count || 0],
+            ['Retards', stats.en_retard_count || 0],
+            ['Sorties de midi autorisées', stats.autorise_count || 0],
+            ['Sorties de midi refusées', stats.refuse_count || 0],
+            ['Absences justifiées', stats.absence_justifiee_count || 0],
+            ['Sorties justifiées', stats.sortie_justifiee_count || 0],
+            ['Total passages', stats.total_passages || 0]
+        ].map(([label, value]) => `
+                <div class="stat-item">
+                    <span>${label}: ${value}</span>
+                </div>
+            `).join('');
         
         const html = `
             <div class="stats-grid">
-                <div class="stat-item">
-                    <span>Total passages: ${stats.total_passages || 0}</span>
-                </div>
-                <div class="stat-item">
-                    <span>Absents: ${stats.absent_count || 0}</span>
-                </div>
-                <div class="stat-item">
-                    <span>Présents: ${stats.present_count || 0}</span>
-                </div>
+                ${orderedStats}
             </div>
         `;
         statsContainer.innerHTML = html;

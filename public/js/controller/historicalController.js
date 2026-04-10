@@ -50,13 +50,21 @@ export default class HistoricalController {
             if (response.success) {
                 const rows = Array.isArray(response.results) ? response.results : [];
                 const totalPassages = rows.reduce((sum, row) => sum + (Number(row.total) || 0), 0);
-                const absentCount = rows.reduce((sum, row) => sum + (Number(row.absents) || 0), 0);
-                const presentCount = Math.max(0, totalPassages - absentCount);
+                const statusCounts = {
+                    autorise_count: rows.reduce((sum, row) => sum + (Number(row.autorise_count) || 0), 0),
+                    refuse_count: rows.reduce((sum, row) => sum + (Number(row.refuse_count) || 0), 0),
+                    absence_justifiee_count: rows.reduce((sum, row) => sum + (Number(row.absence_justifiee_count) || 0), 0),
+                    sortie_justifiee_count: rows.reduce((sum, row) => sum + (Number(row.sortie_justifiee_count) || 0), 0),
+                    absent_count: rows.reduce((sum, row) => sum + (Number(row.absent_count) || 0), 0),
+                    en_retard_count: rows.reduce((sum, row) => sum + (Number(row.en_retard_count) || 0), 0),
+                    present_status_count: rows.reduce((sum, row) => sum + (Number(row.present_count) || 0), 0)
+                };
 
                 this.view.displayStats({
                     total_passages: totalPassages,
-                    absent_count: absentCount,
-                    present_count: presentCount
+                    absent_count: statusCounts.absent_count,
+                    present_count: statusCounts.present_status_count,
+                    ...statusCounts
                 });
             } else {
                 this.view.showMessage(response.message || 'Impossible de charger les statistiques', 'warning');

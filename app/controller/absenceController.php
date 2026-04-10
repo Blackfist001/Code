@@ -57,19 +57,55 @@ class AbsenceController {
         try {
             $pdo = (new \App\Core\DataBase())->getPdo();
 
-            // Récupérer les passages avec statut 'Absent' ou 'Absence justifiée' du jour
+            // Inclure les absences explicites du jour et les étudiants sans aucun passage aujourd'hui.
             $stmt = $pdo->prepare("
-                SELECT p.id_passage, p.id_etudiant, p.date_passage, p.heure_passage,
-                       p.type_passage, p.statut,
-                                             e.nom, e.prenom, e.classe
-                FROM passages p
-                JOIN etudiants e ON p.id_etudiant = e.id_etudiant
-                WHERE p.date_passage = :today
-                  AND p.statut IN ('Absent', 'Absence justifiée')
+                SELECT latest_absence.id_passage,
+                       e.id_etudiant,
+                      COALESCE(latest_absence.date_passage, :today_display) AS date_passage,
+                       latest_absence.heure_passage,
+                       latest_absence.type_passage,
+                       COALESCE(latest_absence.statut, 'Aucun passage aujourd''hui') AS statut,
+                       e.nom,
+                       e.prenom,
+                       e.classe,
+                       CASE
+                           WHEN latest_absence.id_passage IS NULL THEN 'missing-passages'
+                           WHEN latest_absence.statut = 'Absence justifiée' THEN 'justified-absence'
+                           ELSE 'recorded-absence'
+                       END AS absence_source
+                FROM etudiants e
+                LEFT JOIN (
+                    SELECT p.id_passage,
+                           p.id_etudiant,
+                           p.date_passage,
+                           p.heure_passage,
+                           p.type_passage,
+                           p.statut
+                    FROM passages p
+                    INNER JOIN (
+                        SELECT id_etudiant, MAX(id_passage) AS latest_absence_id
+                        FROM passages
+                                                WHERE date_passage = :today_latest
+                          AND statut IN ('Absent', 'Absence justifiée')
+                        GROUP BY id_etudiant
+                    ) latest ON latest.latest_absence_id = p.id_passage
+                ) latest_absence ON latest_absence.id_etudiant = e.id_etudiant
+                WHERE latest_absence.id_passage IS NOT NULL
+                   OR NOT EXISTS (
+                        SELECT 1
+                        FROM passages today_passages
+                        WHERE today_passages.id_etudiant = e.id_etudiant
+                          AND today_passages.date_passage = :today_exists
+                   )
                 ORDER BY e.nom, e.prenom
             ");
-            $stmt->execute([':today' => date('Y-m-d')]);
-                        $absents = $this->enrichClasseNom($stmt->fetchAll(\PDO::FETCH_ASSOC));
+            $today = date('Y-m-d');
+            $stmt->execute([
+                ':today_display' => $today,
+                ':today_latest' => $today,
+                ':today_exists' => $today,
+            ]);
+            $absents = $this->enrichClasseNom($stmt->fetchAll(\PDO::FETCH_ASSOC));
 
             echo json_encode([
                 'success' => true,
@@ -105,16 +141,17 @@ class AbsenceController {
             $pdo = (new \App\Core\DataBase())->getPdo();
             
             $stmt = $pdo->prepare("
-                INSERT INTO passages (id_etudiant, date_passage, heure_passage, type_passage, statut)
-                VALUES (:id_etudiant, :date_passage, :heure_passage, :type_passage, :statut)
+                INSERT INTO passages (id_etudiant, date_passage, heure_passage, type_passage, statut, demi_journee)
+                VALUES (:id_etudiant, :date_passage, :heure_passage, :type_passage, :statut, :demi_journee)
             ");
             
             $stmt->execute([
-                ':id_etudiant' => $input['id_etudiant'],
-                ':date_passage' => date('Y-m-d'),
+                ':id_etudiant'   => $input['id_etudiant'],
+                ':date_passage'  => date('Y-m-d'),
                 ':heure_passage' => date('H:i:s'),
-                ':type_passage' => 'Journée',
-                ':statut' => 'Absent'
+                ':type_passage'  => 'Journée',
+                ':statut'        => 'Absent',
+                ':demi_journee'  => 2,
             ]);
             
             echo json_encode([
@@ -149,16 +186,17 @@ class AbsenceController {
             $pdo = (new \App\Core\DataBase())->getPdo();
             
             $stmt = $pdo->prepare("
-                INSERT INTO passages (id_etudiant, date_passage, heure_passage, type_passage, statut)
-                VALUES (:id_etudiant, :date_passage, :heure_passage, :type_passage, :statut)
+                INSERT INTO passages (id_etudiant, date_passage, heure_passage, type_passage, statut, demi_journee)
+                VALUES (:id_etudiant, :date_passage, :heure_passage, :type_passage, :statut, :demi_journee)
             ");
             
             $stmt->execute([
-                ':id_etudiant' => $input['id_etudiant'],
-                ':date_passage' => date('Y-m-d'),
+                ':id_etudiant'   => $input['id_etudiant'],
+                ':date_passage'  => date('Y-m-d'),
                 ':heure_passage' => date('H:i:s'),
-                ':type_passage' => 'Journée',
-                ':statut' => 'Absence justifiée'
+                ':type_passage'  => 'Journée',
+                ':statut'        => 'Absence justifiée',
+                ':demi_journee'  => 2,
             ]);
             
             echo json_encode([

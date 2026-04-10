@@ -116,9 +116,13 @@ class HistoricalController {
             $query = "SELECT 
                         p.date_passage,
                         COUNT(*) as total,
-                        SUM(CASE WHEN p.type_passage = 'Entrée matin' THEN 1 ELSE 0 END) as entrees,
-                        SUM(CASE WHEN p.type_passage = 'Sortie midi' THEN 1 ELSE 0 END) as sorties,
-                        SUM(CASE WHEN p.statut = 'Absent' THEN 1 ELSE 0 END) as absents
+                                                SUM(CASE WHEN p.statut = 'Autorisé' THEN 1 ELSE 0 END) as autorise_count,
+                                                SUM(CASE WHEN p.statut = 'Refusé' THEN 1 ELSE 0 END) as refuse_count,
+                                                SUM(CASE WHEN p.statut = 'Absence justifiée' THEN 1 ELSE 0 END) as absence_justifiee_count,
+                                                SUM(CASE WHEN p.statut = 'Sortie justifiée' THEN 1 ELSE 0 END) as sortie_justifiee_count,
+                                                SUM(CASE WHEN p.statut = 'Absent' THEN 1 ELSE 0 END) as absent_count,
+                                                SUM(CASE WHEN p.statut = 'En retard' THEN 1 ELSE 0 END) as en_retard_count,
+                                                SUM(CASE WHEN p.statut = 'Présent' THEN 1 ELSE 0 END) as present_count
                       FROM passages p
                       WHERE p.date_passage BETWEEN :date_from AND :date_to
                       GROUP BY p.date_passage

@@ -7,10 +7,9 @@ export default class ManagementController {
         this.view = new ManagementView(this);
     }
 
-    async loadGestion() {
-        await this.view.render();
+    async loadManagement(section = 'passages') {
+        await this.view.render(section);
         await this.loadScheduleSlots();
-        // La section passages est active par défaut, chargée par _attachSidebarNav()
     }
 
     async loadScheduleSlots() {
@@ -24,19 +23,17 @@ export default class ManagementController {
     }
 
     async deleteUser(userId) {
-        if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur?')) {
-            try {
-                const response = await api.deleteUser(userId);
+        try {
+            const response = await api.deleteUser(userId);
 
-                if (response.success) {
-                    alert(response.message);
-                    this.loadUsers();
-                } else {
-                    alert(response.message || 'Erreur lors de la suppression');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
+            if (response.success) {
+                alert(response.message);
+                this.loadUsers();
+            } else {
+                alert(response.message || 'Erreur lors de la suppression');
             }
+        } catch (error) {
+            console.error('Erreur:', error);
         }
     }
 
@@ -157,12 +154,12 @@ export default class ManagementController {
         }
     }
 
-    async loadPassagesByDate(date) {
+    async loadPassagesByDateRange(dateFrom, dateTo) {
         try {
-            const response = await api.searchMovementsByStudent({ date });
+            const response = await api.searchMovementsByStudent({ date_from: dateFrom, date_to: dateTo });
             this.view.displayPassages(response.success ? response.results : []);
         } catch (error) {
-            console.error('Erreur loadPassagesByDate:', error);
+            console.error('Erreur loadPassagesByDateRange:', error);
             this.view.displayPassages([]);
         }
     }

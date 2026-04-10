@@ -4,11 +4,12 @@
         <meta charset="UTF-8">
         <title>École de Beauvoir - Gestion des sorties et entrées</title>
         <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script type="module" src="js/main.js" defer></script>
     </head>
 
     <body>
-
         <header>
             <h1>École de Beauvoir</h1>
             <img src="assets/img/DeBeauvoir.jpg" alt="Logo de l'école" class="logo">

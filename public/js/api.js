@@ -117,10 +117,13 @@ class API {
      */
     async searchMovementsByStudent(filters = {}) {
         const params = new URLSearchParams();
-        if (filters.nom)    params.append('nom',    filters.nom);
-        if (filters.prenom) params.append('prenom', filters.prenom);
-        if (filters.classe) params.append('classe', filters.classe);
-        if (filters.statut) params.append('statut', filters.statut);
+        if (filters.nom)       params.append('nom',       filters.nom);
+        if (filters.prenom)    params.append('prenom',    filters.prenom);
+        if (filters.classe)    params.append('classe',    filters.classe);
+        if (filters.statut)    params.append('statut',    filters.statut);
+        if (filters.date)      params.append('date',      filters.date);
+        if (filters.date_from) params.append('date_from', filters.date_from);
+        if (filters.date_to)   params.append('date_to',   filters.date_to);
         const qs = params.toString();
         return this.request(`movements/search-by-student${qs ? '?' + qs : ''}`);
     }

@@ -11,14 +11,21 @@ export default class AbsenceView {
         this.controller = controller;
     }
 
-    render() {
-        fetch('html/absence.html')
-            .then(response => response.text())
-            .then(data => {
-                this.container.innerHTML = data;
-                this._loadStudents();
-                this.attachEventListeners();
-            });
+    async render() {
+        try {
+            const response = await fetch('html/absence.html');
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP ${response.status}`);
+            }
+
+            const data = await response.text();
+            this.container.innerHTML = data;
+            this._loadStudents();
+            this.attachEventListeners();
+        } catch (error) {
+            console.error('Erreur rendu page absents:', error);
+            this.container.innerHTML = '<div class="card"><p>Impossible de charger la page des absents.</p></div>';
+        }
     }
 
     async _loadStudents() {
@@ -48,39 +55,34 @@ export default class AbsenceView {
         tbody.innerHTML = '';
         
         if (!absents || absents.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7">Aucun absent enregistré</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6">Aucun absent enregistré</td></tr>';
             return;
         }
         
         absents.forEach(absent => {
+            const statusLabel = absent.statut || 'Absent';
+            const badgeClass = statusLabel === 'Absent'
+                ? 'status-refuse'
+                : 'status-info';
+
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${absent.date_passage || '---'}</td>
                 <td>${absent.nom || '---'}</td>
                 <td>${absent.prenom || '---'}</td>
                 <td>${absent.classe || '---'}</td>
-                <td>${absent.reason || '---'}</td>
-                <td><span class="status-badge status-refuse">Absent</span></td>
-                <td>
-                    <button class="btn-mark-absent" data-student-id="${absent.id_etudiant}">
-                        Justifier
-                    </button>
-                </td>
+                <td>${absent.type_passage || '---'}</td>
+                <td><span class="status-badge ${badgeClass}">${statusLabel}</span></td>
             `;
             tbody.appendChild(row);
         });
     }
 
     attachEventListeners() {
-        const refreshBtn  = document.getElementById('btn-refresh-absents');
         const classeSelect  = document.getElementById('absent-classe');
         const nomSelect     = document.getElementById('absent-name');
         const prenomSelect  = document.getElementById('absent-surname');
         const addAbsentBtn  = document.getElementById('btn-add-absent');
-
-        if (refreshBtn && this.controller) {
-            refreshBtn.addEventListener('click', () => this.controller.loadAbsents());
-        }
 
         // --- Cascade classe → nom ---
         if (classeSelect) {
@@ -149,19 +151,6 @@ export default class AbsenceView {
                 const reason    = document.getElementById('absent-reason').value;
                 if (studentId) {
                     this.controller.markAbsent(studentId, reason);
-                }
-            });
-        }
-
-        // Event delegation for justify buttons
-        const tbody = document.getElementById('absents-table-body');
-        if (tbody) {
-            tbody.addEventListener('click', (e) => {
-                if (e.target.classList.contains('btn-mark-absent')) {
-                    const studentId = e.target.getAttribute('data-student-id');
-                    if (this.controller) {
-                        this.controller.markAbsent(studentId, 'Justifié');
-                    }
                 }
             });
         }

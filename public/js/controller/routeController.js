@@ -17,12 +17,30 @@ export default class RouteController {
             'absent': this.loadAbsent,
             'search': this.loadSearch,
             'historical': this.loadHistorical,
+            'management': this.loadManagement,
             'gestion': this.loadGestion,
             'logout': this.logout
         };
     }
 
     async navigate(route) {
+        // Extraire le hash de section (éventuellement : "management#users" → route="management", section="users")
+        let section = 'passages';
+        const hashIdx = route.indexOf('#');
+        if (hashIdx !== -1) {
+            section = route.slice(hashIdx + 1);
+            route   = route.slice(0, hashIdx);
+        }
+
+        const role = sessionStorage.getItem('role');
+        if (role === 'surveillant') {
+            const allowedRoutes = ['scan', 'manualEncoding', 'logout'];
+            if (!allowedRoutes.includes(route)) {
+                alert('Accès refusé à cette page.');
+                route = 'scan';
+            }
+        }
+
         if(this.routes.hasOwnProperty(route)) {
             switch(route) {
                 case 'logout':
@@ -53,9 +71,15 @@ export default class RouteController {
                     const historicalController = new HistoricalController();
                     historicalController.loadHistorical();
                     break;
+                case 'management':
                 case 'gestion':
-                    const gestionController = new ManagementController();
-                    gestionController.loadGestion();
+                    if (sessionStorage.getItem('role') !== 'administrateur') {
+                        alert('Accès refusé à la gestion.');
+                        this.navigate('dashboard');
+                        break;
+                    }
+                    const managementController = new ManagementController();
+                    managementController.loadManagement(section);
                     break;
                 
             }

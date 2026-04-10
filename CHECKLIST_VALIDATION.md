@@ -1,18 +1,18 @@
-# CHECKLIST DE VALIDATION - Suivi des Corrections
+﻿# CHECKLIST DE VALIDATION - Suivi des Corrections
 
-**Utiliser ce fichier pour cocher chaque correction au fur et à mesure.**
+**Utiliser ce fichier pour cocher chaque correction au fur et Ã  mesure.**
 
 ---
 
-## 🔴 PHASE 1: CORRECTIONS CRITIQUES IMMÉDIATE
+## ðŸ”´ PHASE 1: CORRECTIONS CRITIQUES IMMÃ‰DIATE
 
 ### P1.1 - Corriger Chemin Configuration
 
 - [ ] **Fichier:** [app/core/dataBase.php](app/core/dataBase.php) ligne 12
 - [ ] **Avant:** `$config = require __DIR__ . '../config/config.php';`
-- [ ] **Après:** `$config = require __DIR__ . '/../config/config.php';`
-- [ ] **Vérifier:** Exécuter une requête test → Connection successful?
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+- [ ] **AprÃ¨s:** `$config = require __DIR__ . '/../config/config.php';`
+- [ ] **VÃ©rifier:** ExÃ©cuter une requÃªte test â†’ Connection successful?
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
@@ -20,9 +20,9 @@
 
 - [ ] **Fichier:** [app/core/router.php](app/core/router.php) ligne 36
 - [ ] **Avant:** `$controllerPath = "App\\Controllers\\" . $controllerName;`
-- [ ] **Après:** `$controllerPath = "App\\Controller\\" . $controllerName;`
-- [ ] **Vérifier:** `GET /scan` → charge ScanController?
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+- [ ] **AprÃ¨s:** `$controllerPath = "App\\Controller\\" . $controllerName;`
+- [ ] **VÃ©rifier:** `GET /scan` â†’ charge ScanController?
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
@@ -36,7 +36,7 @@ $model->addMovement($movementData = [
     'movement_type' => 'entry'
 ]);
 ```
-- [ ] **Après:**
+- [ ] **AprÃ¨s:**
 ```php
 $movementData = [
     'student_id' => $studentId,
@@ -44,8 +44,8 @@ $movementData = [
 ];
 $model->addMovement($movementData);
 ```
-- [ ] **Vérifier:** Code s'exécute sans erreur parsing?
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+- [ ] **VÃ©rifier:** Code s'exÃ©cute sans erreur parsing?
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
@@ -53,13 +53,13 @@ $model->addMovement($movementData);
 
 - [ ] **Fichier:** [app/model/studentsModel.php](app/model/studentsModel.php)
 - [ ] **Changements:**
-  - [ ] Ligne 12: `SELECT * FROM students` → `SELECT * FROM etudiants`
-  - [ ] Ligne 17: `SELECT * FROM students WHERE id` → `SELECT * FROM etudiants WHERE id_etudiant`
-  - [ ] Ligne 22: `SELECT * FROM students WHERE nom` → `SELECT * FROM etudiants WHERE nom`
-  - [ ] Ligne 22: `OR id LIKE` → `OR id_etudiant LIKE` (optionnel)
-  - [ ] Ligne 22: `SELECT *` → `SELECT id_etudiant, nom, prenom, classe FROM`
-- [ ] **Vérifier:** `getAllStudents()` retourne des résultats?
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+  - [ ] Ligne 12: `SELECT * FROM students` â†’ `SELECT * FROM etudiants`
+  - [ ] Ligne 17: `SELECT * FROM students WHERE id` â†’ `SELECT * FROM etudiants WHERE id_etudiant`
+  - [ ] Ligne 22: `SELECT * FROM students WHERE nom` â†’ `SELECT * FROM etudiants WHERE nom`
+  - [ ] Ligne 22: `OR id LIKE` â†’ `OR id_etudiant LIKE` (optionnel)
+  - [ ] Ligne 22: `SELECT *` â†’ `SELECT id_etudiant, nom, prenom, classe FROM`
+- [ ] **VÃ©rifier:** `getAllStudents()` retourne des rÃ©sultats?
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
@@ -67,16 +67,16 @@ $model->addMovement($movementData);
 
 - [ ] **Fichier:** [app/model/movementsModel.php](app/model/movementsModel.php)
 - [ ] **Changements:**
-  - [ ] Ligne 19: `INSERT INTO movements` → `INSERT INTO passages`
-  - [ ] Ligne 19: `(student_id, movement_type, timestamp)` → `(id_etudiant, date_passage, heure_passage, type_passage, statut)`
-  - [ ] Ligne 23: `:student_id` → `:id_etudiant` (partout)
-  - [ ] Ligne 24: `:movement_type` → `:type_passage` (+ ajouter mappage)
-  - [ ] Ajouter méthode `mapMovementType()` pour convertir 'entry' → 'entree_matin'
-  - [ ] Ligne 30: `UPDATE movements` → `UPDATE passages`
-  - [ ] Ligne 35: `movement_type` → `type_passage`
-  - [ ] Ligne 48: `SELECT m.* FROM movements m` → `SELECT * FROM passages WHERE id_etudiant`
-  - [ ] Ligne 56: `SELECT * FROM movements WHERE student_id` → `SELECT * FROM passages WHERE id_etudiant`
-  - [ ] Ligne 60: `SELECT * FROM movements` → `SELECT * FROM passages`
+  - [ ] Ligne 19: `INSERT INTO movements` â†’ `INSERT INTO passages`
+  - [ ] Ligne 19: `(student_id, movement_type, timestamp)` â†’ `(id_etudiant, date_passage, heure_passage, type_passage, statut)`
+  - [ ] Ligne 23: `:student_id` â†’ `:id_etudiant` (partout)
+  - [ ] Ligne 24: `:movement_type` â†’ `:type_passage` (+ ajouter mappage)
+  - [ ] Ajouter mÃ©thode `mapMovementType()` pour convertir 'entry' â†’ 'entree_matin'
+  - [ ] Ligne 30: `UPDATE movements` â†’ `UPDATE passages`
+  - [ ] Ligne 35: `movement_type` â†’ `type_passage`
+  - [ ] Ligne 48: `SELECT m.* FROM movements m` â†’ `SELECT * FROM passages WHERE id_etudiant`
+  - [ ] Ligne 56: `SELECT * FROM movements WHERE student_id` â†’ `SELECT * FROM passages WHERE id_etudiant`
+  - [ ] Ligne 60: `SELECT * FROM movements` â†’ `SELECT * FROM passages`
 - [ ] **Ajouter Mappage:**
 ```php
 private function mapMovementType($frontendType) {
@@ -89,8 +89,8 @@ private function mapMovementType($frontendType) {
     return $mapping[$frontendType] ?? 'entree_matin';
 }
 ```
-- [ ] **Vérifier:** `addMovement()` insère en BD sans erreur?
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+- [ ] **VÃ©rifier:** `addMovement()` insÃ¨re en BD sans erreur?
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
@@ -99,236 +99,236 @@ private function mapMovementType($frontendType) {
 - [ ] **Fichier:** [app/model/usersModel.php](app/model/usersModel.php)
 - [ ] **Changements:**
   - [ ] Uniformiser sur `utilisateurs` (pas `users`)
-  - [ ] Toutes les requêtes SQL doivent utiliser `utilisateurs`
+  - [ ] Toutes les requÃªtes SQL doivent utiliser `utilisateurs`
   - [ ] Utiliser `id_user` au lieu de `id`
-  - [ ] Ajouter whitelist pour les mises à jour (ligne éviter SQL injection)
-- [ ] **Vérifier:** Pas de références à `users`?
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+  - [ ] Ajouter whitelist pour les mises Ã  jour (ligne Ã©viter SQL injection)
+- [ ] **VÃ©rifier:** Pas de rÃ©fÃ©rences Ã  `users`?
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
-## 🟠 PHASE 2: ROUTES & API (Jour 2)
+## ðŸŸ  PHASE 2: ROUTES & API (Jour 2)
 
 ### P2.1 - Ajouter Routes Dans routes.php
 
 - [ ] **Fichier:** [app/config/routes.php](app/config/routes.php)
 - [ ] **Ajouter routes GET:**
-  - [ ] `/students/search` → SearchController::search
-  - [ ] `/movements/student/{id}` → MovementsController::byStudent
-  - [ ] `/movements/history` → MovementsController::history
-  - [ ] `/users` → UsersController::index
+  - [ ] `/students/search` â†’ SearchController::search
+  - [ ] `/movements/student/{id}` â†’ MovementsController::byStudent
+  - [ ] `/movements/history` â†’ MovementsController::history
+  - [ ] `/users` â†’ UsersController::index
 - [ ] **Ajouter routes POST:**
-  - [ ] `/movements/add` → MovementsController::add
-  - [ ] `/movements/update/{id}` → MovementsController::update
-  - [ ] `/movements/delete/{id}` → MovementsController::delete
-  - [ ] `/users/add` → UsersController::add
-  - [ ] `/users/update/{id}` → UsersController::update
-  - [ ] `/users/delete/{id}` → UsersController::delete
-  - [ ] `/logout` → AuthController::logout
-- [ ] **Vérifier:** Routeur charge correctement?
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+  - [ ] `/movements/add` â†’ MovementsController::add
+  - [ ] `/movements/update/{id}` â†’ MovementsController::update
+  - [ ] `/movements/delete/{id}` â†’ MovementsController::delete
+  - [ ] `/users/add` â†’ UsersController::add
+  - [ ] `/users/update/{id}` â†’ UsersController::update
+  - [ ] `/users/delete/{id}` â†’ UsersController::delete
+  - [ ] `/logout` â†’ AuthController::logout
+- [ ] **VÃ©rifier:** Routeur charge correctement?
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
-### P2.2 - Créer public/js/api.js
+### P2.2 - CrÃ©er public/js/api.js
 
 - [ ] **Fichier:** [public/js/api.js](public/js/api.js) (actuellement VIDE)
-- [ ] **Implémentation:**
-  - [ ] Classe `Api` avec méthode statique `post(endpoint, data)`
-  - [ ] Méthode `get(endpoint, params)`
-  - [ ] Méthode `request(endpoint, method, data)` centralisée
-  - [ ] Gestion d'erreur unifiée
+- [ ] **ImplÃ©mentation:**
+  - [ ] Classe `Api` avec mÃ©thode statique `post(endpoint, data)`
+  - [ ] MÃ©thode `get(endpoint, params)`
+  - [ ] MÃ©thode `request(endpoint, method, data)` centralisÃ©e
+  - [ ] Gestion d'erreur unifiÃ©e
   - [ ] Headers `Content-Type: application/json`
-- [ ] **Tester:** `Api.post('/scan/ajouter', {student_id: 123})` → Response?
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+- [ ] **Tester:** `Api.post('/scan/ajouter', {student_id: 123})` â†’ Response?
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
-### P2.3 - Mettre à Jour movementsModel.js
+### P2.3 - Mettre Ã  Jour movementsModel.js
 
 - [ ] **Fichier:** [public/js/model/movementsModel.js](public/js/model/movementsModel.js)
 - [ ] **Raplacer tous les `fetch()`:**
-  - [ ] `php/api/searchMovements.php` → `Api.get('/movements/search', {q})`
-  - [ ] `php/api/addMovement.php` → `Api.post('/movements/add', data)`
-  - [ ] `php/api/updateMovement.php` → `Api.post('/movements/update/{id}', data)`
+  - [ ] `php/api/searchMovements.php` â†’ `Api.get('/movements/search', {q})`
+  - [ ] `php/api/addMovement.php` â†’ `Api.post('/movements/add', data)`
+  - [ ] `php/api/updateMovement.php` â†’ `Api.post('/movements/update/{id}', data)`
 - [ ] **Ajouter Import:** `import Api from '../api.js';`
 - [ ] **Tester:** Console ne montre no error sur appel API?
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
-### P2.4 - Mettre à Jour studentsModel.js
+### P2.4 - Mettre Ã  Jour studentsModel.js
 
 - [ ] **Fichier:** [public/js/model/studentsModel.js](public/js/model/studentsModel.js)
 - [ ] **Raplacer:**
-  - [ ] `php/api/searchStudents.php` → `Api.get('/students/search', {q})`
+  - [ ] `php/api/searchStudents.php` â†’ `Api.get('/students/search', {q})`
 - [ ] **Ajouter Import:** `import Api from '../api.js';`
 - [ ] **Tester:** Recherche fonctionne?
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
-### P2.5 - Mettre à Jour usersModel.js
+### P2.5 - Mettre Ã  Jour usersModel.js
 
 - [ ] **Fichier:** [public/js/model/usersModel.js](public/js/model/usersModel.js)
 - [ ] **Raplacer tous les `fetch()`:**
-  - [ ] `php/api/addUser.php` → `Api.post('/users/add', data)`
-  - [ ] `php/api/deleteUser.php` → `Api.post('/users/delete/{id}', {})`
-  - [ ] `php/api/updateUser.php` → `Api.post('/users/update/{id}', data)`
+  - [ ] `php/api/addUser.php` â†’ `Api.post('/users/add', data)`
+  - [ ] `php/api/deleteUser.php` â†’ `Api.post('/users/delete/{id}', {})`
+  - [ ] `php/api/updateUser.php` â†’ `Api.post('/users/update/{id}', data)`
 - [ ] **Ajouter Import:** `import Api from '../api.js';`
-- [ ] **Ajouter méthode `getUsers()`:** Appeler `Api.get('/users')`
+- [ ] **Ajouter mÃ©thode `getUsers()`:** Appeler `Api.get('/users')`
 - [ ] **Tester:** Pas d'erreur 404 sur appels API?
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
-## 🟡 PHASE 3: CONTRÔLEURS PHP (Jour 3-4)
+## ðŸŸ¡ PHASE 3: CONTRÃ”LEURS PHP (Jour 3-4)
 
-### P3.1 - Implémenter SearchController
+### P3.1 - ImplÃ©menter SearchController
 
 - [ ] **Fichier:** [app/controller/searchController.php](app/controller/searchController.php)
-- [ ] **Méthode `search($params = [])`:**
-  - [ ] Récupère `$_GET['q']`
-  - [ ] Valide (minimum 2 caractères)
+- [ ] **MÃ©thode `search($params = [])`:**
+  - [ ] RÃ©cupÃ¨re `$_GET['q']`
+  - [ ] Valide (minimum 2 caractÃ¨res)
   - [ ] Appelle StudentsModel::searchStudents()
   - [ ] Retourne JSON `{success, count, results}`
 - [ ] **Tester:** 
-  - [ ] `GET /students/search?q=test` → JSON response?
-  - [ ] `GET /students/search` (sans q) → Error message?
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+  - [ ] `GET /students/search?q=test` â†’ JSON response?
+  - [ ] `GET /students/search` (sans q) â†’ Error message?
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
-### P3.2 - Créer AuthController
+### P3.2 - CrÃ©er AuthController
 
-- [ ] **Fichier:** `app/controller/AuthController.php` (À CRÉER)
-- [ ] **Méthode `verify($params = [])`:**
-  - [ ] Récupère JSON POST: `{username, password}`
+- [ ] **Fichier:** `app/controller/AuthController.php` (Ã€ CRÃ‰ER)
+- [ ] **MÃ©thode `verify($params = [])`:**
+  - [ ] RÃ©cupÃ¨re JSON POST: `{username, password}`
   - [ ] Appelle UsersModel::getUserByUsername()
-  - [ ] Vérifie mot de passe avec `password_verify()`
-  - [ ] Crée session PHP `$_SESSION['role']`, `$_SESSION['user_id']`
+  - [ ] VÃ©rifie mot de passe avec `password_verify()`
+  - [ ] CrÃ©e session PHP `$_SESSION['role']`, `$_SESSION['user_id']`
   - [ ] Retourne JSON `{success, role, username}`
-- [ ] **Méthode `logout($params = [])`:**
+- [ ] **MÃ©thode `logout($params = [])`:**
   - [ ] Destroy session
   - [ ] Retourne `{success: true}`
 - [ ] **Tester:**
-  - [ ] `POST /login {username: 'admin', password: 'admin'}` → Login OK?
-  - [ ] `POST /login {username: 'admiin', password: 'wrong'}` → Erreur?
-  - [ ] `POST /logout` → Destroy session?
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+  - [ ] `POST /login {username: 'admin', password: 'admin'}` â†’ Login OK?
+  - [ ] `POST /login {username: 'admiin', password: 'wrong'}` â†’ Erreur?
+  - [ ] `POST /logout` â†’ Destroy session?
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
-### P3.3 - Créer MovementsController
+### P3.3 - CrÃ©er MovementsController
 
-- [ ] **Fichier:** `app/controller/MovementsController.php` (À CRÉER)
-- [ ] **Méthode `add($params = [])`:**
+- [ ] **Fichier:** `app/controller/MovementsController.php` (Ã€ CRÃ‰ER)
+- [ ] **MÃ©thode `add($params = [])`:**
   - [ ] POST data: `{student_id, movement_type, statut}`
   - [ ] Appelle MovementsModel::addMovement()
   - [ ] Retourne `{success, message}`
-- [ ] **Méthode `byStudent($params = [])`:**
+- [ ] **MÃ©thode `byStudent($params = [])`:**
   - [ ] GET params: `{id}`
   - [ ] Appelle MovementsModel::getMovementByStudentId()
   - [ ] Retourne `{success, results}`
 - [ ] **Tester:**
-  - [ ] `POST /movements/add` → Insert en BD?
-  - [ ] `GET /movements/student/1` → Données student?
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+  - [ ] `POST /movements/add` â†’ Insert en BD?
+  - [ ] `GET /movements/student/1` â†’ DonnÃ©es student?
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
-### P3.4 - Créer UsersController
+### P3.4 - CrÃ©er UsersController
 
-- [ ] **Fichier:** `app/controller/UsersController.php` (À CRÉER)
-- [ ] **Méthode `index($params = [])`:**
+- [ ] **Fichier:** `app/controller/UsersController.php` (Ã€ CRÃ‰ER)
+- [ ] **MÃ©thode `index($params = [])`:**
   - [ ] Appelle UsersModel::getUsers()
   - [ ] Retourne JSON `{success, results}`
-- [ ] **Méthode `add($params = [])`:**
+- [ ] **MÃ©thode `add($params = [])`:**
   - [ ] POST data: `{name, password, role}`
   - [ ] Hash du mot de passe
   - [ ] Appelle UsersModel::createUser()
   - [ ] Retourne `{success, message}`
-- [ ] **Méthode `delete($params = [])`:**
+- [ ] **MÃ©thode `delete($params = [])`:**
   - [ ] URL param: `{id}`
   - [ ] Appelle UsersModel::deleteUser()
   - [ ] Retourne `{success, message}`
-- [ ] **Méthode `update($params = [])`:**
+- [ ] **MÃ©thode `update($params = [])`:**
   - [ ] URL param: `{id}`
   - [ ] POST data: `{nom, role}`
   - [ ] Appelle UsersModel::updateUser()
   - [ ] Retourne `{success, message}`
 - [ ] **Tester:**
-  - [ ] `GET /users` → Liste utilisateurs?
-  - [ ] `POST /users/add` → Crée utilisateur?
-  - [ ] `POST /users/delete/1` → Supprime?
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+  - [ ] `GET /users` â†’ Liste utilisateurs?
+  - [ ] `POST /users/add` â†’ CrÃ©e utilisateur?
+  - [ ] `POST /users/delete/1` â†’ Supprime?
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
-### P3.5 - Implémenter DashboardController
+### P3.5 - ImplÃ©menter DashboardController
 
 - [ ] **Fichier:** [app/controller/dashboardController.php](app/controller/dashboardController.php)
-- [ ] **Méthode `index($params = [])`:**
+- [ ] **MÃ©thode `index($params = [])`:**
   - [ ] Retourne statistiques: `{total_students, total_users, today_scans}`
   - [ ] Ou simplement affiche la page (si SPA)
 - [ ] **Tester:** Pas d'erreur 500?
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
-### P3.6 - Autres Contrôleurs
+### P3.6 - Autres ContrÃ´leurs
 
-- [ ] **[GestionController](app/controller/gestionController.php):** `index()`, `ajouter()`, `supprimer()`
+- [ ] **[ManagementController](app/controller/managementController.php):** `index()`, `ajouter()`, `supprimer()`
 - [ ] **[AbsentController](app/controller/absentController.php):** `index()`
 - [ ] **[HistoricalController](app/controller/historicalController.php):** `show($params)`
-- [ ] **`HomeController.php` (créer):** `index()`
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+- [ ] **`HomeController.php` (crÃ©er):** `index()`
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
-## 🔵 PHASE 4: AUTHENTIFICATION SÉCURISÉE (Jour 4)
+## ðŸ”µ PHASE 4: AUTHENTIFICATION SÃ‰CURISÃ‰E (Jour 4)
 
 ### P4.1 - Corriger sessionController.js
 
 - [ ] **Fichier:** [public/js/controller/sessionController.js](public/js/controller/sessionController.js)
 - [ ] **Changements:**
   - [ ] Ajouter `import Api from '../api.js';`
-  - [ ] Méthode `login()` doit appeler `Api.post('/login', {username, password})`
-  - [ ] Ne PAS déterminer le rôle en frontend
-  - [ ] Récupérer le rôle de la réponse backend
-  - [ ] Ajouter méthode `logout()` qui appelle `Api.post('/logout', {})`
+  - [ ] MÃ©thode `login()` doit appeler `Api.post('/login', {username, password})`
+  - [ ] Ne PAS dÃ©terminer le rÃ´le en frontend
+  - [ ] RÃ©cupÃ©rer le rÃ´le de la rÃ©ponse backend
+  - [ ] Ajouter mÃ©thode `logout()` qui appelle `Api.post('/logout', {})`
 - [ ] **Tester:**
-  - [ ] Login avec credentials valides → OK?
-  - [ ] Login avec credentials invalides → Erreur?
-  - [ ] Logout → Destroy session?
-  - [ ] Naviguer après logout → Redirect login?
-- [ ] **Status:** ✅ COMPLÉTÉ | ⏳ EN COURS | ❌ PAS COMMENCÉ
+  - [ ] Login avec credentials valides â†’ OK?
+  - [ ] Login avec credentials invalides â†’ Erreur?
+  - [ ] Logout â†’ Destroy session?
+  - [ ] Naviguer aprÃ¨s logout â†’ Redirect login?
+- [ ] **Status:** âœ… COMPLÃ‰TÃ‰ | â³ EN COURS | âŒ PAS COMMENCÃ‰
 
 ---
 
-## 🟢 PHASE 5: TESTS COMPLETS (Jour 5)
+## ðŸŸ¢ PHASE 5: TESTS COMPLETS (Jour 5)
 
 ### T1 - Test Authentification
 
 - [ ] **Cas:** Login avec `admin` / `admin`
-  - [ ] Forme submit → Redirect à dashboard?
+  - [ ] Forme submit â†’ Redirect Ã  dashboard?
   - [ ] Role = `administrateur`?
-  - [ ] Session créée en backend?
+  - [ ] Session crÃ©Ã©e en backend?
 - [ ] **Cas:** Login incorrect
-  - [ ] Message d'erreur affichée?
+  - [ ] Message d'erreur affichÃ©e?
   - [ ] No session en backend?
 - [ ] **Cas:** Logout
-  - [ ] Session détruite?
+  - [ ] Session dÃ©truite?
   - [ ] Redirect vers login?
 
 ---
 
-### T2 - Test Scan Étudiant
+### T2 - Test Scan Ã‰tudiant
 
-- [ ] **Cas:** Scanner étudiant à ID valide
+- [ ] **Cas:** Scanner Ã©tudiant Ã  ID valide
   - [ ] POST `/scan/ajouter` avec `student_id`?
   - [ ] Insert dans table `passages`?
-  - [ ] Message succès affiché?
+  - [ ] Message succÃ¨s affichÃ©?
 - [ ] **Cas:** Scanner sans ID
   - [ ] Erreur "ID manquant"?
 
@@ -336,11 +336,11 @@ private function mapMovementType($frontendType) {
 
 ### T3 - Test Recherche
 
-- [ ] **Cas:** Rechercher étudiant existant
+- [ ] **Cas:** Rechercher Ã©tudiant existant
   - [ ] GET `/students/search?q=dupont`?
-  - [ ] Résultats affichés?
+  - [ ] RÃ©sultats affichÃ©s?
 - [ ] **Cas:** Rechercher inexistant
-  - [ ] Message "Aucun résultat"?
+  - [ ] Message "Aucun rÃ©sultat"?
 
 ---
 
@@ -349,37 +349,37 @@ private function mapMovementType($frontendType) {
 - [ ] **Cas:** Ajouter utilisateur
   - [ ] POST `/users/add` `{name, password, role}`?
   - [ ] Insert en table `utilisateurs`?
-  - [ ] Password hashé avec password_hash()?
+  - [ ] Password hashÃ© avec password_hash()?
 - [ ] **Cas:** Supprimer utilisateur
   - [ ] POST `/users/delete/{id}`?
-  - [ ] Suppression complète?
+  - [ ] Suppression complÃ¨te?
 
 ---
 
 ### T5 - Test Historique
 
-- [ ] **Cas:** Voir historique étudiant
+- [ ] **Cas:** Voir historique Ã©tudiant
   - [ ] GET `/historical/{student_id}`?
-  - [ ] Liste des passages affichée?
+  - [ ] Liste des passages affichÃ©e?
 
 ---
 
 ### T6 - Test Dashboard
 
-- [ ] **Cas:** Accès dashboard
+- [ ] **Cas:** AccÃ¨s dashboard
   - [ ] GET `/dashboard`?
-  - [ ] Statistiques calculées?
+  - [ ] Statistiques calculÃ©es?
 
 ---
 
-## ✅ VALIDATION FINALE
+## âœ… VALIDATION FINALE
 
-### Critères de Succès
+### CritÃ¨res de SuccÃ¨s
 
 - [ ] Pas d'erreur 404 autre que routes inexistantes
-- [ ] Toutes les réponses JSON ont le format `{success, message, results}`
-- [ ] Les tables BD correspondent aux requêtes SQL
-- [ ] Frontend → Backend: mappage complet des paramètres
+- [ ] Toutes les rÃ©ponses JSON ont le format `{success, message, results}`
+- [ ] Les tables BD correspondent aux requÃªtes SQL
+- [ ] Frontend â†’ Backend: mappage complet des paramÃ¨tres
 - [ ] Session/Auth: fonctionne correctement
 - [ ] Aucune erreur console JavaScript
 - [ ] Aucune erreur PHP logs
@@ -388,22 +388,22 @@ private function mapMovementType($frontendType) {
 
 - [ ] Code Review par Senior Dev?
 - [ ] Tests UAT par Product Owner?
-- [ ] Documentation mise à jour?
-- [ ] README project complété?
+- [ ] Documentation mise Ã  jour?
+- [ ] README project complÃ©tÃ©?
 
 ---
 
-## 📝 NOTES DE PROGRESSION
+## ðŸ“ NOTES DE PROGRESSION
 
 ```
 Date: _____________
 
-Tâches complétées aujourd'hui:
+TÃ¢ches complÃ©tÃ©es aujourd'hui:
 - ____________________________________
 - ____________________________________
 - ____________________________________
 
-Blockers rencontrés:
+Blockers rencontrÃ©s:
 - ____________________________________
 - ____________________________________
 
@@ -413,4 +413,5 @@ Prochaines actions:
 
 Estimation temps restant: _________ heures
 ```
+
 

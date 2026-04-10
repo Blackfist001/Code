@@ -10,6 +10,7 @@ return [
         '/historical' => ['HistoricalController', 'index'],
         '/absent' => ['AbsenceController', 'index'],
         '/search' => ['SearchController', 'index'],
+        '/management' => ['ManagementController', 'index'],
         '/gestion' => ['ManagementController', 'index'],
 
         // API Routes
@@ -39,6 +40,8 @@ return [
         '/login' => ['AuthController', 'verify'],
         '/scan/ajouter' => ['ScanController', 'ajouter'],
         '/search' => ['SearchController', 'search'],
+        '/management/ajouter' => ['ManagementController', 'addStudent'],
+        '/management/supprimer' => ['ManagementController', 'deleteStudent'],
         '/gestion/ajouter' => ['ManagementController', 'addStudent'],
         '/gestion/supprimer' => ['ManagementController', 'deleteStudent'],
         '/absent/ajouter' => ['AbsenceController', 'markAbsent'],

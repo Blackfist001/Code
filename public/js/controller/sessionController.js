@@ -22,6 +22,8 @@ export default class SessionController {
                 
                 this.sessionRole = user.role;
 
+                this._showOneRosterSyncSummary(response.oneroster_sync);
+
                 // Mettre à jour l'URL sans recharger (SPA)
                 history.replaceState(null, '', '/');
 
@@ -32,6 +34,53 @@ export default class SessionController {
         } catch (error) {
             alert('Erreur de connexion: ' + error.message);
         }
+    }
+
+    _showOneRosterSyncSummary(syncInfo) {
+        if (!syncInfo || !syncInfo.executed) {
+            return;
+        }
+
+        const stats = syncInfo.stats || {};
+
+        if (syncInfo.success) {
+            const text = [
+                'Synchronisation OneRoster terminee.',
+                `Total traites: ${stats.total ?? 0}`,
+                `Inserts: ${stats.inserted ?? 0}`,
+                `Mises a jour: ${stats.updated ?? 0}`,
+                `Inchanges: ${stats.unchanged ?? 0}`,
+                `Ignores: ${stats.skipped ?? 0}`,
+                `Erreurs: ${stats.errors ?? 0}`,
+            ].join('\n');
+
+            if (window.Swal && typeof window.Swal.fire === 'function') {
+                window.Swal.fire({
+                    icon: 'success',
+                    title: 'Synchronisation etudiants',
+                    text,
+                    confirmButtonText: 'OK',
+                });
+                return;
+            }
+
+            alert(text);
+            return;
+        }
+
+        const errorText = `Synchronisation OneRoster echouee: ${syncInfo.message || 'erreur inconnue'}`;
+
+        if (window.Swal && typeof window.Swal.fire === 'function') {
+            window.Swal.fire({
+                icon: 'warning',
+                title: 'Synchronisation etudiants',
+                text: errorText,
+                confirmButtonText: 'OK',
+            });
+            return;
+        }
+
+        alert(errorText);
     }
 
     async logout() {

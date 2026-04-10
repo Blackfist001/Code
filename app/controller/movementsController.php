@@ -196,11 +196,13 @@ class MovementsController {
 
         try {
             $filters = [
-                'nom'    => $_GET['nom']    ?? '',
-                'prenom' => $_GET['prenom'] ?? '',
-                'classe' => $_GET['classe'] ?? '',
-                'statut' => $_GET['statut'] ?? '',
-                'date'   => $_GET['date']   ?? '',
+                'nom'       => $_GET['nom']       ?? '',
+                'prenom'    => $_GET['prenom']    ?? '',
+                'classe'    => $_GET['classe']    ?? '',
+                'statut'    => $_GET['statut']    ?? '',
+                'date'      => $_GET['date']      ?? '',
+                'date_from' => $_GET['date_from'] ?? '',
+                'date_to'   => $_GET['date_to']   ?? '',
             ];
 
             $results = $this->movementsModel->searchMovementsByStudent($filters);

@@ -11,7 +11,6 @@ export default class DashboardView {
                 this.container.innerHTML = data;
                 this.populateStats(stats);
                 this.populateMovements(movements);
-                this.attachEventListeners();
             });
     }
 
@@ -24,18 +23,30 @@ export default class DashboardView {
     }
 
     populateStats(stats) {
-        if (document.getElementById('total-students')) {
-            document.getElementById('total-students').textContent = stats.total_students || 0;
-        }
-        if (document.getElementById('present-count')) {
-            document.getElementById('present-count').textContent = stats.present_today || 0;
-        }
-        if (document.getElementById('absent-count')) {
-            document.getElementById('absent-count').textContent = stats.absent_today || 0;
-        }
-        if (document.getElementById('total-scans')) {
-            document.getElementById('total-scans').textContent = stats.total_scans || 0;
-        }
+        const statsContainer = document.getElementById('dashboard-stats-container');
+        if (!statsContainer) return;
+
+        const orderedStats = [
+            ['Total étudiants', stats.total_students || 0],
+            ['Absents', stats.absent_count || stats.absent_today || 0],
+            ['Présents', stats.present_count || stats.present_today || 0],
+            ['Retards', stats.en_retard_count || 0],
+            ['Sorties de midi autorisées', stats.autorise_count || 0],
+            ['Sorties de midi refusées', stats.refuse_count || 0],
+            ['Absences justifiées', stats.absence_justifiee_count || 0],
+            ['Sorties justifiées', stats.sortie_justifiee_count || 0],
+            ['Total passages', stats.total_passages || stats.total_scans || 0]
+        ].map(([label, value]) => `
+                <div class="stat-item">
+                    <span>${label}: ${value}</span>
+                </div>
+            `).join('');
+
+        statsContainer.innerHTML = `
+            <div class="stats-grid">
+                ${orderedStats}
+            </div>
+        `;
     }
 
     populateMovements(movements) {
@@ -43,16 +54,20 @@ export default class DashboardView {
         if (!tbody) return;
         
         tbody.innerHTML = '';
+
+        const dayMovements = (movements || []).filter(movement =>
+            String(movement.type_passage || '').toLowerCase() === 'journée'
+        );
         
-        if (!movements || movements.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6">Aucun passage enregistré</td></tr>';
+        if (!dayMovements.length) {
+            tbody.innerHTML = '<tr><td colspan="7">Aucun passage enregistré</td></tr>';
             return;
         }
 
         const STATUT_ROUGE = ['Absent', 'Refusé', 'En retard'];
         const STATUT_VERT  = ['Présent', 'Autorisé'];
 
-        movements.slice(0, 10).forEach(movement => {
+        dayMovements.slice(0, 10).forEach(movement => {
             const statut = movement.statut || '---';
             const statutClass = STATUT_ROUGE.includes(statut)
                 ? 'status-refuse'
@@ -64,6 +79,7 @@ export default class DashboardView {
                 <td>${movement.date_passage || '---'}</td>
                 <td>${movement.heure_passage || '---'}</td>
                 <td>${movement.nom || '---'}</td>
+                <td>${movement.prenom || '---'}</td>
                 <td>${movement.classe || '---'}</td>
                 <td>${movement.type_passage || '---'}</td>
                 <td><span class="status-badge ${statutClass}">${statut}</span></td>
@@ -74,14 +90,5 @@ export default class DashboardView {
 
     updateMovements(movements) {
         this.populateMovements(movements);
-    }
-
-    attachEventListeners() {
-        const refreshBtn = document.getElementById('btn-refresh-stats');
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => {
-                window.dispatchEvent(new CustomEvent('refresh-dashboard'));
-            });
-        }
     }
 }

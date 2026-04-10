@@ -1,12 +1,12 @@
-# SOLUTIONS PRATIQUES - Corrections des Bugs Critiques
+﻿# SOLUTIONS PRATIQUES - Corrections des Bugs Critiques
 
-**Objectif:** Fournir du code corrigé prêt à l'emploi pour chaque bug identifié
+**Objectif:** Fournir du code corrigÃ© prÃªt Ã  l'emploi pour chaque bug identifiÃ©
 
 ---
 
-## 1️⃣ CORRECTION: Noms de Tables (CRITIQUE)
+## 1ï¸âƒ£ CORRECTION: Noms de Tables (CRITIQUE)
 
-### Avant (FAUX) ❌
+### Avant (FAUX) âŒ
 
 **DataBase.php**
 ```php
@@ -19,20 +19,20 @@ $config = require __DIR__ . '../config/config.php';
 // Lignes 11-24 - Noms de tables FAUX
 public function getAllStudents() {
     $pdo = $this->db->getPdo();
-    $stmt = $pdo->query("SELECT * FROM students");  // ❌ Table n'existe pas
+    $stmt = $pdo->query("SELECT * FROM students");  // âŒ Table n'existe pas
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 public function getStudentById($id) {
     $pdo = $this->db->getPdo();
-    $stmt = $pdo->prepare("SELECT * FROM students WHERE id = :id");  // ❌
+    $stmt = $pdo->prepare("SELECT * FROM students WHERE id = :id");  // âŒ
     $stmt->execute([':id' => $id]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
 public function searchStudents($query) {
     $pdo = $this->db->getPdo();
-    $stmt = $pdo->prepare("SELECT * FROM students WHERE nom LIKE :query OR id LIKE :query LIMIT 20");  // ❌
+    $stmt = $pdo->prepare("SELECT * FROM students WHERE nom LIKE :query OR id LIKE :query LIMIT 20");  // âŒ
     $stmt->execute([':query' => "%$query%"]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -44,12 +44,12 @@ public function searchStudents($query) {
 public function addMovement($movementData) {
     $pdo = $this->db->getPdo();
     $stmt = $pdo->prepare(
-        "INSERT INTO movements (student_id, movement_type, timestamp) VALUES (:student_id, :movement_type, :timestamp)"  // ❌ Table n'existe pas!
+        "INSERT INTO movements (student_id, movement_type, timestamp) VALUES (:student_id, :movement_type, :timestamp)"  // âŒ Table n'existe pas!
     );
     try {
         $stmt->execute([
-            ':student_id' => $movementData['student_id'],        // ❌ Colonne n'existe pas
-            ':movement_type' => $movementData['movement_type'],  // ❌ Colonne n'existe pas
+            ':student_id' => $movementData['student_id'],        // âŒ Colonne n'existe pas
+            ':movement_type' => $movementData['movement_type'],  // âŒ Colonne n'existe pas
             ':timestamp' => date('Y-m-d H:i:s')
         ]);
     }
@@ -59,11 +59,11 @@ public function addMovement($movementData) {
 
 ---
 
-### Après (CORRECT) ✅
+### AprÃ¨s (CORRECT) âœ…
 
 **dataBase.php** - Ligne 12
 ```php
-// ✅ CORRECT - Chemin avec slash
+// âœ… CORRECT - Chemin avec slash
 $config = require __DIR__ . '/../config/config.php';
 ```
 
@@ -84,13 +84,13 @@ class StudentsModel {
 
     public function getAllStudents() {
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->query("SELECT * FROM etudiants");  // ✅ Correct
+        $stmt = $pdo->query("SELECT * FROM etudiants");  // âœ… Correct
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getStudentById($id) {
         $pdo = $this->db->getPdo();
-        // ✅ Utilise les colonnes correctes de la table
+        // âœ… Utilise les colonnes correctes de la table
         $stmt = $pdo->prepare("SELECT id_etudiant, nom, prenom, classe, photo, autorisation_midi FROM etudiants WHERE id_etudiant = :id");
         $stmt->execute([':id' => $id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -98,7 +98,7 @@ class StudentsModel {
 
     public function searchStudents($query) {
         $pdo = $this->db->getPdo();
-        // ✅ Utilise les bonnes colonnes
+        // âœ… Utilise les bonnes colonnes
         $stmt = $pdo->prepare(
             "SELECT id_etudiant, nom, prenom, classe FROM etudiants 
              WHERE nom LIKE :query OR prenom LIKE :query OR classe LIKE :query 
@@ -129,17 +129,17 @@ class MovementsModel {
 
     public function addMovement($movementData) {
         $pdo = $this->db->getPdo();
-        // ✅ Utilise les bonnes colonnes de la table passages
+        // âœ… Utilise les bonnes colonnes de la table passages
         $stmt = $pdo->prepare(
             "INSERT INTO passages (id_etudiant, date_passage, heure_passage, type_passage, statut) 
              VALUES (:id_etudiant, :date_passage, :heure_passage, :type_passage, :statut)"
         );
         try {
             $stmt->execute([
-                ':id_etudiant' => $movementData['student_id'],  // ✅ Mappe correctement
+                ':id_etudiant' => $movementData['student_id'],  // âœ… Mappe correctement
                 ':date_passage' => date('Y-m-d'),
                 ':heure_passage' => date('H:i:s'),
-                ':type_passage' => $this->mapMovementType($movementData['movement_type']),  // ✅ Convertir 'entry' -> 'entree_matin'
+                ':type_passage' => $this->mapMovementType($movementData['movement_type']),  // âœ… Convertir 'entry' -> 'entree_matin'
                 ':statut' => $movementData['statut'] ?? 'autorise'
             ]);
             return true;
@@ -149,7 +149,7 @@ class MovementsModel {
         }
     }
 
-    // ✅ Nouveau: Mapper les types du frontend vers la BD
+    // âœ… Nouveau: Mapper les types du frontend vers la BD
     private function mapMovementType($frontendType) {
         $mapping = [
             'entry' => 'entree_matin',
@@ -162,7 +162,7 @@ class MovementsModel {
 
     public function getMovementByStudentId($studentId) {
         $pdo = $this->db->getPdo();
-        // ✅ Utilise la bonne table et colonne
+        // âœ… Utilise la bonne table et colonne
         $stmt = $pdo->prepare(
             "SELECT id_passage, id_etudiant, date_passage, heure_passage, type_passage, statut 
              FROM passages 
@@ -191,7 +191,7 @@ class UsersModel {
         $this->db = new DataBase();
     }
 
-    // ✅ Utilise uniformément "utilisateurs"
+    // âœ… Utilise uniformÃ©ment "utilisateurs"
     public function getUserByUsername($username) {
         $pdo = $this->db->getPdo();
         $stmt = $pdo->prepare("SELECT id_user, nom, mot_de_passe, role FROM utilisateurs WHERE nom = :username");
@@ -230,7 +230,7 @@ class UsersModel {
         $params = [':id' => $id];
         
         foreach ($updateData as $key => $value) {
-            if (in_array($key, ['nom', 'role'])) {  // ✅ Whitelist pour éviter SQL injection
+            if (in_array($key, ['nom', 'role'])) {  // âœ… Whitelist pour Ã©viter SQL injection
                 $setClauses[] = "$key = :$key";
                 $params[":$key"] = $value;
             }
@@ -250,26 +250,26 @@ class UsersModel {
 
 ---
 
-## 2️⃣ CORRECTION: Routes API Incohérentes
+## 2ï¸âƒ£ CORRECTION: Routes API IncohÃ©rentes
 
-### Avant (FAUX - 3 systèmes différents) ❌
+### Avant (FAUX - 3 systÃ¨mes diffÃ©rents) âŒ
 
 **movementsModel.js**
 ```javascript
-// Système 1: Fichiers API inexistants
+// SystÃ¨me 1: Fichiers API inexistants
 searchMovements(query) {
-    fetch(`php/api/searchMovements.php?q=${encodeURIComponent(query)}`)  // ❌ Fichier n'existe pas!
+    fetch(`php/api/searchMovements.php?q=${encodeURIComponent(query)}`)  // âŒ Fichier n'existe pas!
 }
 
 addMovement(movementData) {
-    fetch('php/api/addMovement.php', {  // ❌ Fichier n'existe pas!
+    fetch('php/api/addMovement.php', {  // âŒ Fichier n'existe pas!
         method: 'POST',
         body: JSON.stringify(movementData)
     })
 }
 
 async save(movementData) {
-    // Système 2: Routeur PHP (bon, mais inconsistent)
+    // SystÃ¨me 2: Routeur PHP (bon, mais inconsistent)
     const response = await fetch('/scan/ajouter', {
         method: 'POST',
         body: formData
@@ -280,16 +280,16 @@ async save(movementData) {
 **studentsModel.js**
 ```javascript
 searchStudents(query) {
-    // Système 1: Fichiers API inexistants
-    fetch(`php/api/searchStudents.php?q=${encodeURIComponent(query)}`)  // ❌ Fichier n'existe pas!
+    // SystÃ¨me 1: Fichiers API inexistants
+    fetch(`php/api/searchStudents.php?q=${encodeURIComponent(query)}`)  // âŒ Fichier n'existe pas!
 }
 ```
 
 **usersModel.js**
 ```javascript
 addUser(userData) {
-    // Système 1: Fichiers API inexistants
-    fetch('php/api/addUser.php', {  // ❌ Fichier n'existe pas!
+    // SystÃ¨me 1: Fichiers API inexistants
+    fetch('php/api/addUser.php', {  // âŒ Fichier n'existe pas!
         method: 'POST',
         body: JSON.stringify(userData)
     })
@@ -298,44 +298,44 @@ addUser(userData) {
 
 ---
 
-### Après (CORRECT - Unifier sur Routeur) ✅
+### AprÃ¨s (CORRECT - Unifier sur Routeur) âœ…
 
-**Solution: Utiliser le routeur PHP structuré pour tout**
+**Solution: Utiliser le routeur PHP structurÃ© pour tout**
 
-**Étape 1: Ajouter les routes dans routes.php**
+**Ã‰tape 1: Ajouter les routes dans routes.php**
 ```php
 <?php
 return [
     'GET' => [
         '/' => ['HomeController', 'index'],
         '/scan' => ['ScanController', 'index'],
-        '/students/search' => ['SearchController', 'search'],          // ✅ Nouveau
-        '/movements/history/{id}' => ['MovementsController', 'history'], // ✅ Nouveau
-        '/movements/student/{id}' => ['MovementsController', 'byStudent'], // ✅ Nouveau
+        '/students/search' => ['SearchController', 'search'],          // âœ… Nouveau
+        '/movements/history/{id}' => ['MovementsController', 'history'], // âœ… Nouveau
+        '/movements/student/{id}' => ['MovementsController', 'byStudent'], // âœ… Nouveau
         '/historical/{id}' => ['HistoricalController', 'show'],
         '/dashboard' => ['DashboardController', 'index'],
         '/absent' => ['AbsentController', 'index'],
-        '/users' => ['UsersController', 'index'],                      // ✅ Nouveau
-        '/gestion' => ['GestionController', 'index'],
+        '/users' => ['UsersController', 'index'],                      // âœ… Nouveau
+        '/gestion' => ['ManagementController', 'index'],
     ],
     'POST' => [
         '/login' => ['AuthController', 'verify'],
         '/scan/ajouter' => ['ScanController', 'ajouter'],
-        '/movements/add' => ['MovementsController', 'add'],            // ✅ Nouveau
+        '/movements/add' => ['MovementsController', 'add'],            // âœ… Nouveau
         '/students/search' => ['SearchController', 'search'],
-        '/gestion/ajouter' => ['GestionController', 'ajouter'],
-        '/gestion/supprimer/{id}' => ['GestionController', 'supprimer'],
-        '/users/add' => ['UsersController', 'add'],                    // ✅ Nouveau
-        '/users/delete/{id}' => ['UsersController', 'delete'],         // ✅ Nouveau
-        '/users/update/{id}' => ['UsersController', 'update'],         // ✅ Nouveau
+        '/gestion/ajouter' => ['ManagementController', 'ajouter'],
+        '/gestion/supprimer/{id}' => ['ManagementController', 'supprimer'],
+        '/users/add' => ['UsersController', 'add'],                    // âœ… Nouveau
+        '/users/delete/{id}' => ['UsersController', 'delete'],         // âœ… Nouveau
+        '/users/update/{id}' => ['UsersController', 'update'],         // âœ… Nouveau
     ]
 ];
 ?>
 ```
 
-**Étape 2: Créer API.js centralisée**
+**Ã‰tape 2: CrÃ©er API.js centralisÃ©e**
 ```javascript
-// public/js/api.js - ✅ NOUVEAU
+// public/js/api.js - âœ… NOUVEAU
 
 export default class Api {
     static API_BASE = '/';
@@ -382,9 +382,9 @@ export default class Api {
 }
 ```
 
-**Étape 3: Mettre à jour MovementsModel.js**
+**Ã‰tape 3: Mettre Ã  jour MovementsModel.js**
 ```javascript
-// public/js/model/movementsModel.js - ✅ CORRIGÉ
+// public/js/model/movementsModel.js - âœ… CORRIGÃ‰
 import Api from '../api.js';
 
 export default class MovementsModel {
@@ -393,12 +393,12 @@ export default class MovementsModel {
     }
 
     searchMovements(query) {
-        // ✅ Utilise la bonne route du routeur
+        // âœ… Utilise la bonne route du routeur
         Api.get('/movements/search', { q: query })
             .then(data => {
                 if (data.success) {
-                    console.log(`${data.count} mouvement(s) trouvé(s):`, data.results);
-                    alert(`${data.count} mouvement(s) trouvé(s)`);
+                    console.log(`${data.count} mouvement(s) trouvÃ©(s):`, data.results);
+                    alert(`${data.count} mouvement(s) trouvÃ©(s)`);
                 } else {
                     alert(`Erreur: ${data.message}`);
                 }
@@ -410,7 +410,7 @@ export default class MovementsModel {
     }
 
     addMovement(movementData) {
-        // ✅ Utilise la bonne route du routeur
+        // âœ… Utilise la bonne route du routeur
         Api.post('/movements/add', {
             student_id: movementData.student_id,
             movement_type: movementData.movement_type,
@@ -418,7 +418,7 @@ export default class MovementsModel {
         })
             .then(data => {
                 if (data.success) {
-                    alert('Mouvement enregistré avec succès');
+                    alert('Mouvement enregistrÃ© avec succÃ¨s');
                     console.log('Movement added:', data);
                 } else {
                     alert(`Erreur: ${data.message}`);
@@ -431,7 +431,7 @@ export default class MovementsModel {
     }
 
     async save(movementData) {
-        // ✅ Utilise la bonne route
+        // âœ… Utilise la bonne route
         return await Api.post('/scan/ajouter', {
             student_id: movementData.student_id,
             movement_type: 'entry'
@@ -440,9 +440,9 @@ export default class MovementsModel {
 }
 ```
 
-**Étape 4: Mettre à jour StudentsModel.js**
+**Ã‰tape 4: Mettre Ã  jour StudentsModel.js**
 ```javascript
-// public/js/model/studentsModel.js - ✅ CORRIGÉ
+// public/js/model/studentsModel.js - âœ… CORRIGÃ‰
 import Api from '../api.js';
 
 export default class StudentsModel {
@@ -451,12 +451,12 @@ export default class StudentsModel {
     }
 
     searchStudents(query) {
-        // ✅ Utilise la bonne route du routeur
+        // âœ… Utilise la bonne route du routeur
         Api.get('/students/search', { q: query })
             .then(data => {
                 if (data.success) {
-                    console.log(`${data.count} étudiant(s) trouvé(s):`, data.results);
-                    alert(`${data.count} étudiant(s) trouvé(s)`);
+                    console.log(`${data.count} Ã©tudiant(s) trouvÃ©(s):`, data.results);
+                    alert(`${data.count} Ã©tudiant(s) trouvÃ©(s)`);
                 } else {
                     alert(`Erreur: ${data.message}`);
                 }
@@ -469,9 +469,9 @@ export default class StudentsModel {
 }
 ```
 
-**Étape 5: Mettre à jour UsersModel.js**
+**Ã‰tape 5: Mettre Ã  jour UsersModel.js**
 ```javascript
-// public/js/model/usersModel.js - ✅ CORRIGÉ
+// public/js/model/usersModel.js - âœ… CORRIGÃ‰
 import Api from '../api.js';
 
 export default class UsersModel {
@@ -480,11 +480,11 @@ export default class UsersModel {
     }
 
     addUser(userData) {
-        // ✅ Utilise la bonne route du routeur
+        // âœ… Utilise la bonne route du routeur
         Api.post('/users/add', userData)
             .then(data => {
                 if (data.success) {
-                    alert(`Utilisateur ${userData.name} ajouté avec succès`);
+                    alert(`Utilisateur ${userData.name} ajoutÃ© avec succÃ¨s`);
                     console.log('User added:', data);
                 } else {
                     alert(`Erreur: ${data.message}`);
@@ -497,11 +497,11 @@ export default class UsersModel {
     }
 
     removeUser(userId) {
-        // ✅ Utilise la bonne route du routeur
+        // âœ… Utilise la bonne route du routeur
         Api.post(`/users/delete/${userId}`, {})
             .then(data => {
                 if (data.success) {
-                    alert('Utilisateur supprimé avec succès');
+                    alert('Utilisateur supprimÃ© avec succÃ¨s');
                 } else {
                     alert(`Erreur: ${data.message}`);
                 }
@@ -510,11 +510,11 @@ export default class UsersModel {
     }
 
     updateUser(userId, userData) {
-        // ✅ Utilise la bonne route du routeur
+        // âœ… Utilise la bonne route du routeur
         Api.post(`/users/update/${userId}`, userData)
             .then(data => {
                 if (data.success) {
-                    alert('Utilisateur mis à jour avec succès');
+                    alert('Utilisateur mis Ã  jour avec succÃ¨s');
                 } else {
                     alert(`Erreur: ${data.message}`);
                 }
@@ -523,7 +523,7 @@ export default class UsersModel {
     }
 
     getUsers() {
-        // ✅ Utilise la bonne route du routeur
+        // âœ… Utilise la bonne route du routeur
         Api.get('/users')
             .then(data => {
                 if (data.success) {
@@ -540,20 +540,20 @@ export default class UsersModel {
 
 ---
 
-## 3️⃣ CORRECTION: Contrôleur SearchController.php Vide
+## 3ï¸âƒ£ CORRECTION: ContrÃ´leur SearchController.php Vide
 
-### Avant (VIDE) ❌
+### Avant (VIDE) âŒ
 
 ```php
 <?php
 namespace App\Controller;
 
-// ❌ Rien ici!
+// âŒ Rien ici!
 ```
 
 ---
 
-### Après (IMPLÉMENTÉ) ✅
+### AprÃ¨s (IMPLÃ‰MENTÃ‰) âœ…
 
 ```php
 <?php
@@ -567,10 +567,10 @@ class SearchController {
     public function index() {
         // Optionnel: si vous servez une vue HTML
         // require_once '../app/view/searchView.php';
-        return;  // ✅ Le frontend charge l'HTML
+        return;  // âœ… Le frontend charge l'HTML
     }
 
-    // ✅ Cette méthode répond aux appels API
+    // âœ… Cette mÃ©thode rÃ©pond aux appels API
     public function search($params = []) {
         header('Content-Type: application/json');
 
@@ -579,7 +579,7 @@ class SearchController {
         if (!$query || strlen($query) < 2) {
             echo json_encode([
                 'success' => false,
-                'message' => 'Veuillez entrer au moins 2 caractères'
+                'message' => 'Veuillez entrer au moins 2 caractÃ¨res'
             ]);
             return;
         }
@@ -607,17 +607,17 @@ class SearchController {
 
 ---
 
-## 4️⃣ CORRECTION: AuthController.php Manquant
+## 4ï¸âƒ£ CORRECTION: AuthController.php Manquant
 
-### Avant (N'EXISTE PAS) ❌
+### Avant (N'EXISTE PAS) âŒ
 
 ```
-app/controller/AuthController.php ❌ FICHIER INEXISTANT
+app/controller/AuthController.php âŒ FICHIER INEXISTANT
 ```
 
 ---
 
-### Après (CRÉÉ) ✅
+### AprÃ¨s (CRÃ‰Ã‰) âœ…
 
 ```php
 <?php
@@ -630,7 +630,7 @@ class AuthController {
     public function verify($params = []) {
         header('Content-Type: application/json');
 
-        // ✅ Récupère les données JSON POST
+        // âœ… RÃ©cupÃ¨re les donnÃ©es JSON POST
         $input = json_decode(file_get_contents('php://input'), true);
         
         $username = $input['username'] ?? null;
@@ -649,9 +649,9 @@ class AuthController {
             $usersModel = new UsersModel();
             $user = $usersModel->getUserByUsername($username);
 
-            // ✅ Vérifier que l'utilisateur existe et que le mot de passe est correct
+            // âœ… VÃ©rifier que l'utilisateur existe et que le mot de passe est correct
             if ($user && password_verify($password, $user['mot_de_passe'])) {
-                // ✅ Créer une session PHP
+                // âœ… CrÃ©er une session PHP
                 session_start();
                 $_SESSION['user_id'] = $user['id_user'];
                 $_SESSION['username'] = $user['nom'];
@@ -659,7 +659,7 @@ class AuthController {
 
                 echo json_encode([
                     'success' => true,
-                    'message' => 'Authentification réussie',
+                    'message' => 'Authentification rÃ©ussie',
                     'role' => $user['role'],
                     'username' => $user['nom']
                 ]);
@@ -680,7 +680,7 @@ class AuthController {
         }
     }
 
-    // ✅ Déconnexion
+    // âœ… DÃ©connexion
     public function logout($params = []) {
         header('Content-Type: application/json');
         
@@ -689,7 +689,7 @@ class AuthController {
 
         echo json_encode([
             'success' => true,
-            'message' => 'Déconnecté'
+            'message' => 'DÃ©connectÃ©'
         ]);
     }
 }
@@ -698,15 +698,15 @@ class AuthController {
 
 ---
 
-## 5️⃣ CORRECTION: Router.php Wrong Namespace
+## 5ï¸âƒ£ CORRECTION: Router.php Wrong Namespace
 
-### Avant (FAUX) ❌
+### Avant (FAUX) âŒ
 
 ```php
 // router.php ligne 36
-$controllerPath = "App\\Controllers\\" . $controllerName;  // ❌ "Controllers" avec 's'
+$controllerPath = "App\\Controllers\\" . $controllerName;  // âŒ "Controllers" avec 's'
 
-if (class_exists($controllerPath)) {  // ❌ Cherchera "App\Controllers\ScanController"
+if (class_exists($controllerPath)) {  // âŒ Cherchera "App\Controllers\ScanController"
     $controller = new $controllerPath();
 }
 ```
@@ -715,30 +715,30 @@ Mais les fichiers sont dans `app/controller/` (sans 's'), donc la classe est `Ap
 
 ---
 
-### Après (CORRECT) ✅
+### AprÃ¨s (CORRECT) âœ…
 
 ```php
 // router.php ligne 36
-$controllerPath = "App\\Controller\\" . $controllerName;  // ✅ "Controller" sans 's'
+$controllerPath = "App\\Controller\\" . $controllerName;  // âœ… "Controller" sans 's'
 
-if (class_exists($controllerPath)) {  // ✅ Cherchera "App\Controller\ScanController"
+if (class_exists($controllerPath)) {  // âœ… Cherchera "App\Controller\ScanController"
     $controller = new $controllerPath();
 }
 ```
 
 ---
 
-## 6️⃣ CORRECTION: SessionController.js - Authentification Fictive
+## 6ï¸âƒ£ CORRECTION: SessionController.js - Authentification Fictive
 
-### Avant (SIMULÉ, NON SÉ CURISÉ) ❌
+### Avant (SIMULÃ‰, NON SÃ‰ CURISÃ‰) âŒ
 
 ```javascript
 // sessionController.js
 login(username, password) {
-    // TODO: Implémenter la validation avec le backend PHP
+    // TODO: ImplÃ©menter la validation avec le backend PHP
     // Pour l'instant, simulation simple
     if(username && password) {
-        // ❌ Le rôle est déterminé PAR LE FRONTEND!
+        // âŒ Le rÃ´le est dÃ©terminÃ© PAR LE FRONTEND!
         let role = 'user';
         if(username.includes('admin')) {
             role = 'administrateur';
@@ -746,7 +746,7 @@ login(username, password) {
             role = 'administration';
         }
         
-        // ❌ N'importe qui peut modifier sessionStorage dans la console
+        // âŒ N'importe qui peut modifier sessionStorage dans la console
         sessionStorage.setItem('role', role);
         this.sessionRole = role;
         this.sessionCheck();
@@ -756,10 +756,10 @@ login(username, password) {
 
 ---
 
-### Après (SÉCURISÉ) ✅
+### AprÃ¨s (SÃ‰CURISÃ‰) âœ…
 
 ```javascript
-// sessionController.js - ✅ CORRIGÉ
+// sessionController.js - âœ… CORRIGÃ‰
 import Api from '../api.js';
 
 export default class SessionController {
@@ -770,7 +770,7 @@ export default class SessionController {
         this.sessionCheck();
     }
 
-    // ✅ Appel le backend pour vérifier
+    // âœ… Appel le backend pour vÃ©rifier
     async login(username, password) {
         try {
             const data = await Api.post('/login', {
@@ -779,10 +779,10 @@ export default class SessionController {
             });
 
             if (data.success) {
-                // ✅ Le rôle vient du SERVEUR, pas du frontend
+                // âœ… Le rÃ´le vient du SERVEUR, pas du frontend
                 const role = data.role;
                 
-                // ✅ Stocker dans sessionStorage (données du serveur vérifiées)
+                // âœ… Stocker dans sessionStorage (donnÃ©es du serveur vÃ©rifiÃ©es)
                 sessionStorage.setItem('role', role);
                 sessionStorage.setItem('username', data.username);
                 
@@ -798,7 +798,7 @@ export default class SessionController {
     }
 
     logout() {
-        // ✅ Notifier le serveur
+        // âœ… Notifier le serveur
         Api.post('/logout', {})
             .catch(error => console.error('Logout error:', error))
             .finally(() => {
@@ -811,7 +811,7 @@ export default class SessionController {
     }
 
     getSessionRole() {
-        // ✅ Vérifie aussi que la session existe côté serveur via une requête
+        // âœ… VÃ©rifie aussi que la session existe cÃ´tÃ© serveur via une requÃªte
         return sessionStorage.getItem('role');
     }
 
@@ -835,7 +835,7 @@ export default class SessionController {
 
 ## CHECKLIST DE MISE EN PLACE
 
-### Jour 1 - Corrections Critiques Immédiate
+### Jour 1 - Corrections Critiques ImmÃ©diate
 
 - [ ] Corriger `app/core/dataBase.php` ligne 12
   ```
@@ -851,42 +851,43 @@ export default class SessionController {
 
 - [ ] Remplacer noms de tables dans `MovementsModel.php`, `StudentsModel.php`, `UsersModel.php`
   ```
-  students → etudiants
-  movements → passages
-  users → utilisateurs
-  student_id → id_etudiant
+  students â†’ etudiants
+  movements â†’ passages
+  users â†’ utilisateurs
+  student_id â†’ id_etudiant
   ```
 
-- [ ] Corriger `scanController.php` ligne 18 (séparer l'assignation)
+- [ ] Corriger `scanController.php` ligne 18 (sÃ©parer l'assignation)
 
-### Jour 2 - Implémentation API Centralisée
+### Jour 2 - ImplÃ©mentation API CentralisÃ©e
 
-- [ ] Créer `public/js/api.js` avec la classe Api
-- [ ] Mettre à jour `movementsModel.js` pour utiliser Api
-- [ ] Mettre à jour `studentsModel.js` pour utiliser Api
-- [ ] Mettre à jour `usersModel.js` pour utiliser Api
+- [ ] CrÃ©er `public/js/api.js` avec la classe Api
+- [ ] Mettre Ã  jour `movementsModel.js` pour utiliser Api
+- [ ] Mettre Ã  jour `studentsModel.js` pour utiliser Api
+- [ ] Mettre Ã  jour `usersModel.js` pour utiliser Api
 - [ ] Ajouter nouvelles routes dans `app/config/routes.php`
 
-### Jour 3 - Contrôleurs PHP
+### Jour 3 - ContrÃ´leurs PHP
 
-- [ ] Implémenter `SearchController.php`
-- [ ] Implémenter `DashboardController.php`
-- [ ] Implémenter `GestionController.php`
-- [ ] Implémenter `AbsentController.php`
-- [ ] Implémenter `HistoricalController.php`
-- [ ] Créer `AuthController.php`
-- [ ] Créer `HomeController.php`
+- [ ] ImplÃ©menter `SearchController.php`
+- [ ] ImplÃ©menter `DashboardController.php`
+- [ ] ImplÃ©menter `ManagementController.php`
+- [ ] ImplÃ©menter `AbsentController.php`
+- [ ] ImplÃ©menter `HistoricalController.php`
+- [ ] CrÃ©er `AuthController.php`
+- [ ] CrÃ©er `HomeController.php`
 
 ### Jour 4 - Authentification
 
 - [ ] Corriger `sessionController.js` pour utiliser le backend
 - [ ] Tester login/logout cycle
-- [ ] Vérifier sessions PHP
+- [ ] VÃ©rifier sessions PHP
 
 ### Jour 5 - Tests Complets
 
-- [ ] Tester création utilisateur
-- [ ] Tester scan étudiant
-- [ ] Tester recherche étudiant
+- [ ] Tester crÃ©ation utilisateur
+- [ ] Tester scan Ã©tudiant
+- [ ] Tester recherche Ã©tudiant
 - [ ] Tester historique
+
 

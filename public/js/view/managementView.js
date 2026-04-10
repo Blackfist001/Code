@@ -1,3 +1,5 @@
+import { confirmDialog } from '../utils/dialog.js';
+
 export default class ManagementView {
 
     constructor(controller) {
@@ -39,36 +41,32 @@ export default class ManagementView {
         }
     }
 
-    render() {
+    render(section = 'passages') {
         return fetch('html/management.html')
             .then(response => response.text())
             .then(data => {
                 this.container.innerHTML = data;
-                this._attachSidebarNav();
+                this._activateSection(section);
                 this.attachEventListeners();
             })
-            .catch(error => console.error('Error loading gestion:', error));
+            .catch(error => console.error('Error loading management:', error));
     }
 
-    // ─── Navigation sidebar ────────────────────────────────────────────────
+    // ─── Activation de la section cible ──────────────────────────────────────────
 
-    _attachSidebarNav() {
-        document.querySelectorAll('.gestion-nav-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const section = item.dataset.section;
-                document.querySelectorAll('.gestion-nav-item').forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-                document.querySelectorAll('.gestion-section').forEach(s => s.style.display = 'none');
-                document.getElementById(`section-${section}`).style.display = 'block';
+    _activateSection(section) {
+        const validSections = ['passages', 'students', 'schedules', 'users'];
+        const target = validSections.includes(section) ? section : 'passages';
 
-                if (section === 'students')  this.controller.loadStudents();
-                if (section === 'passages')  this.controller.loadPassages();
-                if (section === 'schedules') this.controller.loadSchedules();
-                if (section === 'users')     this.controller.loadUsers();
-            });
-        });
-        // Charger la section active par défaut (passages)
-        this.controller.loadPassages();
+        // Cacher toutes les sections, afficher uniquement la cible
+        document.querySelectorAll('.gestion-section').forEach(s => s.style.display = 'none');
+        const el = document.getElementById(`section-${target}`);
+        if (el) el.style.display = 'block';
+
+        if (target === 'students')  this.controller.loadStudents();
+        if (target === 'passages')  this.controller.loadPassages();
+        if (target === 'schedules') this.controller.loadSchedules();
+        if (target === 'users')     this.controller.loadUsers();
     }
 
     // ─── Utilisateurs ──────────────────────────────────────────────────────
@@ -91,8 +89,9 @@ export default class ManagementView {
 
         const filterBtn = document.getElementById('btn-filter-passages');
         if (filterBtn) filterBtn.addEventListener('click', () => {
-            const date = document.getElementById('passages-filter-date').value;
-            if (date) this.controller.loadPassagesByDate(date);
+            const dateFrom = document.getElementById('passages-filter-date-from').value;
+            const dateTo   = document.getElementById('passages-filter-date-to').value;
+            if (dateFrom || dateTo) this.controller.loadPassagesByDateRange(dateFrom, dateTo);
         });
         const allBtn = document.getElementById('btn-load-all-passages');
         if (allBtn) allBtn.addEventListener('click', () => this.controller.loadPassages());
@@ -155,8 +154,8 @@ export default class ManagementView {
             ));
         });
         tbody.querySelectorAll('.btn-delete-user').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (confirm('Supprimer cet utilisateur ?')) this.controller.deleteUser(btn.dataset.id);
+            btn.addEventListener('click', async () => {
+                if (await confirmDialog('Supprimer cet utilisateur ?')) this.controller.deleteUser(btn.dataset.id);
             });
         });
     }
@@ -224,8 +223,8 @@ export default class ManagementView {
             });
         });
         tbody.querySelectorAll('.btn-delete-student').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (confirm('Supprimer cet étudiant ? Ses passages seront également supprimés.'))
+            btn.addEventListener('click', async () => {
+                if (await confirmDialog('Supprimer cet étudiant ? Ses passages seront également supprimés.'))
                     this.controller.deleteStudent(btn.dataset.id);
             });
         });
@@ -303,8 +302,8 @@ export default class ManagementView {
             });
         });
         tbody.querySelectorAll('.btn-delete-passage').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (confirm('Supprimer ce passage ?')) this.controller.deletePassage(btn.dataset.id);
+            btn.addEventListener('click', async () => {
+                if (await confirmDialog('Supprimer ce passage ?')) this.controller.deletePassage(btn.dataset.id);
             });
         });
     }
@@ -393,8 +392,8 @@ export default class ManagementView {
             });
         });
         tbody.querySelectorAll('.btn-delete-schedule').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (confirm('Supprimer cet horaire ?')) this.controller.deleteSchedule(btn.dataset.id);
+            btn.addEventListener('click', async () => {
+                if (await confirmDialog('Supprimer cet horaire ?')) this.controller.deleteSchedule(btn.dataset.id);
             });
         });
     }

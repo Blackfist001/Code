@@ -87,6 +87,7 @@ CREATE TABLE IF NOT EXISTS `etudiants` (
   `photo` varchar(255) DEFAULT NULL,
   `date_naissance` date DEFAULT NULL,
   `autorisation_midi` tinyint(1) DEFAULT '0',
+  `demi_journee_absence` int DEFAULT 0,
   PRIMARY KEY (`id_etudiant`),
   UNIQUE KEY `sourcedId` (`sourcedId`),
   KEY `classe_fk` (`classe`),
@@ -94,26 +95,26 @@ CREATE TABLE IF NOT EXISTS `etudiants` (
 ) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Listage des données de la table sortie_ecole.etudiants : ~19 rows (environ)
-INSERT INTO `etudiants` (`id_etudiant`, `sourcedId`, `nom`, `prenom`, `classe`, `photo`, `date_naissance`, `autorisation_midi`) VALUES
-	(2, '1002', 'Martin', 'Emma', 1, 'photo2.jpg', NULL, 0),
-	(3, '1003', 'Bernard', 'Hugo', 5, 'photo3.jpg', NULL, 1),
-	(4, '1004', 'Petit', 'Léa', 7, 'photo4.jpg', NULL, 1),
-	(5, '1005', 'Robert', 'Nathan', 4, 'photo5.jpg', NULL, 0),
-	(6, '1006', 'Richard', 'Chloé', 3, 'photo6.jpg', NULL, 1),
-	(7, '1007', 'Durand', 'Enzo', 3, 'photo7.jpg', NULL, 0),
-	(8, '1008', 'Moreau', 'Manon', 3, 'photo8.jpg', NULL, 1),
-	(9, '1009', 'Simon', 'Tom', 14, 'photo9.jpg', NULL, 1),
-	(10, '1010', 'Laurent', 'Jade', 14, 'photo10.jpg', NULL, 0),
-	(11, '1011', 'Lefebvre', 'Noah', 21, 'photo11.jpg', NULL, 1),
-	(12, '1012', 'Michel', 'Camille', 21, 'photo12.jpg', NULL, 0),
-	(13, '1013', 'Garcia', 'Louis', 25, 'photo13.jpg', NULL, 1),
-	(14, '1014', 'David', 'Sarah', 25, 'photo14.jpg', NULL, 1),
-	(15, '1015', 'Bertrand', 'Gabriel', 15, 'photo15.jpg', NULL, 0),
-	(16, '1016', 'Roux', 'Inès', 15, 'photo16.jpg', NULL, 1),
-	(17, '1017', 'Vincent', 'Arthur', 15, 'photo17.jpg', NULL, 0),
-	(18, '1018', 'Fournier', 'Lina', 4, 'photo18.jpg', NULL, 1),
-	(19, '1019', 'Morel', 'Ethan', 5, 'photo19.jpg', NULL, 1),
-	(20, '1020', 'Girard', 'Zoé', 6, 'photo20.jpg', NULL, 0);
+INSERT INTO `etudiants` (`id_etudiant`, `sourcedId`, `nom`, `prenom`, `classe`, `photo`, `date_naissance`, `autorisation_midi`, `demi_journee_absence`) VALUES
+	(2, '1002', 'Martin', 'Emma', 1, 'photo2.jpg', NULL, 0, 0),
+	(3, '1003', 'Bernard', 'Hugo', 5, 'photo3.jpg', NULL, 1, 0),
+	(4, '1004', 'Petit', 'Léa', 7, 'photo4.jpg', NULL, 1, 0),
+	(5, '1005', 'Robert', 'Nathan', 4, 'photo5.jpg', NULL, 0, 0),
+	(6, '1006', 'Richard', 'Chloé', 3, 'photo6.jpg', NULL, 1, 0),
+	(7, '1007', 'Durand', 'Enzo', 3, 'photo7.jpg', NULL, 0, 0),
+	(8, '1008', 'Moreau', 'Manon', 3, 'photo8.jpg', NULL, 1, 0),
+	(9, '1009', 'Simon', 'Tom', 14, 'photo9.jpg', NULL, 1, 0),
+	(10, '1010', 'Laurent', 'Jade', 14, 'photo10.jpg', NULL, 0, 0),
+	(11, '1011', 'Lefebvre', 'Noah', 21, 'photo11.jpg', NULL, 1, 0),
+	(12, '1012', 'Michel', 'Camille', 21, 'photo12.jpg', NULL, 0, 0),
+	(13, '1013', 'Garcia', 'Louis', 25, 'photo13.jpg', NULL, 1, 0),
+	(14, '1014', 'David', 'Sarah', 25, 'photo14.jpg', NULL, 1, 0),
+	(15, '1015', 'Bertrand', 'Gabriel', 15, 'photo15.jpg', NULL, 0, 0),
+	(16, '1016', 'Roux', 'Inès', 15, 'photo16.jpg', NULL, 1, 0),
+	(17, '1017', 'Vincent', 'Arthur', 15, 'photo17.jpg', NULL, 0, 0),
+	(18, '1018', 'Fournier', 'Lina', 4, 'photo18.jpg', NULL, 1, 0),
+	(19, '1019', 'Morel', 'Ethan', 5, 'photo19.jpg', NULL, 1, 0),
+	(20, '1020', 'Girard', 'Zoé', 6, 'photo20.jpg', NULL, 0, 0);
 
 -- Listage de la structure de table sortie_ecole. horaires_cours
 CREATE TABLE IF NOT EXISTS `horaires_cours` (

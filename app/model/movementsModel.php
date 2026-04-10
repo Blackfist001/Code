@@ -274,9 +274,21 @@ class MovementsModel {
             $where[] = "p.date_passage = :date";
             $params[':date'] = $filters['date'];
         }
+        if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
+            $where[] = "p.date_passage BETWEEN :date_from AND :date_to";
+            $params[':date_from'] = $filters['date_from'];
+            $params[':date_to']   = $filters['date_to'];
+        } elseif (!empty($filters['date_from'])) {
+            $where[] = "p.date_passage >= :date_from";
+            $params[':date_from'] = $filters['date_from'];
+        } elseif (!empty($filters['date_to'])) {
+            $where[] = "p.date_passage <= :date_to";
+            $params[':date_to'] = $filters['date_to'];
+        }
 
         $sql = "SELECT p.id_passage, p.date_passage, p.heure_passage,
                        p.type_passage, p.statut,
+                       COALESCE(e.demi_journee, 0) AS total_demi_journees,
                        e.nom, e.prenom, e.classe
                 FROM passages p
                 JOIN etudiants e ON p.id_etudiant = e.id_etudiant

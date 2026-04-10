@@ -8,9 +8,9 @@ export default class AbsenceController {
         this.view.setController(this);
     }
 
-    loadAbsent() {
-        this.view.render();
-        this.loadAbsents();
+    async loadAbsent() {
+        await this.view.render();
+        await this.loadAbsents();
     }
 
     async loadAbsents() {
@@ -19,9 +19,12 @@ export default class AbsenceController {
             
             if (response.success) {
                 this.view.displayAbsents(response.results);
+            } else {
+                this.view.displayAbsents([]);
             }
         } catch (error) {
             console.error('Erreur:', error);
+            this.view.displayAbsents([]);
         }
     }
 

@@ -35,41 +35,34 @@ class DashboardController {
                 return $m['date_passage'] === date('Y-m-d');
             });
 
-            $presentStatus = ['Présent', 'Autorisé', 'En retard'];
-            $absentStatus = ['Absent', 'Absence justifiée'];
+            $countByStatus = function (string $status) use ($todayMovements): int {
+                return count(array_filter($todayMovements, function ($movement) use ($status) {
+                    return ($movement['statut'] ?? '') === $status;
+                }));
+            };
 
-            $presentIds = [];
-            $absentIds = [];
-
-            foreach ($todayMovements as $movement) {
-                $studentId = isset($movement['id_etudiant']) ? (int)$movement['id_etudiant'] : 0;
-                if ($studentId <= 0) {
-                    continue;
-                }
-
-                $status = $movement['statut'] ?? '';
-                if (in_array($status, $presentStatus, true)) {
-                    $presentIds[$studentId] = true;
-                }
-                if (in_array($status, $absentStatus, true)) {
-                    $absentIds[$studentId] = true;
-                }
-            }
-
-            // Un élève compté présent aujourd'hui ne doit pas être aussi compté absent.
-            foreach (array_keys($presentIds) as $presentId) {
-                unset($absentIds[$presentId]);
-            }
-
-            $presentToday = count($presentIds);
-            $absentToday = count($absentIds);
+            $presentCount = $countByStatus('Présent');
+            $absentCount = $countByStatus('Absent');
+            $retardCount = $countByStatus('En retard');
+            $autoriseCount = $countByStatus('Autorisé');
+            $refuseCount = $countByStatus('Refusé');
+            $absenceJustifieeCount = $countByStatus('Absence justifiée');
+            $sortieJustifieeCount = $countByStatus('Sortie justifiée');
             
             $stats = [
                 'success' => true,
                 'total_students' => count($students),
                 'total_scans' => count($todayMovements),
-                'present_today' => $presentToday,
-                'absent_today' => $absentToday
+                'total_passages' => count($todayMovements),
+                'present_today' => $presentCount,
+                'absent_today' => $absentCount,
+                'present_count' => $presentCount,
+                'absent_count' => $absentCount,
+                'en_retard_count' => $retardCount,
+                'autorise_count' => $autoriseCount,
+                'refuse_count' => $refuseCount,
+                'absence_justifiee_count' => $absenceJustifieeCount,
+                'sortie_justifiee_count' => $sortieJustifieeCount
             ];
             
             echo json_encode($stats);

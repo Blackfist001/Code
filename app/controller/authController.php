@@ -2,13 +2,16 @@
 namespace App\Controller;
 
 use App\Model\UsersModel;
+use App\Service\OneRosterSync;
 use Exception;
 
 class AuthController {
     private UsersModel $usersModel;
+    private OneRosterSync $oneRosterSync;
 
     public function __construct() {
         $this->usersModel = new UsersModel();
+        $this->oneRosterSync = new OneRosterSync();
     }
 
     /**
@@ -52,11 +55,37 @@ class AuthController {
                 $_SESSION['user_id'] = $user['id_user'];
                 $_SESSION['username'] = $user['nom'];
                 $_SESSION['role'] = $user['role'];
+
+                $syncResult = [
+                    'executed' => false,
+                    'success' => false,
+                    'stats' => null,
+                    'message' => ''
+                ];
+
+                try {
+                    $stats = $this->oneRosterSync->syncStudents(false);
+                    $syncResult = [
+                        'executed' => true,
+                        'success' => true,
+                        'stats' => $stats,
+                        'message' => 'Synchronisation OneRoster terminee'
+                    ];
+                } catch (Exception $syncError) {
+                    error_log('OneRoster sync error at login: ' . $syncError->getMessage());
+                    $syncResult = [
+                        'executed' => true,
+                        'success' => false,
+                        'stats' => null,
+                        'message' => $syncError->getMessage()
+                    ];
+                }
                 
                 echo json_encode([
                     'success' => true,
                     'message' => 'Authentification réussie',
-                    'user' => $user
+                    'user' => $user,
+                    'oneroster_sync' => $syncResult
                 ]);
             } else {
                 echo json_encode([

@@ -2,25 +2,7 @@
     <h2>Tableau de bord</h2>
     <div class="card">
         <h3>Statistiques du jour</h3>
-        <div class="stats-grid">
-            <div class="stat-item">
-                <span class="stat-label">Totaux étudiants :</span>
-                <span id="total-students" class="stat-value">0</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Présents :</span>
-                <span id="present-count" class="stat-value">0</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Absents :</span>
-                <span id="absent-count" class="stat-value">0</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Total passages :</span>
-                <span id="total-scans" class="stat-value">0</span>
-            </div>
-        </div>
-        <button id="btn-refresh-stats">Actualiser les statistiques</button>
+        <div id="dashboard-stats-container"></div>
         <div id="dashboard-message" class="message"></div>
     </div>
 
@@ -32,6 +14,7 @@
                     <th>Date</th>
                     <th>Heure</th>
                     <th>Nom</th>
+                    <th>Prénom</th>
                     <th>Classe</th>
                     <th>Passage</th>
                     <th>Statut</th>
