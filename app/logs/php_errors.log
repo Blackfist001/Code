@@ -247,3 +247,17 @@ Stack trace:
 [10-Apr-2026 13:58:10 UTC] Login input: {"username":"admin","password":"admin"}
 [10-Apr-2026 13:58:10 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
 [10-Apr-2026 13:58:10 UTC] UsersModel password_verify: true
+[20-Apr-2026 08:45:59 UTC] [SQL] PDO connection error: SQLSTATE[HY000] [2002] Aucune connexion n’a pu être établie car l’ordinateur cible l’a expressément refusée
+[20-Apr-2026 08:45:59 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [2002] Aucune connexion n’a pu être établie car l’ordinateur cible l’a expressément refusée in C:\ProgsCodes\#ECI\Stage\test\Code\app\core\dataBase.php:21
+Stack trace:
+#0 C:\ProgsCodes\#ECI\Stage\test\Code\app\core\dataBase.php(21): PDO->__construct('mysql:host=loca...', 'root', Object(SensitiveParameterValue))
+#1 C:\ProgsCodes\#ECI\Stage\test\Code\app\model\usersModel.php(12): App\Core\DataBase->__construct()
+#2 C:\ProgsCodes\#ECI\Stage\test\Code\app\controller\authController.php(13): App\Model\UsersModel->__construct()
+#3 C:\ProgsCodes\#ECI\Stage\test\Code\app\core\router.php(139): App\Controller\AuthController->__construct()
+#4 C:\ProgsCodes\#ECI\Stage\test\Code\public\index.php(20): App\Core\Router->run()
+#5 {main}
+  thrown in C:\ProgsCodes\#ECI\Stage\test\Code\app\core\dataBase.php on line 21
+[20-Apr-2026 08:50:04 UTC] AuthController verify called
+[20-Apr-2026 08:50:04 UTC] Login input: {"username":"admin","password":"admin"}
+[20-Apr-2026 08:50:04 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[20-Apr-2026 08:50:04 UTC] UsersModel password_verify: true
