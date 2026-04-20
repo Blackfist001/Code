@@ -2,6 +2,16 @@
 
 Tous les documents d'analyse ont été générés le **25 mars 2026** pour le projet **MVC - Scan Sorties Étudiants**.
 
+## Mise a jour documentaire - 20 avril 2026
+
+Les documents de synthese ont ete mis a jour pour refleter :
+
+- la refactorisation modulaire de la page `management`
+- le decoupage HTML en partials de gestion
+- la mutualisation CSS de la zone gestion
+- les evolutions recentes des pages gestion passages, gestion etudiants, absents et encodage manuel
+- l'abandon de l'integration OAuth SmartSchool et la suppression des fichiers associes
+
 ---
 
 ## 📚 DOCUMENTS GÉNÉRÉS
@@ -226,11 +236,12 @@ Tous les documents d'analyse ont été générés le **25 mars 2026** pour le pr
 
 | Document | Version | Date | Statut |
 |----------|---------|------|--------|
-| RAPPORT_ANALYSE_BUGS.md | 1.0 | 25/03/2026 | ✅ Final |
-| SOLUTIONS_CODE.md | 1.0 | 25/03/2026 | ✅ Final |
-| RESUME_ACTIONS.md | 1.0 | 25/03/2026 | ✅ Final |
-| CHECKLIST_VALIDATION.md | 1.0 | 25/03/2026 | ✅ Final |
-| INDEX.md | 1.0 | 25/03/2026 | ✅ Final |
+| RAPPORT_ANALYSE_BUGS.md | 1.1 | 20/04/2026 | ✅ Mis a jour |
+| SOLUTIONS_CODE.md | 1.1 | 20/04/2026 | ✅ Mis a jour |
+| RESUME_ACTIONS.md | 1.1 | 20/04/2026 | ✅ Mis a jour |
+| CHECKLIST_VALIDATION.md | 1.1 | 20/04/2026 | ✅ Mis a jour |
+| INDEX.md | 1.1 | 20/04/2026 | ✅ Mis a jour |
+| RESUME_FINAL_INTEGRATION.md | 1.1 | 20/04/2026 | ✅ Mis a jour |
 
 ---
 

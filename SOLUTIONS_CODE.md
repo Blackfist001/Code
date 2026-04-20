@@ -4,6 +4,61 @@
 
 ---
 
+## Mise a jour du 20 avril 2026 - Evolutions structurelles recentes
+
+### 1. Refactorisation modulaire de la page Gestion
+
+La logique auparavant concentree dans `managementController.js` et `managementView.js` a ete factorisee en sous-classes par domaine, tout en conservant les deux fichiers d'origine comme facade principale.
+
+#### Controleurs crees
+
+- `public/js/controller/management/managementUsersController.js`
+- `public/js/controller/management/managementStudentsController.js`
+- `public/js/controller/management/managementPassagesController.js`
+- `public/js/controller/management/managementSchedulesController.js`
+- `public/js/controller/management/managementClassesController.js`
+- `public/js/controller/management/managementMatieresController.js`
+
+#### Vues creees
+
+- `public/js/view/management/managementUsersView.js`
+- `public/js/view/management/managementStudentsView.js`
+- `public/js/view/management/managementPassagesView.js`
+- `public/js/view/management/managementSchedulesView.js`
+- `public/js/view/management/managementClassesView.js`
+- `public/js/view/management/managementMatieresView.js`
+
+### 2. Factorisation des templates Management
+
+Le template monolithique de gestion a ete remplace par :
+
+- un shell principal : `public/html/management.html`
+- des partials par section dans `public/html/management/`
+
+Cette approche simplifie la maintenance sans changer les IDs utilises par le JavaScript.
+
+### 3. Mutualisation CSS de la zone Gestion
+
+Des classes CSS ont ete ajoutees pour remplacer les styles inline repetitifs :
+
+- `mgmt-form-inline`
+- `mgmt-filter-inline`
+- `mgmt-filter-inline-tight`
+- `mgmt-control-auto`
+- `mgmt-label-inline`
+- `mgmt-toggle-inline`
+
+### 4. Retrait de SmartSchool OAuth
+
+L'integration OAuth SmartSchool a ete abandonnee et les fichiers dedies ont ete supprimes :
+
+- `app/config/smartschool.php`
+- `app/service/SmartSchoolSync.php`
+
+Les commentaires de code mentionnant encore cette integration ont ete harmonises pour parler plus largement de `sourcedId externes`.
+
+---
+
 ## 1ï¸âƒ£ CORRECTION: Noms de Tables (CRITIQUE)
 
 ### Avant (FAUX) âŒ

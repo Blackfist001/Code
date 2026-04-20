@@ -222,6 +222,43 @@ height:50px;
     width: 100%;
 }
 
+.mgmt-form-inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.mgmt-filter-inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.mgmt-filter-inline-tight {
+  gap: 8px;
+}
+
+.mgmt-control-auto {
+  width: auto !important;
+  max-width: none;
+}
+
+.mgmt-label-inline {
+  margin: 0;
+}
+
+.mgmt-toggle-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0;
+}
+
 #gestion-modal .form-container {
     display: flex;
     flex-direction: column;

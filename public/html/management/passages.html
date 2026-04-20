@@ -1,0 +1,52 @@
+<div class="card">
+    <h3>Ajouter un passage</h3>
+    <div class="form-container mgmt-form-inline">
+        <select id="passage-classe" class="mgmt-control-auto">
+            <option value="">-- Choisir une classe --</option>
+        </select>
+        <select id="passage-name-student" disabled class="mgmt-control-auto">
+            <option value="">-- Nom --</option>
+        </select>
+        <select id="passage-surname-student" disabled class="mgmt-control-auto">
+            <option value="">-- Prénom --</option>
+        </select>
+        <input type="hidden" id="passage-id-student">
+        <select id="passage-type" class="mgmt-control-auto">
+            <option value="Entrée matin">Entrée matin</option>
+            <option value="Sortie midi">Sortie midi</option>
+            <option value="Rentrée midi">Rentrée midi</option>
+            <option value="Entrée après-midi">Entrée après-midi</option>
+            <option value="Sortie autorisée">Sortie autorisée</option>
+            <option value="Journée">Journée</option>
+        </select>
+        <input type="date" id="passage-date" class="mgmt-control-auto">
+        <input type="time" id="passage-time" class="mgmt-control-auto">
+        <button id="btn-add-passage" disabled>Ajouter</button>
+    </div>
+</div>
+<div class="card">
+    <h3>Passages</h3>
+    <div class="form-container mgmt-filter-inline mgmt-filter-inline-tight">
+        <label for="passages-filter-date-from" class="mgmt-label-inline">Date de début :</label>
+        <input type="date" id="passages-filter-date-from" class="mgmt-control-auto">
+        <label for="passages-filter-date-to" class="mgmt-label-inline">Date de fin :</label>
+        <input type="date" id="passages-filter-date-to" class="mgmt-control-auto">
+        <button id="btn-filter-passages">Filtrer</button>
+        <button id="btn-export-passages-csv">Exporter CSV</button>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Classe</th>
+                <th>Type</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="passages-gestion-body"></tbody>
+    </table>
+</div>

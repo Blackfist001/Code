@@ -1,0 +1,62 @@
+<div class="card">
+    <h3>Ajouter un horaire</h3>
+    <div class="form-container mgmt-form-inline">
+        <select id="sched-classe" class="mgmt-control-auto">
+            <option value="">-- Classe --</option>
+        </select>
+        <select id="sched-matiere" class="mgmt-control-auto">
+            <option value="">-- Matière --</option>
+        </select>
+        <select id="sched-jour" class="mgmt-control-auto">
+            <option value="">-- Jour --</option>
+            <option value="lundi">Lundi</option>
+            <option value="mardi">Mardi</option>
+            <option value="mercredi">Mercredi</option>
+            <option value="jeudi">Jeudi</option>
+            <option value="vendredi">Vendredi</option>
+            <option value="samedi">Samedi</option>
+        </select>
+        <select id="sched-debut" class="mgmt-control-auto">
+            <option value="">-- Début --</option>
+        </select>
+        <select id="sched-fin" class="mgmt-control-auto">
+            <option value="">-- Fin --</option>
+        </select>
+        <input type="text" id="sched-salle" placeholder="Salle" class="mgmt-control-auto">
+        <button id="btn-add-schedule">Ajouter</button>
+    </div>
+</div>
+<div class="card">
+    <h3>Horaires</h3>
+    <div class="form-container mgmt-filter-inline">
+        <select id="sched-filter-classe" class="mgmt-control-auto">
+            <option value="">-- Toutes les classes --</option>
+        </select>
+        <select id="sched-filter-matiere" class="mgmt-control-auto">
+            <option value="">-- Toutes les matières --</option>
+        </select>
+        <select id="sched-filter-jour" class="mgmt-control-auto">
+            <option value="">-- Tous les jours --</option>
+            <option value="lundi">Lundi</option>
+            <option value="mardi">Mardi</option>
+            <option value="mercredi">Mercredi</option>
+            <option value="jeudi">Jeudi</option>
+            <option value="vendredi">Vendredi</option>
+            <option value="samedi">Samedi</option>
+        </select>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Classe</th>
+                <th>Matière</th>
+                <th>Jour</th>
+                <th>Début</th>
+                <th>Fin</th>
+                <th>Salle</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="schedules-table-body"></tbody>
+    </table>
+</div>

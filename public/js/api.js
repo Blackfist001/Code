@@ -218,6 +218,56 @@ class API {
         });
     }
 
+    async getAllClasses() {
+        return this.request('classes');
+    }
+
+    async addClass(data) {
+        return this.request('classes/add', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    async updateClass(id, data) {
+        return this.request('classes/update', {
+            method: 'POST',
+            body: JSON.stringify({ id, ...data })
+        });
+    }
+
+    async deleteClass(id) {
+        return this.request('classes/delete', {
+            method: 'POST',
+            body: JSON.stringify({ id })
+        });
+    }
+
+    async getAllMatieres() {
+        return this.request('matieres');
+    }
+
+    async addMatiere(data) {
+        return this.request('matieres/add', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    async updateMatiere(id, data) {
+        return this.request('matieres/update', {
+            method: 'POST',
+            body: JSON.stringify({ id, ...data })
+        });
+    }
+
+    async deleteMatiere(id) {
+        return this.request('matieres/delete', {
+            method: 'POST',
+            body: JSON.stringify({ id })
+        });
+    }
+
     // ==================== HORAIRES ====================
 
     async getAllSchedules() {

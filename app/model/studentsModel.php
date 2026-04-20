@@ -9,12 +9,12 @@ class StudentsModel {
     private DataBase $db;
     private ClassesModel $classesModel;
 
-    /** Regex de validation des sourcedId SmartSchool (8-4-4-4-12 alphanumérique) */
+    /** Regex de validation des sourcedId externes (8-4-4-4-12 alphanumérique) */
     public const SOURCED_ID_REGEX =
         '/^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$/';
 
     /**
-     * Valide le format d un sourcedId SmartSchool.
+    * Valide le format d un sourcedId externe.
      * Format : 8-4-4-4-12 caractères alphanumériques séparés par des tirets.
      */
     public static function validateSourcedId(string $sourcedId): bool {
@@ -143,7 +143,7 @@ class StudentsModel {
     }
 
     /**
-     * Insère un étudiant avec son sourcedId (utilisé par SmartSchoolSync).
+    * Insère un étudiant avec son sourcedId (utilisé par les synchronisations externes).
      */
     public function createStudent(array $studentData): bool {
         $pdo = $this->db->getPdo();
@@ -203,7 +203,7 @@ class StudentsModel {
     }
 
     /**
-     * Met à jour un étudiant identifié par son sourcedId (utilisé par SmartSchoolSync).
+    * Met à jour un étudiant identifié par son sourcedId (utilisé par les synchronisations externes).
      */
     public function updateStudentBySourcedId(string $sourcedId, array $data): bool {
         $pdo = $this->db->getPdo();

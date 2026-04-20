@@ -1,0 +1,43 @@
+<div class="card">
+    <h3>Ajouter un étudiant</h3>
+    <div class="form-container mgmt-form-inline">
+        <input type="text" id="student-nom" placeholder="Nom" class="mgmt-control-auto">
+        <input type="text" id="student-prenom" placeholder="Prénom" class="mgmt-control-auto">
+        <input type="date" id="student-naissance" class="mgmt-control-auto" title="Date de naissance">
+        <select id="student-classe" class="mgmt-control-auto">
+            <option value="">-- Classe --</option>
+        </select>
+        <label class="mgmt-toggle-inline">
+            <input type="checkbox" id="student-midi">
+            Autor. midi
+        </label>
+        <button id="btn-add-student">Ajouter</button>
+    </div>
+</div>
+<div class="card">
+    <h3>Étudiants</h3>
+    <div class="form-container mgmt-filter-inline">
+        <select id="students-filter-classe" class="mgmt-control-auto">
+            <option value="">-- Toutes les classes --</option>
+        </select>
+        <select id="students-filter-midi" class="mgmt-control-auto">
+            <option value="">-- Autor. midi --</option>
+            <option value="1">Oui</option>
+            <option value="0">Non</option>
+        </select>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Classe</th>
+                <th>Date naiss.</th>
+                <th>Autor. midi</th>
+                <th>Demi-journées abs.</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="students-table-body"></tbody>
+    </table>
+</div>

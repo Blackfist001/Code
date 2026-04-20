@@ -288,7 +288,7 @@ class MovementsModel {
 
         $sql = "SELECT p.id_passage, p.date_passage, p.heure_passage,
                        p.type_passage, p.statut,
-                       COALESCE(e.demi_journee, 0) AS total_demi_journees,
+                       COALESCE(e.demi_journee_absence, 0) AS total_demi_journees,
                        e.nom, e.prenom, e.classe
                 FROM passages p
                 JOIN etudiants e ON p.id_etudiant = e.id_etudiant

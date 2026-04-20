@@ -55,7 +55,7 @@ export default class AbsenceView {
         tbody.innerHTML = '';
         
         if (!absents || absents.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6">Aucun absent enregistré</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7">Aucun absent enregistré</td></tr>';
             return;
         }
         
@@ -64,6 +64,8 @@ export default class AbsenceView {
             const badgeClass = statusLabel === 'Absent'
                 ? 'status-refuse'
                 : 'status-info';
+            const totalDemiJournees = Number(absent.demi_journee_absence) || 0;
+            const demiJourneeClass = totalDemiJournees >= 9 ? 'demi-journee-critical' : '';
 
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -71,6 +73,7 @@ export default class AbsenceView {
                 <td>${absent.nom || '---'}</td>
                 <td>${absent.prenom || '---'}</td>
                 <td>${absent.classe || '---'}</td>
+                <td><span class="${demiJourneeClass}">${totalDemiJournees}</span></td>
                 <td>${absent.type_passage || '---'}</td>
                 <td><span class="status-badge ${badgeClass}">${statusLabel}</span></td>
             `;

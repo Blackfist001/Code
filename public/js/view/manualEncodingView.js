@@ -14,9 +14,23 @@ export default class ManualEncodingView {
                 this.container.innerHTML = data;
                 this._loadClasses();
                 this.attachEventListeners();
+                this._setCurrentDateTimeDefaults();
                 this.refreshHistory();
             })
             .catch(error => console.error('Error loading manual encoding:', error));
+    }
+
+    _setCurrentDateTimeDefaults() {
+        const now = new Date();
+        const dateEl = document.getElementById('encoding-date');
+        const timeEl = document.getElementById('encoding-time');
+
+        if (dateEl) {
+            dateEl.value = now.toISOString().split('T')[0];
+        }
+        if (timeEl) {
+            timeEl.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        }
     }
 
     async refreshHistory() {
@@ -206,11 +220,10 @@ export default class ManualEncodingView {
         document.getElementById('encoding-surname-student').innerHTML = '<option value="">-- Prénom --</option>';
         document.getElementById('encoding-surname-student').disabled = true;
         document.getElementById('encoding-type').value = 'Entrée matin';
-        document.getElementById('encoding-date').value = '';
-        document.getElementById('encoding-time').value = '';
         document.getElementById('encoding-reason').style.display = 'none';
         document.getElementById('encoding-reason').value = '';
         this._clearStudentSelection();
+        this._setCurrentDateTimeDefaults();
     }
 
     displayMessage(message, isError = false) {

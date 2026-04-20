@@ -261,3 +261,70 @@ Stack trace:
 [20-Apr-2026 08:50:04 UTC] Login input: {"username":"admin","password":"admin"}
 [20-Apr-2026 08:50:04 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
 [20-Apr-2026 08:50:04 UTC] UsersModel password_verify: true
+[20-Apr-2026 09:17:13 UTC] AuthController verify called
+[20-Apr-2026 09:17:13 UTC] Login input: {"username":"admin","password":"admin"}
+[20-Apr-2026 09:17:13 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[20-Apr-2026 09:17:13 UTC] UsersModel password_verify: true
+[20-Apr-2026 09:17:24 UTC] OneRoster sync error at login: OneRoster POST error: Could not resolve host: centreleonarddefrance.smartschool.be
+[20-Apr-2026 09:31:21 UTC] AuthController verify called
+[20-Apr-2026 09:31:21 UTC] Login input: {"username":"admin","password":"admin"}
+[20-Apr-2026 09:31:21 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[20-Apr-2026 09:31:21 UTC] UsersModel password_verify: true
+[20-Apr-2026 09:31:52 UTC] AuthController verify called
+[20-Apr-2026 09:31:52 UTC] Login input: {"username":"admin","password":"admin"}
+[20-Apr-2026 09:31:52 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[20-Apr-2026 09:31:52 UTC] UsersModel password_verify: true
+[20-Apr-2026 09:36:23 UTC] AuthController verify called
+[20-Apr-2026 09:36:23 UTC] Login input: {"username":"admin","password":"admin"}
+[20-Apr-2026 09:36:23 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[20-Apr-2026 09:36:23 UTC] UsersModel password_verify: true
+[20-Apr-2026 09:42:01 UTC] AuthController verify called
+[20-Apr-2026 09:42:01 UTC] Login input: {"username":"admin","password":"admin"}
+[20-Apr-2026 09:42:01 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[20-Apr-2026 09:42:01 UTC] UsersModel password_verify: true
+[20-Apr-2026 09:42:55 UTC] AuthController verify called
+[20-Apr-2026 09:42:55 UTC] Login input: {"username":"admin","password":"admin"}
+[20-Apr-2026 09:42:55 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[20-Apr-2026 09:42:55 UTC] UsersModel password_verify: true
+[20-Apr-2026 10:02:19 UTC] AuthController verify called
+[20-Apr-2026 10:02:19 UTC] Login input: {"username":"admin","password":"admin"}
+[20-Apr-2026 10:02:19 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[20-Apr-2026 10:02:19 UTC] UsersModel password_verify: true
+[20-Apr-2026 10:06:14 UTC] AuthController verify called
+[20-Apr-2026 10:06:14 UTC] Login input: {"username":"admin","password":"admin"}
+[20-Apr-2026 10:06:14 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[20-Apr-2026 10:06:14 UTC] UsersModel password_verify: true
+[20-Apr-2026 10:55:59 UTC] AuthController verify called
+[20-Apr-2026 10:55:59 UTC] Login input: {"username":"admin","password":"admin"}
+[20-Apr-2026 10:55:59 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[20-Apr-2026 10:55:59 UTC] UsersModel password_verify: true
+[20-Apr-2026 10:56:10 UTC] OneRoster sync error at login: OneRoster POST error: Could not resolve host: centreleonarddefrance.smartschool.be
+[20-Apr-2026 11:05:55 UTC] AuthController verify called
+[20-Apr-2026 11:05:55 UTC] Login input: {"username":"admin","password":"admin"}
+[20-Apr-2026 11:05:55 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[20-Apr-2026 11:05:55 UTC] UsersModel password_verify: true
+[20-Apr-2026 11:06:16 UTC] OneRoster sync error at login: OneRoster POST error: Failed to connect to centreleonarddefrance.smartschool.be port 443 after 21057 ms: Could not connect to server
+[20-Apr-2026 11:28:48 UTC] AuthController verify called
+[20-Apr-2026 11:28:48 UTC] Login input: {"username":"admin","password":"admin"}
+[20-Apr-2026 11:28:48 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[20-Apr-2026 11:28:48 UTC] UsersModel password_verify: true
+[20-Apr-2026 11:29:09 UTC] OneRoster sync error at login: OneRoster POST error: Failed to connect to centreleonarddefrance.smartschool.be port 443 after 21033 ms: Could not connect to server
+[20-Apr-2026 13:02:10 UTC] AuthController verify called
+[20-Apr-2026 13:02:10 UTC] Login input: {"username":"admin","password":"admin"}
+[20-Apr-2026 13:02:10 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[20-Apr-2026 13:02:10 UTC] UsersModel password_verify: true
+[20-Apr-2026 13:02:21 UTC] OneRoster sync error at login: OneRoster POST error: Could not resolve host: centreleonarddefrance.smartschool.be
+[20-Apr-2026 13:02:48 UTC] AuthController verify called
+[20-Apr-2026 13:02:48 UTC] Login input: {"username":"edu","password":"edu"}
+[20-Apr-2026 13:02:48 UTC] UsersModel authenticate: username=edu, user={"id_user":3,"nom":"edu","mot_de_passe":"$2y$10$Px\/TqMu.kdwbgoBsLB8WIu91hnOEbMEhdthwVeoqdeRttkrvSeva6","role":"surveillant"}
+[20-Apr-2026 13:02:48 UTC] UsersModel password_verify: true
+[20-Apr-2026 13:03:11 UTC] OneRoster sync error at login: OneRoster GET error: Failed to connect to centreleonarddefrance.smartschool.be port 443 after 21037 ms: Could not connect to server
+[20-Apr-2026 13:03:36 UTC] AuthController verify called
+[20-Apr-2026 13:03:36 UTC] Login input: {"username":"admin","password":"admin"}
+[20-Apr-2026 13:03:36 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[20-Apr-2026 13:03:36 UTC] UsersModel password_verify: true
+[20-Apr-2026 13:03:57 UTC] OneRoster sync error at login: OneRoster POST error: Failed to connect to centreleonarddefrance.smartschool.be port 443 after 21029 ms: Could not connect to server
+[20-Apr-2026 13:58:32 UTC] AuthController verify called
+[20-Apr-2026 13:58:32 UTC] Login input: {"username":"admin","password":"admin"}
+[20-Apr-2026 13:58:32 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[20-Apr-2026 13:58:32 UTC] UsersModel password_verify: true

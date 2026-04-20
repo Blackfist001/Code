@@ -1,0 +1,28 @@
+<div class="card">
+    <h3>Ajouter un utilisateur</h3>
+    <div class="form-container mgmt-form-inline">
+        <input type="text" id="user-username" placeholder="Nom d'utilisateur" required class="mgmt-control-auto">
+        <input type="password" id="user-password" placeholder="Mot de passe" required class="mgmt-control-auto">
+        <select id="user-role" required class="mgmt-control-auto">
+            <option value="">-- Rôle --</option>
+            <option value="surveillant">Surveillant</option>
+            <option value="administration">Administration</option>
+            <option value="administrateur">Administrateur</option>
+        </select>
+        <button id="btn-add-user">Ajouter utilisateur</button>
+    </div>
+</div>
+<div class="card">
+    <h3>Utilisateurs</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom d'utilisateur</th>
+                <th>Rôle</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="users-table-body"></tbody>
+    </table>
+</div>

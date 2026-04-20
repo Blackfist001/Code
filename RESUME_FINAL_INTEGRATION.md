@@ -5,6 +5,55 @@
 
 ---
 
+## Mise a jour du 20 avril 2026
+
+### Gestion admin refactorisee
+
+- `managementController.js` conserve son role de point d'entree mais delegue maintenant a des sous-controleurs par domaine.
+- `managementView.js` conserve son role de point d'entree mais delegue l'affichage et les evenements a des sous-vues par section.
+- Nouvelles classes creees :
+   - `public/js/controller/management/managementUsersController.js`
+   - `public/js/controller/management/managementStudentsController.js`
+   - `public/js/controller/management/managementPassagesController.js`
+   - `public/js/controller/management/managementSchedulesController.js`
+   - `public/js/controller/management/managementClassesController.js`
+   - `public/js/controller/management/managementMatieresController.js`
+   - `public/js/view/management/managementUsersView.js`
+   - `public/js/view/management/managementStudentsView.js`
+   - `public/js/view/management/managementPassagesView.js`
+   - `public/js/view/management/managementSchedulesView.js`
+   - `public/js/view/management/managementClassesView.js`
+   - `public/js/view/management/managementMatieresView.js`
+
+### Gestion admin factorisee aussi cote HTML/CSS
+
+- `public/html/management.html` est devenu un shell de page chargeant des partials par section.
+- Partials ajoutes dans `public/html/management/` : `passages.html`, `students.html`, `schedules.html`, `classes.html`, `matieres.html`, `users.html`.
+- Des classes CSS reutilisables ont remplace les styles inline repetitifs dans la zone gestion : `mgmt-form-inline`, `mgmt-filter-inline`, `mgmt-filter-inline-tight`, `mgmt-control-auto`, `mgmt-label-inline`, `mgmt-toggle-inline`.
+
+### Evolutions fonctionnelles recentes
+
+- Gestion passages :
+   - remplacement du bloc de recherche par une section `Ajouter un passage`
+   - deplacement des filtres date dans la section liste
+   - remplacement du bouton `Tous` par `Exporter CSV`
+- Encodage manuel : pre-remplissage automatique de la date et de l'heure courantes.
+- Gestion etudiants :
+   - ajout d'un formulaire d'ajout d'etudiant
+   - ajout des filtres `Classe` et `Autor. midi`
+   - ajout de la colonne `Demi-journees abs.` dans la liste
+- Page absents : ajout de la colonne `Demi-journees d'absences` entre `Classe` et `Type` avec le meme style conditionnel que la page Recherche.
+
+### Nettoyage integration SmartSchool OAuth
+
+- Abandon de l'integration OAuth SmartSchool.
+- Fichiers supprimes :
+   - `app/config/smartschool.php`
+   - `app/service/SmartSchoolSync.php`
+- Les references documentaires restantes dans le code ont ete nettoyees sans toucher a l'historique utile des logs.
+
+---
+
 ## âœ… Accomplissements de cette Session
 
 ### 1. **Refactorisation HTML des Templates**

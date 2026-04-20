@@ -1,5 +1,23 @@
 ﻿# RÃ‰SUMÃ‰ EXÃ‰CUTIF - Bugs & Actions Requises
 
+## MISE A JOUR DU 20/04/2026
+
+### Actions realisees depuis le rapport initial
+
+- Refactorisation de la page `management` en architecture modulaire par domaine, tout en conservant `managementController.js` et `managementView.js` comme points d'acces principaux.
+- Decoupage HTML de la gestion en partials dedies par section et chargement dynamique a l'execution.
+- Uniformisation CSS de la zone gestion avec des classes reutilisables au lieu de styles inline repetitifs.
+- Ajouts fonctionnels cote gestion : passages, etudiants, horaires, classes, matieres, utilisateurs.
+- Ajout des colonnes `Demi-journees d'absences` sur les pages Gestion etudiants et Absents, avec mise en evidence visuelle au seuil >= 9.
+- Pre-remplissage automatique de la date et de l'heure sur la page d'encodage manuel.
+- Suppression de l'ancienne integration OAuth SmartSchool (`app/config/smartschool.php`, `app/service/SmartSchoolSync.php`).
+
+### Statut pratique actuel
+
+- Le chantier n'est plus centré sur des blocages d'architecture initiaux mais sur des evolutions fonctionnelles et du nettoyage de structure.
+- L'integration SmartSchool OAuth a ete retiree.
+- L'integration OneRoster reste presente et separee.
+
 ---
 
 ## ðŸš¨ BUGS CRITIQUES (Blockers - Jour 1)

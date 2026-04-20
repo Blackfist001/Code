@@ -68,6 +68,7 @@ class AbsenceController {
                        e.nom,
                        e.prenom,
                        e.classe,
+                      COALESCE(e.demi_journee_absence, 0) AS demi_journee_absence,
                        CASE
                            WHEN latest_absence.id_passage IS NULL THEN 'missing-passages'
                            WHEN latest_absence.statut = 'Absence justifiée' THEN 'justified-absence'

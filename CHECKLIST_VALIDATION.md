@@ -2,6 +2,38 @@
 
 **Utiliser ce fichier pour cocher chaque correction au fur et Ã  mesure.**
 
+## Mise a jour du 20 avril 2026
+
+Le detail historique ci-dessous est conserve. La checklist suivante reflete les validations importantes ajoutees ou finalisees lors des evolutions recentes.
+
+### Etat actuel - Evolutions recentes validees
+
+- [x] La page `gestion` a ete refactorisee en sous-controleurs et sous-vues, avec conservation des points d'entree principaux.
+- [x] `public/html/management.html` a ete converti en shell avec chargement dynamique de partials.
+- [x] Les partials de gestion ont ete ajoutes pour `users`, `students`, `passages`, `schedules`, `classes`, `matieres`.
+- [x] Les styles inline repetitifs de gestion ont ete remplaces par des classes CSS reutilisables.
+- [x] Les formulaires horaires utilisent des selects alimentes par la base pour `Classe` et `Matiere`.
+- [x] La liste des horaires dispose de filtres `Classe`, `Matiere`, `Jour`.
+- [x] Les pages `Classes` et `Matieres` existent avec CRUD et sans colonne d'ID dans la liste.
+- [x] La gestion etudiants permet l'ajout d'un etudiant avec selection de classe.
+- [x] La gestion etudiants affiche la colonne `Demi-journees abs.`.
+- [x] La page `Absents` affiche la colonne `Demi-journees d'absences` avec la meme logique visuelle que la recherche.
+- [x] La page `Gestion passages` affiche a nouveau les passages apres correction SQL sur `demi_journee_absence`.
+- [x] La page `Gestion passages` integre `Ajouter un passage`, des filtres dates dans la liste et l'export CSV.
+- [x] La page `Encodage manuel` pre-remplit automatiquement date et heure.
+- [x] Les alertes de l'interface conservent le comportement SweetAlert attendu.
+- [x] L'integration OAuth SmartSchool abandonnee a ete retiree du code.
+
+### Fichiers supprimes dans le cadre du nettoyage
+
+- [x] `app/config/smartschool.php`
+- [x] `app/service/SmartSchoolSync.php`
+
+### A garder comme historique de reference
+
+- [ ] Les phases 1 a 5 ci-dessous correspondent au plan initial et non a un etat exact completement a jour.
+- [ ] Les cases non cochees plus bas ne doivent pas etre interpretees comme un etat reel sans verification du code courant.
+
 ---
 
 ## ðŸ”´ PHASE 1: CORRECTIONS CRITIQUES IMMÃ‰DIATE

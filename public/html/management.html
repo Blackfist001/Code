@@ -1,142 +1,15 @@
 <div class="gestion-layout">
-
     <div class="gestion-main" id="gestion-main" data-section="passages">
+        <div id="section-passages" class="gestion-section" data-partial="management/passages.html"></div>
+        <div id="section-students" class="gestion-section" data-partial="management/students.html" style="display:none;"></div>
+        <div id="section-schedules" class="gestion-section" data-partial="management/schedules.html" style="display:none;"></div>
+        <div id="section-classes" class="gestion-section" data-partial="management/classes.html" style="display:none;"></div>
+        <div id="section-matieres" class="gestion-section" data-partial="management/matieres.html" style="display:none;"></div>
+        <div id="section-users" class="gestion-section" data-partial="management/users.html" style="display:none;"></div>
 
-        <!-- ===== SECTION PASSAGES ===== -->
-        <div id="section-passages" class="gestion-section">
-            <div class="card">
-                <h3>Filtrer par date</h3>
-                <div class="form-container" style="flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px;">
-                    <label for="passages-filter-date-from" style="margin:0;">Date de début :</label>
-                    <input type="date" id="passages-filter-date-from" style="width:auto;">
-                    <label for="passages-filter-date-to" style="margin:0;">Date de fin :</label>
-                    <input type="date" id="passages-filter-date-to" style="width:auto;">
-                    <button id="btn-filter-passages">Filtrer</button>
-                    <button id="btn-load-all-passages">Tous</button>
-                </div>
-            </div>
-            <div class="card">
-                <h3>Passages</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Heure</th>
-                            <th>Nom</th>
-                            <th>Prénom</th>
-                            <th>Classe</th>
-                            <th>Type</th>
-                            <th>Statut</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="passages-gestion-body"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- ===== SECTION ÉTUDIANTS ===== -->
-        <div id="section-students" class="gestion-section" style="display:none;">
-            <div class="card">
-                <h3>Étudiants</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nom</th>
-                            <th>Prénom</th>
-                            <th>Classe</th>
-                            <th>Date naiss.</th>
-                            <th>Autor. midi</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="students-table-body"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- ===== SECTION HORAIRES ===== -->
-        <div id="section-schedules" class="gestion-section" style="display:none;">
-            <div class="card">
-                <h3>Ajouter un horaire</h3>
-                <div class="form-container" style="flex-direction:row;flex-wrap:wrap;align-items:flex-end;justify-content:flex-start;gap:10px;">
-                    <input type="text" id="sched-classe" placeholder="Classe (ex: 2A)" style="width:auto;">
-                    <input type="text" id="sched-matiere" placeholder="Matière" style="width:auto;">
-                    <select id="sched-jour" style="width:auto;">
-                        <option value="">-- Jour --</option>
-                        <option value="lundi">Lundi</option>
-                        <option value="mardi">Mardi</option>
-                        <option value="mercredi">Mercredi</option>
-                        <option value="jeudi">Jeudi</option>
-                        <option value="vendredi">Vendredi</option>
-                        <option value="samedi">Samedi</option>
-                    </select>
-                    <select id="sched-debut" style="width:auto;">
-                        <option value="">-- Début --</option>
-                    </select>
-                    <select id="sched-fin" style="width:auto;">
-                        <option value="">-- Fin --</option>
-                    </select>
-                    <input type="text" id="sched-salle" placeholder="Salle" style="width:auto;">
-                    <button id="btn-add-schedule">Ajouter</button>
-                </div>
-            </div>
-            <div class="card">
-                <h3>Horaires</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Classe</th>
-                            <th>Matière</th>
-                            <th>Jour</th>
-                            <th>Début</th>
-                            <th>Fin</th>
-                            <th>Salle</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="schedules-table-body"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- ===== SECTION UTILISATEURS ===== -->
-        <div id="section-users" class="gestion-section" style="display:none;">
-            <div class="card">
-                <h3>Ajouter un utilisateur</h3>
-                <div class="form-container" style="flex-direction:row;flex-wrap:wrap;align-items:flex-end;justify-content:flex-start;gap:10px;">
-                    <input type="text" id="user-username" placeholder="Nom d'utilisateur" required style="width:auto;">
-                    <input type="password" id="user-password" placeholder="Mot de passe" required style="width:auto;">
-                    <select id="user-role" required style="width:auto;">
-                        <option value="">-- Rôle --</option>
-                        <option value="surveillant">Surveillant</option>
-                        <option value="administration">Administration</option>
-                        <option value="administrateur">Administrateur</option>
-                    </select>
-                    <button id="btn-add-user">Ajouter utilisateur</button>
-                </div>
-            </div>
-            <div class="card">
-                <h3>Utilisateurs</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nom d'utilisateur</th>
-                            <th>Rôle</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="users-table-body"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Modal générique -->
         <div id="gestion-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;overflow-y:auto;">
             <div id="gestion-modal-content" style="background:#fff;max-width:460px;margin:80px auto;padding:28px;border-radius:8px;position:relative;">
             </div>
         </div>
-
     </div>
 </div>

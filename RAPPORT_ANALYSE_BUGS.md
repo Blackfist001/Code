@@ -4,6 +4,39 @@
 **Type:** Audit technique - Frontend JavaScript POO + Backend PHP POO  
 **PrioritÃ©:** CRITIQUE - Nombreux blocages empÃªchant le fonctionnement
 
+## Mise a jour du 20 avril 2026
+
+Le contenu ci-dessous reste utile comme historique d'audit initial, mais il ne represente plus entierement l'etat actuel du projet.
+
+### Evolutions majeures depuis l'audit initial
+
+- La zone `gestion` a ete fortement etendue et refactorisee.
+- `public/js/controller/managementController.js` et `public/js/view/managementView.js` sont des points d'entree conserves, mais la logique a ete decomposee en sous-controleurs et sous-vues par section.
+- `public/html/management.html` est maintenant un shell chargeant des partials dedies par domaine.
+- Les styles inline repetitifs de la zone gestion ont ete remplaces par des classes CSS mutualisees.
+
+### Ajouts fonctionnels actés
+
+- Gestion horaires : selects alimentes par la base pour `Classe` et `Matiere`, plus filtres de liste.
+- Gestion classes et matieres : pages CRUD ajoutees avec modification et suppression.
+- Gestion etudiants : ajout d'un formulaire de creation, filtres simplifies, et colonne `Demi-journees abs.`.
+- Gestion passages : correction de l'affichage vide, nouveau bloc `Ajouter un passage`, filtres repositionnes, export CSV ajoute.
+- Encodage manuel : date et heure courantes pre-remplies automatiquement.
+- Page absents : ajout de la colonne `Demi-journees d'absences` avec mise en evidence visuelle comme en recherche.
+
+### Nettoyage technique acté
+
+- L'ancienne integration OAuth SmartSchool a ete retiree.
+- Fichiers supprimes :
+    - `app/config/smartschool.php`
+    - `app/service/SmartSchoolSync.php`
+- L'integration OneRoster reste presente et distincte.
+
+### Points de lecture a interpreter comme historiques
+
+- Les sections listant `managementController.php` ou `managementView.js` comme gros points de concentration restent utiles pour comprendre le contexte initial, mais elles ont ete traitees par factorisation.
+- Les anciennes hypotheses sur l'absence de certaines pages ou de certaines interactions de gestion ne sont plus a jour.
+
 ---
 
 ## ðŸ“‹ TABLE DES MATIÃˆRES
