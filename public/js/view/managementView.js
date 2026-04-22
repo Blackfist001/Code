@@ -1,6 +1,7 @@
 import ManagementUsersView from './management/managementUsersView.js';
 import ManagementStudentsView from './management/managementStudentsView.js';
 import ManagementPassagesView from './management/managementPassagesView.js';
+import ManagementQrCodesView from './management/managementQrCodesView.js';
 import ManagementSchedulesView from './management/managementSchedulesView.js';
 import ManagementClassesView from './management/managementClassesView.js';
 import ManagementMatieresView from './management/managementMatieresView.js';
@@ -17,6 +18,7 @@ export default class ManagementView {
         this.usersView = new ManagementUsersView(this);
         this.studentsView = new ManagementStudentsView(this);
         this.passagesView = new ManagementPassagesView(this);
+        this.qrCodesView = new ManagementQrCodesView(this);
         this.schedulesView = new ManagementSchedulesView(this);
         this.classesView = new ManagementClassesView(this);
         this.matieresView = new ManagementMatieresView(this);
@@ -76,6 +78,7 @@ export default class ManagementView {
         this.schedulesView.updateClassOptions();
         this.studentsView.updateClassOptions();
         this.passagesView.updateClassOptions();
+        this.qrCodesView.updateClassOptions();
     }
 
     setScheduleMatieres(matieres = []) {
@@ -121,7 +124,7 @@ export default class ManagementView {
     }
 
     _activateSection(section) {
-        const validSections = ['passages', 'students', 'schedules', 'classes', 'matieres', 'users'];
+        const validSections = ['passages', 'students', 'qrcodes', 'schedules', 'classes', 'matieres', 'users'];
         const target = validSections.includes(section) ? section : 'passages';
 
         document.querySelectorAll('.gestion-section').forEach(s => {
@@ -133,6 +136,7 @@ export default class ManagementView {
 
         if (target === 'students') this.controller.loadStudents();
         if (target === 'passages') this.controller.loadPassages();
+        if (target === 'qrcodes') this.controller.loadQrCodes();
         if (target === 'schedules') this.controller.loadSchedules();
         if (target === 'classes') this.controller.loadClasses();
         if (target === 'matieres') this.controller.loadMatieres();
@@ -143,6 +147,7 @@ export default class ManagementView {
         this.usersView.bindEvents(this.controller);
         this.studentsView.bindEvents(this.controller);
         this.passagesView.bindEvents(this.controller);
+        this.qrCodesView.bindEvents(this.controller);
         this.schedulesView.bindEvents(this.controller);
         this.classesView.bindEvents(this.controller);
         this.matieresView.bindEvents(this.controller);
@@ -158,6 +163,10 @@ export default class ManagementView {
 
     displayPassages(passages = []) {
         this.passagesView.displayPassages(this.controller, passages);
+    }
+
+    displayQrCodesStudents(students = []) {
+        this.qrCodesView.displayStudents(this.controller, students);
     }
 
     displaySchedules(schedules = []) {

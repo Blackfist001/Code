@@ -48,6 +48,39 @@ box-shadow:0 2px 5px rgba(0,0,0,0.1);
   gap: 15px;
 }
 
+.camera-container {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto 16px;
+}
+
+.qr-video {
+  width: 100%;
+  min-height: 220px;
+  max-height: 280px;
+  border-radius: 10px;
+  background: #0f172a;
+  object-fit: cover;
+  border: 2px solid #d7e2ee;
+}
+
+.camera-status {
+  margin: 8px 0 10px;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.camera-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.camera-actions button {
+  flex: 1;
+  min-width: 160px;
+}
+
 .search-row {
   display: flex;
   gap: 10px;
@@ -325,6 +358,21 @@ height:50px;
 
 .historical-status {
   min-width: 120px;
+}
+
+.qrcodes-qr-cell {
+  display: inline-flex;
+  align-items: center;
+  min-height: 76px;
+}
+
+.qrcodes-export-cell {
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-export-qr-pdf {
+  padding: 7px 10px;
 }
 
 .historical-empty {

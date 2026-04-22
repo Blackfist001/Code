@@ -2,6 +2,14 @@
     <h2>Scanner</h2>
     <div class="card">
         <h3>Scanner la carte étudiant</h3>
+        <div class="camera-container">
+            <video id="qr-video" class="qr-video" muted playsinline></video>
+            <p id="camera-status" class="camera-status">Initialisation de la camera...</p>
+            <div class="camera-actions">
+                <button id="btn-start-camera" type="button">Demarrer la camera</button>
+                <button id="btn-stop-camera" type="button">Arreter la camera</button>
+            </div>
+        </div>
         <div class="form-container">
             <input type="text" id="scan-input" placeholder="Scanner la carte ou entrer l'ID étudiant" autofocus>
             <button id="btn-submit-scan">Soumettre</button>

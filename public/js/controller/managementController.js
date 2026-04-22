@@ -4,6 +4,7 @@ import api from "../api.js";
 import ManagementUsersController from "./management/managementUsersController.js";
 import ManagementStudentsController from "./management/managementStudentsController.js";
 import ManagementPassagesController from "./management/managementPassagesController.js";
+import ManagementQrCodesController from "./management/managementQrCodesController.js";
 import ManagementSchedulesController from "./management/managementSchedulesController.js";
 import ManagementClassesController from "./management/managementClassesController.js";
 import ManagementMatieresController from "./management/managementMatieresController.js";
@@ -15,6 +16,7 @@ export default class ManagementController {
         this.usersController = new ManagementUsersController(this, api);
         this.studentsController = new ManagementStudentsController(this, api);
         this.passagesController = new ManagementPassagesController(this, api);
+        this.qrCodesController = new ManagementQrCodesController(this, api);
         this.schedulesController = new ManagementSchedulesController(this, api);
         this.classesController = new ManagementClassesController(this, api);
         this.matieresController = new ManagementMatieresController(this, api);
@@ -31,6 +33,8 @@ export default class ManagementController {
 
         ['loadPassages', 'loadPassagesByDateRange', 'addPassage', 'exportPassagesCSV', 'updatePassage', 'deletePassage']
             .forEach(m => delegate(m, this.passagesController));
+
+        ['loadQrCodes'].forEach(m => delegate(m, this.qrCodesController));
 
         ['loadScheduleOptions', 'refreshScheduleOptions', 'loadScheduleSlots', 'loadSchedules', 'addSchedule', 'updateSchedule', 'deleteSchedule']
             .forEach(m => delegate(m, this.schedulesController));
