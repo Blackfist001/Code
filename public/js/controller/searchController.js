@@ -25,7 +25,7 @@ export default class SearchController {
         // Vérifier qu'au moins un filtre est rempli
         const hasFilters = Object.values(filters).some(value => value !== '');
         if (!hasFilters) {
-            alert('Veuillez sélectionner au moins un critère de recherche');
+            this.view.displayResults([]);
             return;
         }
 
@@ -41,12 +41,5 @@ export default class SearchController {
             console.error('Erreur:', error);
             this.view.displayResults([]);
         }
-    }
-
-    resetSearch() {
-        document.getElementById('search-statut').value = '';
-        this.view.resetSelects();
-        this.view.displayResults([]);
-        this.view.clearMessage();
     }
 }

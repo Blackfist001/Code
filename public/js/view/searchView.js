@@ -92,23 +92,28 @@ export default class SearchView {
     }
 
     attachSearchHandler() {
-        const searchButton = document.getElementById('btn-search');
-        const resetButton = document.getElementById('btn-reset');
-        
-        if(searchButton) {
-            searchButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.controller.searchStudent();
-            });
-        }
-        
-        if(resetButton) {
-            resetButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.controller.resetSearch();
-            });
-        }
+        const classeSelect = document.getElementById('search-classe');
+        const nomSelect = document.getElementById('search-name');
+        const prenomSelect = document.getElementById('search-surname');
+        const statutSelect = document.getElementById('search-statut');
 
+        // Ajouter écouteurs de changement pour chaque select
+        if (classeSelect) {
+            classeSelect.addEventListener('change', () => this._performSearch());
+        }
+        if (nomSelect) {
+            nomSelect.addEventListener('change', () => this._performSearch());
+        }
+        if (prenomSelect) {
+            prenomSelect.addEventListener('change', () => this._performSearch());
+        }
+        if (statutSelect) {
+            statutSelect.addEventListener('change', () => this._performSearch());
+        }
+    }
+
+    _performSearch() {
+        this.controller.searchStudent();
     }
 
     resetSelects() {

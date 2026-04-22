@@ -342,3 +342,16 @@ Stack trace:
 [22-Apr-2026 07:56:23 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
 [22-Apr-2026 07:56:23 UTC] UsersModel password_verify: true
 [22-Apr-2026 07:56:45 UTC] OneRoster sync error at login: OneRoster GET error: Failed to connect to centreleonarddefrance.smartschool.be port 443 after 21025 ms: Could not connect to server
+[22-Apr-2026 08:25:18 UTC] AuthController verify called
+[22-Apr-2026 08:25:18 UTC] Login input: {"username":"admin","password":"admin"}
+[22-Apr-2026 08:25:18 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"administrateur"}
+[22-Apr-2026 08:25:19 UTC] UsersModel password_verify: true
+[22-Apr-2026 08:27:49 UTC] AuthController verify called
+[22-Apr-2026 08:27:49 UTC] Login input: {"username":"edu","password":"edu"}
+[22-Apr-2026 08:27:49 UTC] UsersModel authenticate: username=edu, user={"id_user":3,"nom":"edu","mot_de_passe":"$2y$10$Px\/TqMu.kdwbgoBsLB8WIu91hnOEbMEhdthwVeoqdeRttkrvSeva6","role":"surveillant"}
+[22-Apr-2026 08:27:49 UTC] UsersModel password_verify: true
+[22-Apr-2026 08:28:38 UTC] AuthController verify called
+[22-Apr-2026 08:28:38 UTC] Login input: {"username":"gestion","password":"gestion"}
+[22-Apr-2026 08:28:38 UTC] UsersModel authenticate: username=gestion, user={"id_user":2,"nom":"gestion","mot_de_passe":"$2y$10$5HFwa02tiWIsH6WfJFl\/TeM6eq4nAsIINuo3JrItdhL31exI5h9.W","role":"administration"}
+[22-Apr-2026 08:28:38 UTC] UsersModel password_verify: true
+[22-Apr-2026 08:28:49 UTC] OneRoster sync error at login: OneRoster POST error: Could not resolve host: centreleonarddefrance.smartschool.be
