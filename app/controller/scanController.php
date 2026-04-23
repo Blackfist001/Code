@@ -8,11 +8,22 @@ use App\Model\SchedulesModel;
 
 class ScanController {
 
+    /**
+     * Affiche la vue du scanner (page PHP)
+     */
     // Pour l'affichage initial (si vous utilisez encore une vue PHP)
     public function index() {
         require_once '../app/view/scanView.php';
     }
 
+    /**
+     * API : Enregistrer un scan de carte étudiant
+     *
+     * Corps JSON attendu : {sourcedId: string}
+     *
+     * @param array $params Paramètres de route (non utilisés)
+     * @return void Réponse JSON {success, message, type_passage, statut, student}
+     */
     // LE POINT D'ENTRÉE API pour enregistrer un scan
     public function ajouter($params = []) {
         header('Content-Type: application/json');

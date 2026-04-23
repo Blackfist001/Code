@@ -352,15 +352,15 @@ CREATE TABLE IF NOT EXISTS `utilisateurs` (
   `id_user` int NOT NULL AUTO_INCREMENT,
   `nom` varchar(100) DEFAULT NULL,
   `mot_de_passe` varchar(255) DEFAULT NULL,
-  `role` enum('surveillant','administration','administrateur') DEFAULT NULL,
+	`role` enum('Surveillant','Gestionnaire','Administrateur') DEFAULT NULL,
   PRIMARY KEY (`id_user`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Listage des données de la table sortie_ecole.utilisateurs : ~3 rows (environ)
 INSERT INTO `utilisateurs` (`id_user`, `nom`, `mot_de_passe`, `role`) VALUES
-	(2, 'gestion', '$2y$10$5HFwa02tiWIsH6WfJFl/TeM6eq4nAsIINuo3JrItdhL31exI5h9.W', 'administration'),
-	(3, 'edu', '$2y$10$Px/TqMu.kdwbgoBsLB8WIu91hnOEbMEhdthwVeoqdeRttkrvSeva6', 'surveillant'),
-	(4, 'admin', '$2y$10$e4UiiHix2Iaav5FjBC/67.f.bxppW/RPYS21EX.3iXibloztr7DcS', 'administrateur');
+	(2, 'gestion', '$2y$10$5HFwa02tiWIsH6WfJFl/TeM6eq4nAsIINuo3JrItdhL31exI5h9.W', 'Gestionnaire'),
+	(3, 'edu', '$2y$10$Px/TqMu.kdwbgoBsLB8WIu91hnOEbMEhdthwVeoqdeRttkrvSeva6', 'Surveillant'),
+	(4, 'admin', '$2y$10$e4UiiHix2Iaav5FjBC/67.f.bxppW/RPYS21EX.3iXibloztr7DcS', 'Administrateur');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

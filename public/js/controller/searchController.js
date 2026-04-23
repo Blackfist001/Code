@@ -2,6 +2,10 @@ import SearchView from "../view/searchView.js";
 import StudentsModel from "../model/studentsModel.js";
 import api from "../api.js";
 
+/**
+ * Contrôleur de la page de recherche.
+ * Gère les recherches de passages par critères étudiant.
+ */
 export default class SearchController {
 
     constructor() {
@@ -9,10 +13,18 @@ export default class SearchController {
         this.studentsModel = new StudentsModel();
     }
 
+    /**
+     * Charge la page de recherche.
+     */
     loadSearch() {
         this.view.render();
     }
 
+    /**
+     * Récupère les valeurs des filtres du formulaire et lance une recherche de passages.
+     * Au moins un filtre doit être rempli.
+     * @returns {Promise<void>}
+     */
     async searchStudent() {
         // Collecter les valeurs des champs de recherche
         const filters = {

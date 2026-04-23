@@ -1,9 +1,18 @@
+/**
+ * Vue du tableau de bord.
+ * Affiche les statistiques du jour et les derniers passages.
+ */
 export default class DashboardView {
 
     constructor() {
         this.container = document.getElementById('container');
     }
 
+    /**
+     * Charge le HTML du dashboard, puis peuple les statistiques et les passages.
+     * @param {Object} [stats={}]      - Statistiques du jour
+     * @param {Array}  [movements=[]] - Derniers passages
+     */
     render(stats = {}, movements = []) {
         fetch('html/dashboard.html')
             .then(response => response.text())
@@ -14,6 +23,11 @@ export default class DashboardView {
             });
     }
 
+    /**
+     * Affiche ou masque un message dans la zone de notification du dashboard.
+     * @param {string} [message=''] - Texte du message
+     * @param {'info'|'warning'|'error'} [type='info'] - Type de message
+     */
     showMessage(message = '', type = 'info') {
         const box = document.getElementById('dashboard-message');
         if (!box) return;
@@ -22,6 +36,10 @@ export default class DashboardView {
         box.className = message ? `message message-${type}` : 'message';
     }
 
+    /**
+     * Injecte les statistiques agrégées dans la grille de stats.
+     * @param {Object} stats - Objet contenant les compteurs (absent_count, present_count, etc.)
+     */
     populateStats(stats) {
         const statsContainer = document.getElementById('dashboard-stats-container');
         if (!statsContainer) return;
@@ -49,6 +67,10 @@ export default class DashboardView {
         `;
     }
 
+    /**
+     * Peuple le tableau des derniers passages (type 'Journée' uniquement).
+     * @param {Array} movements - Liste des passages
+     */
     populateMovements(movements) {
         const tbody = document.getElementById('movements-table-body');
         if (!tbody) return;
@@ -73,7 +95,9 @@ export default class DashboardView {
                 ? 'status-refuse'
                 : STATUT_VERT.includes(statut)
                     ? 'status-present'
-                    : '';
+                    : 'status-info';
+            const typeLabel = movement.type_passage || '---';
+            const typeClass = 'status-info';
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${movement.date_passage || '---'}</td>
@@ -81,7 +105,7 @@ export default class DashboardView {
                 <td>${movement.nom || '---'}</td>
                 <td>${movement.prenom || '---'}</td>
                 <td>${movement.classe || '---'}</td>
-                <td>${movement.type_passage || '---'}</td>
+                <td><span class="status-badge ${typeClass}">${typeLabel}</span></td>
                 <td><span class="status-badge ${statutClass}">${statut}</span></td>
             `;
             tbody.appendChild(row);

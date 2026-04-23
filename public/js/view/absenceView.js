@@ -1,16 +1,31 @@
 import api from '../api.js';
 
+/**
+ * Vue de la page des absences.
+ * Affiche les absents du jour avec pagination et gestion du marquage d'absence.
+ */
 export default class AbsenceView {
 
     constructor() {
         this.container = document.getElementById('container');
         this.controller = null;
+        this.pageSize = 20;
+        this.currentPage = 1;
+        this.absents = [];
     }
 
+    /**
+     * Définit le contrôleur associé à cette vue.
+     * @param {AbsenceController} controller
+     */
     setController(controller) {
         this.controller = controller;
     }
 
+    /**
+     * Charge le HTML de la page absences et initialise les écouteurs.
+     * @returns {Promise<void>}
+     */
     async render() {
         try {
             const response = await fetch('html/absence.html');
@@ -28,6 +43,10 @@ export default class AbsenceView {
         }
     }
 
+    /**
+     * Charge tous les étudiants et alimente le filtre de classe.
+     * @returns {Promise<void>}
+     */
     async _loadStudents() {
         try {
             const response = await api.getAllStudents();
@@ -48,24 +67,47 @@ export default class AbsenceView {
         }
     }
 
+    /**
+     * Met à jour la liste des absents et réinitialise la pagination à la page 1.
+     * @param {Array} [absents=[]] - Tableau des absents retourné par l'API
+     */
     displayAbsents(absents = []) {
+        this.absents = Array.isArray(absents) ? absents : [];
+        this.currentPage = 1;
+        this._renderAbsentsPage();
+    }
+
+    /**
+     * Affiche la page courante d'absents dans le tableau.
+     */
+    _renderAbsentsPage() {
         const tbody = document.getElementById('absents-table-body');
         if (!tbody) return;
         
         tbody.innerHTML = '';
+        const paginationContainer = this._getOrCreatePaginationContainer();
         
-        if (!absents || absents.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7">Aucun absent enregistré</td></tr>';
+        if (!this.absents || this.absents.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8">Aucun absent enregistré</td></tr>';
+            if (paginationContainer) paginationContainer.innerHTML = '';
             return;
         }
+
+        const startIndex = (this.currentPage - 1) * this.pageSize;
+        const endIndex = startIndex + this.pageSize;
+        const pageItems = this.absents.slice(startIndex, endIndex);
         
-        absents.forEach(absent => {
+        pageItems.forEach(absent => {
             const statusLabel = absent.statut || 'Absent';
-            const badgeClass = statusLabel === 'Absent'
+            const STATUT_ROUGE = ['Absent', 'Refusé', 'En retard'];
+            const STATUT_VERT = ['Présent', 'Autorisé'];
+            const badgeClass = STATUT_ROUGE.includes(statusLabel)
                 ? 'status-refuse'
-                : 'status-info';
+                : (STATUT_VERT.includes(statusLabel) ? 'status-present' : 'status-info');
             const totalDemiJournees = Number(absent.demi_journee_absence) || 0;
             const demiJourneeClass = totalDemiJournees >= 9 ? 'demi-journee-critical' : '';
+            const typeLabel = absent.type_passage || '---';
+            const typeClass = 'status-info';
 
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -74,13 +116,82 @@ export default class AbsenceView {
                 <td>${absent.prenom || '---'}</td>
                 <td>${absent.classe || '---'}</td>
                 <td><span class="${demiJourneeClass}">${totalDemiJournees}</span></td>
-                <td>${absent.type_passage || '---'}</td>
+                <td><span class="status-badge ${typeClass}">${typeLabel}</span></td>
                 <td><span class="status-badge ${badgeClass}">${statusLabel}</span></td>
+                <td>${absent.raison || absent.reason || '---'}</td>
             `;
             tbody.appendChild(row);
         });
+
+        this._renderPagination(paginationContainer, this.absents.length);
     }
 
+    /**
+     * Retourne (ou crée) le conteneur de pagination sous le tableau.
+     * @returns {HTMLElement|null}
+     */
+    _getOrCreatePaginationContainer() {
+        let container = document.getElementById('absents-pagination');
+        if (container) return container;
+
+        const tbody = document.getElementById('absents-table-body');
+        const table = tbody ? tbody.closest('table') : null;
+        if (!table || !table.parentNode) return null;
+
+        container = document.createElement('div');
+        container.id = 'absents-pagination';
+        container.className = 'list-pagination';
+        table.parentNode.appendChild(container);
+        return container;
+    }
+
+    /**
+     * Rend les boutons de pagination dans le conteneur spécifié.
+     * @param {HTMLElement} container - Conteneur cible
+     * @param {number} totalItems     - Nombre total d'éléments
+     */
+    _renderPagination(container, totalItems) {
+        if (!container) return;
+
+        const totalPages = Math.ceil(totalItems / this.pageSize);
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+
+        const prevDisabled = this.currentPage <= 1 ? 'disabled' : '';
+        const nextDisabled = this.currentPage >= totalPages ? 'disabled' : '';
+        container.innerHTML = `
+            <button type="button" id="absents-page-prev" ${prevDisabled}>Precedent</button>
+            <span>Page ${this.currentPage} / ${totalPages}</span>
+            <button type="button" id="absents-page-next" ${nextDisabled}>Suivant</button>
+        `;
+
+        const prevBtn = document.getElementById('absents-page-prev');
+        const nextBtn = document.getElementById('absents-page-next');
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (this.currentPage > 1) {
+                    this.currentPage -= 1;
+                    this._renderAbsentsPage();
+                }
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (this.currentPage < totalPages) {
+                    this.currentPage += 1;
+                    this._renderAbsentsPage();
+                }
+            });
+        }
+    }
+
+    /**
+     * Branche les écouteurs sur les filtres de classe et le bouton de marquage d'absence.
+     */
     attachEventListeners() {
         const classeSelect  = document.getElementById('absent-classe');
         const nomSelect     = document.getElementById('absent-name');
@@ -159,6 +270,9 @@ export default class AbsenceView {
         }
     }
 
+    /**
+     * Réinitialise la sélection d'étudiant dans le formulaire de marquage.
+     */
     _clearStudentSelection() {
         document.getElementById('absent-student-id').value = '';
         const btn = document.getElementById('btn-add-absent');

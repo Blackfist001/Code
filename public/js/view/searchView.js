@@ -1,12 +1,22 @@
 import api from '../api.js';
 
+/**
+ * Vue de la page de recherche.
+ * Affiche les résultats de recherche de passages avec pagination et filtres cascadés.
+ */
 export default class SearchView {
 
     constructor(controller) {
         this.controller = controller;
         this.container = document.getElementById('container');
+        this.pageSize = 20;
+        this.currentPage = 1;
+        this.results = [];
     }
 
+    /**
+     * Charge le HTML de la page recherche et initialise les écouteurs et les listes.
+     */
     render() {
         fetch('html/search.html')
             .then(response => response.text())
@@ -18,6 +28,10 @@ export default class SearchView {
             .catch(error => console.error('Error loading search:', error));
     }
 
+    /**
+     * Charge tous les étudiants pour alimenter les filtres cascadés (classe → nom → prénom).
+     * @returns {Promise<void>}
+     */
     async _loadStudents() {
         try {
             const response = await api.getAllStudents();
@@ -63,6 +77,11 @@ export default class SearchView {
         }
     }
 
+    /**
+     * Peuple le menu déroulant des noms avec les étudiants passés en paramètre.
+     * Réinitialise également le menu des prénoms.
+     * @param {Array} students - Tableau d'étudiants à afficher
+     */
     _populateNomSelect(students) {
         const nomSelect = document.getElementById('search-name');
         if (!nomSelect) return;
@@ -78,6 +97,10 @@ export default class SearchView {
         this._populatePrenomSelect([]);
     }
 
+    /**
+     * Peuple le menu déroulant des prénoms avec les étudiants passés en paramètre.
+     * @param {Array} students - Tableau d'étudiants filtrés
+     */
     _populatePrenomSelect(students) {
         const prenomSelect = document.getElementById('search-surname');
         if (!prenomSelect) return;
@@ -91,6 +114,10 @@ export default class SearchView {
         });
     }
 
+    /**
+     * Branche les écouteurs `change` sur les filtres (classe, nom, prénom, statut)
+     * et délègue au contrôleur à chaque modification.
+     */
     attachSearchHandler() {
         const classeSelect = document.getElementById('search-classe');
         const nomSelect = document.getElementById('search-name');
@@ -112,10 +139,16 @@ export default class SearchView {
         }
     }
 
+    /**
+     * Déclenche une recherche via le contrôleur.
+     */
     _performSearch() {
         this.controller.searchStudent();
     }
 
+    /**
+     * Réinitialise les filtres classe, nom et prénom à leur état initial.
+     */
     resetSelects() {
         const classeSelect  = document.getElementById('search-classe');
         const nomSelect     = document.getElementById('search-name');
@@ -125,30 +158,54 @@ export default class SearchView {
         if (prenomSelect)  { this._populatePrenomSelect([]); }
     }
 
+    /**
+     * Met à jour la liste des résultats et réinitialise la pagination à la page 1.
+     * @param {Array} results - Tableau des passages retourné par le contrôleur
+     */
     displayResults(results) {
+        this.results = Array.isArray(results) ? results : [];
+        this.currentPage = 1;
+        this._renderResultsPage();
+    }
+
+    /**
+     * Affiche la page courante de résultats dans le tableau avec les badges de statut.
+     */
+    _renderResultsPage() {
         const tbody = document.getElementById('search-results-body');
         const messageDiv = document.getElementById('search-message');
+        const paginationContainer = this._getOrCreatePaginationContainer();
 
         if (!tbody) return;
 
         tbody.innerHTML = '';
 
-        if (!results || results.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8">Aucun résultat trouvé</td></tr>';
+        if (!this.results || this.results.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9">Aucun résultat trouvé</td></tr>';
             if (messageDiv) messageDiv.textContent = 'Aucun passage trouvé';
+            if (paginationContainer) paginationContainer.innerHTML = '';
             return;
         }
 
+        const startIndex = (this.currentPage - 1) * this.pageSize;
+        const endIndex = startIndex + this.pageSize;
+        const pageItems = this.results.slice(startIndex, endIndex);
+
         const STATUT_ROUGE = ['Absent', 'Refusé', 'En retard'];
         const STATUT_VERT  = ['Présent', 'Autorisé'];
+        const STATUT_BLEU  = ['Absence justifiée', 'Sortie justifiée', "Aucun passage aujourd'hui"];
 
-        results.forEach(passage => {
+        pageItems.forEach(passage => {
             const statut = passage.statut || '---';
             const statutClass = STATUT_ROUGE.includes(statut)
                 ? 'status-refuse'
                 : STATUT_VERT.includes(statut)
                     ? 'status-present'
-                    : '';
+                    : (STATUT_BLEU.includes(statut) ? 'status-info' : 'status-info');
+            const typePassage = passage.type_passage || '---';
+            const typeClass = 'status-info';
+            const reasonLabel = passage.raison || passage.reason || '---';
+            const reasonClass = 'status-info';
             const totalDemiJournees = Number(passage.total_demi_journees) || 0;
             const demiJourneeClass = totalDemiJournees >= 9 ? 'demi-journee-critical' : '';
             const row = document.createElement('tr');
@@ -159,13 +216,70 @@ export default class SearchView {
                 <td>${passage.prenom || '---'}</td>
                 <td>${passage.classe || '---'}</td>
                 <td><span class="${demiJourneeClass}">${totalDemiJournees}</span></td>
-                <td>${passage.type_passage || '---'}</td>
+                <td><span class="status-badge ${typeClass}">${typePassage}</span></td>
                 <td><span class="status-badge ${statutClass}">${statut}</span></td>
+                <td><span class="status-badge ${reasonClass}">${reasonLabel}</span></td>
             `;
             tbody.appendChild(row);
         });
 
-        if (messageDiv) messageDiv.textContent = `${results.length} passage(s) trouvé(s)`;
+        if (messageDiv) messageDiv.textContent = `${this.results.length} passage(s) trouvé(s)`;
+        this._renderPagination(paginationContainer, this.results.length);
+    }
+
+    _getOrCreatePaginationContainer() {
+        let container = document.getElementById('search-results-pagination');
+        if (container) return container;
+
+        const tbody = document.getElementById('search-results-body');
+        const table = tbody ? tbody.closest('table') : null;
+        if (!table || !table.parentNode) return null;
+
+        container = document.createElement('div');
+        container.id = 'search-results-pagination';
+        container.className = 'list-pagination';
+        table.parentNode.appendChild(container);
+        return container;
+    }
+
+    _renderPagination(container, totalItems) {
+        if (!container) return;
+
+        const totalPages = Math.ceil(totalItems / this.pageSize);
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+
+        const prevDisabled = this.currentPage <= 1 ? 'disabled' : '';
+        const nextDisabled = this.currentPage >= totalPages ? 'disabled' : '';
+
+        container.innerHTML = `
+            <button type="button" id="search-page-prev" ${prevDisabled}>Precedent</button>
+            <span>Page ${this.currentPage} / ${totalPages}</span>
+            <button type="button" id="search-page-next" ${nextDisabled}>Suivant</button>
+        `;
+
+        const prevBtn = document.getElementById('search-page-prev');
+        const nextBtn = document.getElementById('search-page-next');
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (this.currentPage > 1) {
+                    this.currentPage -= 1;
+                    this._renderResultsPage();
+                }
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (this.currentPage < totalPages) {
+                    this.currentPage += 1;
+                    this._renderResultsPage();
+                }
+            });
+        }
     }
 
     clearMessage() {

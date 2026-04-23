@@ -3,6 +3,22 @@
 **Date**: 25 mars 2026  
 **Statut**: âœ… **OPÃ‰RATIONNEL** - PrÃªt pour dÃ©veloppement du frontend
 
+## Mise a jour du 23 avril 2026
+
+### Couverture des changements recents
+
+- Pagination ajoutee sur plusieurs listes avec verification de rendu et navigation.
+- Scanner audio/visuel ajuste avec controles de syntaxe et de points d'integration.
+- Encodage manuel enrichi (statut/type/raison) avec endpoint des raisons base sur ENUM DB.
+- Colonnes `Raison` ajoutees dans les listes cibles et styles badges harmonises.
+- Uniformisation de l'affichage `Type` et des valeurs manquantes `---` sur les colonnes badge.
+
+### Verification technique executee
+
+- `node --check` sur les vues et controleurs modifies: OK.
+- `php -l` sur backend modifie: OK.
+- Controles de presence des nouveaux selecteurs/colonnes/routes via recherche de motifs: OK.
+
 ---
 
 ## ðŸ”§ Corrections AppliquÃ©es

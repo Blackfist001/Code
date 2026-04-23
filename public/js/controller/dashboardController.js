@@ -1,6 +1,10 @@
 import DashboardView from "../view/dashboardView.js";
 import api from "../api.js";
 
+/**
+ * Contrôleur du tableau de bord.
+ * Charge les statistiques et les derniers passages, puis délègue l'affichage à DashboardView.
+ */
 export default class DashboardController {
 
     constructor() {
@@ -9,6 +13,10 @@ export default class DashboardController {
         this.movements = [];
     }
 
+    /**
+     * Charge les statistiques et les passages, puis rend la vue du dashboard.
+     * @returns {Promise<void>}
+     */
     async loadDashboard() {
         try {
             const [statsResponse, movementsResponse] = await Promise.all([

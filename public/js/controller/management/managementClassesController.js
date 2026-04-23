@@ -1,9 +1,16 @@
+/**
+ * Sous-contrôleur de gestion des classes.
+ */
 export default class ManagementClassesController {
     constructor(parent, api) {
         this.parent = parent;
         this.api = api;
     }
 
+    /**
+     * Charge et affiche la liste des classes.
+     * @returns {Promise<void>}
+     */
     async loadClasses() {
         try {
             const response = await this.api.getAllClasses();
@@ -17,6 +24,11 @@ export default class ManagementClassesController {
         }
     }
 
+    /**
+     * Ajoute une classe après validation du nom.
+     * @param {{classe: string}} data
+     * @returns {Promise<void>}
+     */
     async addClass(data) {
         if (!data.classe || !data.classe.trim()) {
             alert('Veuillez saisir une classe');
@@ -36,6 +48,12 @@ export default class ManagementClassesController {
         }
     }
 
+    /**
+     * Met à jour le nom d'une classe.
+     * @param {number|string} id
+     * @param {{classe: string}} data
+     * @returns {Promise<void>}
+     */
     async updateClass(id, data) {
         if (!data.classe || !data.classe.trim()) {
             alert('Veuillez saisir une classe');
@@ -55,6 +73,11 @@ export default class ManagementClassesController {
         }
     }
 
+    /**
+     * Supprime une classe par son ID.
+     * @param {number|string} id
+     * @returns {Promise<void>}
+     */
     async deleteClass(id) {
         try {
             const response = await this.api.deleteClass(id);

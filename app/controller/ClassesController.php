@@ -11,6 +11,11 @@ class ClassesController {
         $this->classesModel = new ClassesModel();
     }
 
+    /**
+     * API : Récupérer toutes les classes
+     *
+     * @return void Réponse JSON {success, count, results[]}
+     */
     public function getAll() {
         header('Content-Type: application/json');
 
@@ -26,6 +31,11 @@ class ClassesController {
         }
     }
 
+    /**
+     * API : Ajouter une classe
+     *
+     * @return void Réponse JSON {success, message}
+     */
     public function add() {
         header('Content-Type: application/json');
 
@@ -45,6 +55,11 @@ class ClassesController {
         }
     }
 
+    /**
+     * API : Mettre à jour une classe
+     *
+     * @return void Réponse JSON {success, message}
+     */
     public function update() {
         header('Content-Type: application/json');
 
@@ -67,6 +82,11 @@ class ClassesController {
         }
     }
 
+    /**
+     * API : Supprimer une classe
+     *
+     * @return void Réponse JSON {success, message}
+     */
     public function delete() {
         header('Content-Type: application/json');
 

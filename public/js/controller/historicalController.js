@@ -1,6 +1,10 @@
 import HistoricalView from "../view/historicalView.js";
 import api from "../api.js";
 
+/**
+ * Contrôleur de la page historique des passages.
+ * Gère le chargement, le filtrage par date et l'export CSV.
+ */
 export default class HistoricalController {
 
     constructor() {
@@ -8,10 +12,19 @@ export default class HistoricalController {
         this.view.setController(this);
     }
 
+    /**
+     * Charge la page historique (rendu initial).
+     */
     loadHistorical() {
         this.view.render();
     }
 
+    /**
+     * Charge les passages pour une période donnée et met à jour la vue.
+     * @param {string|null} [dateFrom] - Date de début (Y-m-d). Par défaut : 1er jour du mois précédent.
+     * @param {string|null} [dateTo]   - Date de fin (Y-m-d). Par défaut : aujourd'hui.
+     * @returns {Promise<void>}
+     */
     async loadPassages(dateFrom = null, dateTo = null) {
         try {
             const response = await api.getPassages(dateFrom, dateTo);
@@ -32,6 +45,10 @@ export default class HistoricalController {
         }
     }
 
+    /**
+     * Retourne la date de début par défaut (1er jour du mois précédent, format Y-m-d).
+     * @returns {string}
+     */
     _defaultDateFrom() {
         const d = new Date();
         d.setMonth(d.getMonth() - 1);
@@ -39,10 +56,20 @@ export default class HistoricalController {
         return d.toISOString().split('T')[0];
     }
 
+    /**
+     * Retourne la date de fin par défaut (aujourd'hui, format Y-m-d).
+     * @returns {string}
+     */
     _defaultDateTo() {
         return new Date().toISOString().split('T')[0];
     }
 
+    /**
+     * Charge les statistiques agregées pour une période et met à jour la vue.
+     * @param {string} dateFrom - Date de début (Y-m-d)
+     * @param {string} dateTo   - Date de fin (Y-m-d)
+     * @returns {Promise<void>}
+     */
     async getStatsByDate(dateFrom, dateTo) {
         try {
             const response = await api.getStatsByDate(dateFrom, dateTo);
@@ -75,6 +102,11 @@ export default class HistoricalController {
         }
     }
 
+    /**
+     * Déclenche le téléchargement de l'export CSV des passages pour la période donnée.
+     * @param {string} dateFrom - Date de début (Y-m-d)
+     * @param {string} dateTo   - Date de fin (Y-m-d)
+     */
     async exportCSV(dateFrom, dateTo) {
         try {
             const params = new URLSearchParams({

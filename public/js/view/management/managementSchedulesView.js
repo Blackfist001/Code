@@ -1,11 +1,19 @@
 import { confirmDialog } from '../../utils/dialog.js';
 
+/**
+ * Sous-vue de gestion des horaires de cours.
+ * Affiche le tableau des horaires, les filtres classe/matière et la modale d'édition.
+ */
 export default class ManagementSchedulesView {
     constructor(parent) {
         this.parent = parent;
         this._allSchedules = [];
     }
 
+    /**
+     * Branche les écouteurs du formulaire d'ajout d'horaire.
+     * @param {ManagementSchedulesController} controller
+     */
     bindEvents(controller) {
         const addSchedBtn = document.getElementById('btn-add-schedule');
         if (addSchedBtn && controller) {
@@ -39,6 +47,9 @@ export default class ManagementSchedulesView {
         });
     }
 
+    /**
+     * Resynchronise les options de classe dans les menus de la section horaires.
+     */
     updateClassOptions() {
         const classeSelect = document.getElementById('sched-classe');
         if (classeSelect) {
@@ -54,6 +65,9 @@ export default class ManagementSchedulesView {
         }
     }
 
+    /**
+     * Resynchronise les options de matière dans les menus de la section horaires.
+     */
     updateMatiereOptions() {
         const matiereSelect = document.getElementById('sched-matiere');
         if (matiereSelect) {
@@ -69,6 +83,9 @@ export default class ManagementSchedulesView {
         }
     }
 
+    /**
+     * Resynchronise les créneaux disponibles dans les menus début/fin du formulaire.
+     */
     updateSlotOptions() {
         const debutSelect = document.getElementById('sched-debut');
         const finSelect = document.getElementById('sched-fin');
@@ -81,6 +98,10 @@ export default class ManagementSchedulesView {
         }
     }
 
+    /**
+     * Filtre les horaires stockés selon les valeurs des filtres DOM (classe, matière).
+     * @returns {Array}
+     */
     _getFilteredSchedules() {
         const classeFilter = (document.getElementById('sched-filter-classe')?.value || '').trim();
         const matiereFilter = (document.getElementById('sched-filter-matiere')?.value || '').trim();
@@ -98,6 +119,11 @@ export default class ManagementSchedulesView {
         });
     }
 
+    /**
+     * Injecte les lignes du tableau pour la liste d'horaires donnée.
+     * @param {ManagementSchedulesController} controller
+     * @param {Array} [schedules=[]] - Horaires à afficher
+     */
     _renderRows(controller, schedules = []) {
         const tbody = document.getElementById('schedules-table-body');
         if (!tbody) return;
@@ -141,15 +167,29 @@ export default class ManagementSchedulesView {
         });
     }
 
+    /**
+     * Re-filtre et re-rend les lignes après un changement de filtre.
+     * @param {ManagementSchedulesController} controller
+     */
     _applyFilters(controller) {
         this._renderRows(controller, this._getFilteredSchedules());
     }
 
+    /**
+     * Stocke la liste complète des horaires et met à jour l'affichage.
+     * @param {ManagementSchedulesController} controller
+     * @param {Array} [schedules=[]] - Liste complète des horaires
+     */
     displaySchedules(controller, schedules = []) {
         this._allSchedules = Array.isArray(schedules) ? schedules : [];
         this._applyFilters(controller);
     }
 
+    /**
+     * Ouvre la modale d'édition préremplie pour un horaire.
+     * @param {ManagementSchedulesController} controller
+     * @param {Object} s - Données de l'horaire sélectionné
+     */
     showEditScheduleModal(controller, s) {
         const selectedClassId = s.id_classe || '';
         const selectedMatiereId = s.id_matiere || '';

@@ -1,10 +1,18 @@
 import { confirmDialog } from '../../utils/dialog.js';
 
+/**
+ * Sous-vue de gestion des utilisateurs.
+ * Affiche le tableau des utilisateurs et les modales d'ajout/édition.
+ */
 export default class ManagementUsersView {
     constructor(parent) {
         this.parent = parent;
     }
 
+    /**
+     * Branche les écouteurs du formulaire d'ajout d'utilisateur.
+     * @param {ManagementUsersController} controller
+     */
     bindEvents(controller) {
         const addUserBtn = document.getElementById('btn-add-user');
         if (!addUserBtn || !controller) return;
@@ -22,6 +30,11 @@ export default class ManagementUsersView {
         });
     }
 
+    /**
+     * Peuple le tableau des utilisateurs avec les lignes édit/suppr.
+     * @param {ManagementUsersController} controller
+     * @param {Array} [users=[]] - Liste des utilisateurs
+     */
     displayUsers(controller, users = []) {
         const tbody = document.getElementById('users-table-body');
         if (!tbody) return;
@@ -63,6 +76,13 @@ export default class ManagementUsersView {
         });
     }
 
+    /**
+     * Ouvre la modale d'édition préremplie pour un utilisateur.
+     * @param {ManagementUsersController} controller
+     * @param {number|string} userId
+     * @param {string} currentUsername
+     * @param {string} currentRole
+     */
     showEditUserModal(controller, userId, currentUsername, currentRole) {
         this.parent._showModal(`
             <h3>Modifier l'utilisateur</h3>
@@ -70,9 +90,9 @@ export default class ManagementUsersView {
                 <input type="text" id="edit-user-username" value="${currentUsername}" placeholder="Nom d'utilisateur">
                 <input type="password" id="edit-user-password" placeholder="Nouveau mot de passe (laisser vide)">
                 <select id="edit-user-role">
-                    <option value="surveillant" ${currentRole === 'surveillant' ? 'selected' : ''}>Surveillant</option>
-                    <option value="administration" ${currentRole === 'administration' ? 'selected' : ''}>Administration</option>
-                    <option value="administrateur" ${currentRole === 'administrateur' ? 'selected' : ''}>Administrateur</option>
+                    <option value="Surveillant" ${currentRole === 'Surveillant' ? 'selected' : ''}>Surveillant</option>
+                    <option value="Gestionnaire" ${currentRole === 'Gestionnaire' ? 'selected' : ''}>Gestionnaire</option>
+                    <option value="Administrateur" ${currentRole === 'Administrateur' ? 'selected' : ''}>Administrateur</option>
                 </select>
                 <div style="display:flex;gap:8px;margin-top:8px;">
                     <button id="modal-btn-save">Enregistrer</button>

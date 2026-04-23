@@ -21,6 +21,7 @@ return [
         '/api/students/{id}' => ['StudentsController', 'getById'],
         '/api/movements/search-by-student' => ['MovementsController', 'searchByStudent'],
         '/api/movements' => ['MovementsController', 'getAll'],
+        '/api/movements/reasons' => ['MovementsController', 'getReasonOptions'],
         '/api/movements/student/{id}' => ['MovementsController', 'getByStudentId'],
         '/api/users' => ['UsersController', 'getAll'],
         '/api/passages' => ['HistoricalController', 'getPassages'],

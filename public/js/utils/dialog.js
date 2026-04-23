@@ -1,3 +1,12 @@
+/**
+ * Affiche une boîte de dialogue de confirmation (SweetAlert2 si disponible, sinon `confirm` natif).
+ * @param {string} message - Texte de confirmation
+ * @param {Object} [options={}] - Options supplémentaires (icon, title, isDanger)
+ * @param {string}  [options.icon='warning']        - Icône SweetAlert2
+ * @param {string}  [options.title='Confirmation']  - Titre de la boîte de dialogue
+ * @param {boolean} [options.isDanger=true]         - Coloration rouge du bouton de confirmation
+ * @returns {Promise<boolean>} `true` si l'utilisateur confirme
+ */
 export async function confirmDialog(message, options = {}) {
     const text = String(message ?? '');
     const isDanger = options.isDanger !== false;

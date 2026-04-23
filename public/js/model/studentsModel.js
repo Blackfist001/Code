@@ -1,9 +1,18 @@
+/**
+ * Modèle des étudiants.
+ * Encapsule les appels API de recherche d'étudiants et met en cache les résultats.
+ */
 export default class StudentsModel {
 
     constructor() {
         this.students = [];
     }
 
+    /**
+     * Recherche les étudiants selon des filtres.
+     * @param {Object} [filters={}] - Filtres (classe, nom, prenom…)
+     * @returns {Promise<{success: boolean, count: number, results: Array}>}
+     */
     async searchStudents(filters = {}) {
         try {
             const response = await api.searchStudents(filters);

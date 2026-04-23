@@ -260,7 +260,7 @@ class UsersModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function createUser($username, $password, $role = 'surveillant') {
+    public function createUser($username, $password, $role = 'Surveillant') {
         $pdo = $this->db->getPdo();
         $stmt = $pdo->prepare(
             "INSERT INTO utilisateurs (nom, mot_de_passe, role) VALUES (:username, :password, :role)"
@@ -796,9 +796,9 @@ login(username, password) {
         // âŒ Le rÃ´le est dÃ©terminÃ© PAR LE FRONTEND!
         let role = 'user';
         if(username.includes('admin')) {
-            role = 'administrateur';
+            role = 'Administrateur';
         } else if(username.includes('gestion')) {
-            role = 'administration';
+            role = 'Gestionnaire';
         }
         
         // âŒ N'importe qui peut modifier sessionStorage dans la console
@@ -874,11 +874,11 @@ export default class SessionController {
         if (this.sessionRole === null) {
             this.sessionView.renderLogin();
         } else {
-            if (this.sessionRole === 'administrateur') {
+            if (this.sessionRole === 'Administrateur') {
                 this.sessionView.renderAdmin();
-            } else if (this.sessionRole === 'administration') {
+            } else if (this.sessionRole === 'Gestionnaire') {
                 this.sessionView.renderGestion();
-            } else if (this.sessionRole === 'user' || this.sessionRole === 'surveillant') {
+            } else if (this.sessionRole === 'Surveillant') {
                 this.sessionView.renderUser();
             }
         }

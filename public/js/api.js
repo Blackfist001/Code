@@ -146,6 +146,13 @@ class API {
     }
 
     /**
+     * Obtient les raisons autorisées (ENUM passages.raison)
+     */
+    async getMovementReasonOptions() {
+        return this.request('movements/reasons');
+    }
+
+    /**
      * Obtient les passages d'une date donnée
      */
     async getMovementsByDate(date) {

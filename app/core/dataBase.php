@@ -3,9 +3,17 @@ namespace App\Core;
 
 // test si la classe DataBase n'existe pas déjà
 if (!class_exists('DataBase')) {
+	/**
+	 * Encapsule la connexion PDO et fournit l'instance \PDO configurée à partir de config.php.
+	 */
 	class DataBase {
 		private \PDO $pdo;
 
+		/**
+		 * Initialise la connexion PDO à partir de la configuration.
+		 *
+		 * @throws \PDOException si la connexion à la base de données échoue
+		 */
 		public function __construct() {
 			// Lire la configuration depuis le fichier config.php
 			$config = require __DIR__ . '/../config/config.php';
@@ -26,6 +34,11 @@ if (!class_exists('DataBase')) {
 			}
 		}
 
+		/**
+		 * Retourne l'instance PDO configurée.
+		 *
+		 * @return \PDO
+		 */
 		public function getPdo(): \PDO {
 			return $this->pdo;
 		}

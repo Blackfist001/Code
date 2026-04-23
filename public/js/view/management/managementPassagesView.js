@@ -1,11 +1,19 @@
 import { confirmDialog } from '../../utils/dialog.js';
 
+/**
+ * Sous-vue de gestion des passages.
+ * Affiche le tableau des passages, les filtres, les sélecteurs cascadés et la modale d'édition.
+ */
 export default class ManagementPassagesView {
     constructor(parent) {
         this.parent = parent;
         this._allPassageStudents = [];
     }
 
+    /**
+     * Branche les écouteurs sur les boutons filtre, export et ajout de passage.
+     * @param {ManagementPassagesController} controller
+     */
     bindEvents(controller) {
         const filterBtn = document.getElementById('btn-filter-passages');
         if (filterBtn) {
@@ -68,6 +76,9 @@ export default class ManagementPassagesView {
         this._setDefaultDateTime();
     }
 
+    /**
+     * Pré-remplit les champs date/heure du formulaire avec l'heure courante.
+     */
     _setDefaultDateTime() {
         const now = new Date();
         const dateEl = document.getElementById('passage-date');
@@ -80,16 +91,28 @@ export default class ManagementPassagesView {
         }
     }
 
+    /**
+     * Stocke la liste d'étudiants et l'injecte dans le sélecteur du formulaire.
+     * @param {Array} [students=[]] - Tableau des étudiants disponibles
+     */
     setPassageStudents(students = []) {
         this._allPassageStudents = Array.isArray(students) ? students : [];
         this._refreshPassageNameOptions();
     }
 
+    /**
+     * Retourne le libellé de classe correspondant à un ID.
+     * @param {number|string} classId
+     * @returns {string}
+     */
     _getClassLabelById(classId) {
         const cls = (this.parent._classes || []).find(c => String(c.id_classe) === String(classId));
         return cls ? String(cls.classe || '') : '';
     }
 
+    /**
+     * Met à jour le menu déroulant de classe dans le formulaire de passage.
+     */
     updateClassOptions() {
         const passageClasseSelect = document.getElementById('passage-classe');
         if (passageClasseSelect) {
@@ -101,6 +124,9 @@ export default class ManagementPassagesView {
         }
     }
 
+    /**
+     * Recharge la liste des noms selon la classe sélectionnée.
+     */
     _refreshPassageNameOptions() {
         const classId = document.getElementById('passage-classe')?.value || '';
         const nameSelect = document.getElementById('passage-name-student');
@@ -136,6 +162,9 @@ export default class ManagementPassagesView {
         addBtn.disabled = true;
     }
 
+    /**
+     * Recharge la liste des prénoms selon la classe et le nom sélectionnés.
+     */
     _refreshPassageSurnameOptions() {
         const classId = document.getElementById('passage-classe')?.value || '';
         const selectedName = document.getElementById('passage-name-student')?.value || '';
@@ -162,6 +191,10 @@ export default class ManagementPassagesView {
         surnameSelect.disabled = false;
     }
 
+    /**
+     * Synchronise le champ caché id_etudiant et l'état du bouton d'ajout
+     * selon la combinaison classe/nom/prénom sélectionnée.
+     */
     _syncPassageStudentSelection() {
         const classId = document.getElementById('passage-classe')?.value || '';
         const nom = document.getElementById('passage-name-student')?.value || '';
@@ -182,13 +215,18 @@ export default class ManagementPassagesView {
         addBtn.disabled = !hiddenId.value;
     }
 
+    /**
+     * Peuple le tableau des passages avec les lignes édit/suppr.
+     * @param {ManagementPassagesController} controller
+     * @param {Array} [passages=[]] - Liste des passages à afficher
+     */
     displayPassages(controller, passages = []) {
         const tbody = document.getElementById('passages-gestion-body');
         if (!tbody) return;
         tbody.innerHTML = '';
 
         if (!passages.length) {
-            tbody.innerHTML = '<tr><td colspan="8">Aucun passage</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9">Aucun passage</td></tr>';
             return;
         }
 
@@ -197,7 +235,9 @@ export default class ManagementPassagesView {
 
         passages.forEach(p => {
             const statut = p.statut || '---';
-            const sc = STATUT_ROUGE.includes(statut) ? 'status-refuse' : STATUT_VERT.includes(statut) ? 'status-present' : '';
+            const sc = STATUT_ROUGE.includes(statut) ? 'status-refuse' : STATUT_VERT.includes(statut) ? 'status-present' : 'status-info';
+            const typeLabel = p.type_passage || '---';
+            const typeClass = 'status-info';
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${p.date_passage || '---'}</td>
@@ -205,8 +245,9 @@ export default class ManagementPassagesView {
                 <td>${p.nom || '---'}</td>
                 <td>${p.prenom || '---'}</td>
                 <td>${p.classe || '---'}</td>
-                <td>${p.type_passage || '---'}</td>
+                <td><span class="status-badge ${typeClass}">${typeLabel}</span></td>
                 <td><span class="status-badge ${sc}">${statut}</span></td>
+                <td><span class="status-badge status-info">${p.raison || p.reason || '---'}</span></td>
                 <td>
                     <button class="btn-edit-passage" data-id="${p.id_passage}">Modifier</button>
                     <button class="btn-delete-passage" data-id="${p.id_passage}">Supprimer</button>
@@ -228,6 +269,11 @@ export default class ManagementPassagesView {
         });
     }
 
+    /**
+     * Ouvre la modale d'édition préremplie pour un passage.
+     * @param {ManagementPassagesController} controller
+     * @param {Object} passage - Données du passage sélectionné
+     */
     showEditPassageModal(controller, passage) {
         this.parent._showModal(`
             <h3>Modifier le passage</h3>

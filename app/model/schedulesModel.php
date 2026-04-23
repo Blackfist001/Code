@@ -18,6 +18,12 @@ class SchedulesModel {
         $this->timeSlotModel = new TimeSlotModel();
     }
 
+    /**
+     * Résout une valeur (id ou nom) en identifiant de classe.
+     *
+     * @param mixed $classeValue ID numérique ou nom de la classe
+     * @return int|null null si introuvable
+     */
     private function resolveClassId($classeValue): ?int {
         if ($classeValue === null || $classeValue === '') {
             return null;
@@ -32,6 +38,12 @@ class SchedulesModel {
         return $class ? (int)$class['id_classe'] : null;
     }
 
+    /**
+     * Résout une valeur (id ou nom) en identifiant de matière.
+     *
+     * @param mixed $matiereValue ID numérique ou nom de la matière
+     * @return int|null null si introuvable
+     */
     private function resolveMatiereId($matiereValue): ?int {
         if ($matiereValue === null || $matiereValue === '') {
             return null;
@@ -46,10 +58,22 @@ class SchedulesModel {
         return $matiere ? (int)$matiere['id_matiere'] : null;
     }
 
+    /**
+     * Résout une valeur (id ou heure) en identifiant de créneau horaire.
+     *
+     * @param mixed $creneauValue ID numérique ou heure (HH:MM)
+     * @return int|null null si introuvable
+     */
     private function resolveCreneauId($creneauValue): ?int {
         return $this->timeSlotModel->resolveId($creneauValue);
     }
 
+    /**
+     * Enrichit les horaires avec le nom de classe et le nom de matière lisibles.
+     *
+     * @param array $schedules Lignes horaires_cours issues de la BDD
+     * @return array Lignes enrichies
+     */
     private function addClassNamesToSchedules(array $schedules): array {
         foreach ($schedules as &$schedule) {
             $classId = isset($schedule['id_classe']) ? (int)$schedule['id_classe'] : 0;
@@ -88,10 +112,21 @@ class SchedulesModel {
         return $schedule;
     }
 
+    /**
+     * Retourne tous les créneaux horaires disponibles.
+     *
+     * @return array
+     */
     public function getAllCreneaux(): array {
         return $this->timeSlotModel->getAll();
     }
 
+    /**
+     * Normalise un nom de jour (anglais ou français) en nom français minuscule.
+     *
+     * @param string $jour Jour en toutes casses (ex : 'Monday', 'lundi')
+     * @return string Nom du jour en français minuscule
+     */
     private function convertDayToFrench(string $jour): string {
         $mapping = [
             'monday' => 'lundi', 'tuesday' => 'mardi', 'wednesday' => 'mercredi',
@@ -103,6 +138,11 @@ class SchedulesModel {
         return $mapping[$jour] ?? $jour;
     }
 
+    /**
+     * Retourne tous les horaires de cours enrichis des noms de classe et de matière.
+     *
+     * @return array
+     */
     public function getAllSchedules(): array {
         try {
             $results = $this->timeSlotModel->getAllSchedulesWithTimeSlots();
@@ -116,14 +156,31 @@ class SchedulesModel {
         }
     }
 
+    /**
+     * Insère un nouvel horaire de cours.
+     *
+     * @param array $data Champs attendus : id_classe (ou classe), id_matiere (ou matiere),
+     *                    jour_semaine, id_creneau_debut (ou heure_debut),
+     *                    id_creneau_fin (ou heure_fin), salle (optionnel)
+     * @return bool true si la ligne a été insérée
+     * @throws \RuntimeException('CLASSE_INTROUVABLE')  si la classe n'existe pas
+     * @throws \RuntimeException('MATIERE_INTROUVABLE') si la matière n'existe pas
+     * @throws \RuntimeException('CRENEAU_INTROUVABLE') si l'un des créneaux est introuvable
+     */
     public function addSchedule(array $data): bool {
         $pdo = $this->db->getPdo();
         $classId = $this->resolveClassId($data['id_classe'] ?? ($data['classe'] ?? null));
         $matiereId = $this->resolveMatiereId($data['id_matiere'] ?? ($data['matiere'] ?? null));
         $creneauDebutId = $this->resolveCreneauId($data['id_creneau_debut'] ?? ($data['heure_debut'] ?? null));
         $creneauFinId = $this->resolveCreneauId($data['id_creneau_fin'] ?? ($data['heure_fin'] ?? null));
-        if ($classId === null || $matiereId === null || $creneauDebutId === null || $creneauFinId === null) {
-            return false;
+        if ($classId === null) {
+            throw new \RuntimeException('CLASSE_INTROUVABLE');
+        }
+        if ($matiereId === null) {
+            throw new \RuntimeException('MATIERE_INTROUVABLE');
+        }
+        if ($creneauDebutId === null || $creneauFinId === null) {
+            throw new \RuntimeException('CRENEAU_INTROUVABLE');
         }
         $stmt = $pdo->prepare(
             "INSERT INTO horaires_cours (id_classe, id_matiere, jour_semaine, id_creneau_debut, id_creneau_fin, salle)
@@ -145,12 +202,24 @@ class SchedulesModel {
         }
     }
 
+    /**
+     * Met à jour un horaire de cours existant. Seuls les champs fournis sont modifiés.
+     *
+     * @param int   $id
+     * @param array $data Champs modifiables : id_classe/classe, id_matiere/matiere,
+     *                    jour_semaine, id_creneau_debut/heure_debut,
+     *                    id_creneau_fin/heure_fin, salle
+     * @return bool true si la ligne a été modifiée
+     * @throws \RuntimeException('CLASSE_INTROUVABLE')  si la classe n'existe pas
+     * @throws \RuntimeException('MATIERE_INTROUVABLE') si la matière n'existe pas
+     * @throws \RuntimeException('CRENEAU_INTROUVABLE') si l'un des créneaux est introuvable
+     */
     public function updateSchedule(int $id, array $data): bool {
         $pdo = $this->db->getPdo();
         if (array_key_exists('id_classe', $data) || array_key_exists('classe', $data)) {
             $resolvedClassId = $this->resolveClassId($data['id_classe'] ?? $data['classe']);
             if ($resolvedClassId === null) {
-                return false;
+                throw new \RuntimeException('CLASSE_INTROUVABLE');
             }
             $data['id_classe'] = $resolvedClassId;
             unset($data['classe']);
@@ -159,7 +228,7 @@ class SchedulesModel {
         if (array_key_exists('id_matiere', $data) || array_key_exists('matiere', $data)) {
             $resolvedMatiereId = $this->resolveMatiereId($data['id_matiere'] ?? $data['matiere']);
             if ($resolvedMatiereId === null) {
-                return false;
+                throw new \RuntimeException('MATIERE_INTROUVABLE');
             }
             $data['id_matiere'] = $resolvedMatiereId;
             unset($data['matiere']);
@@ -168,7 +237,7 @@ class SchedulesModel {
         if (array_key_exists('id_creneau_debut', $data) || array_key_exists('heure_debut', $data)) {
             $resolvedCreneauDebutId = $this->resolveCreneauId($data['id_creneau_debut'] ?? $data['heure_debut']);
             if ($resolvedCreneauDebutId === null) {
-                return false;
+                throw new \RuntimeException('CRENEAU_INTROUVABLE');
             }
             $data['id_creneau_debut'] = $resolvedCreneauDebutId;
             unset($data['heure_debut']);
@@ -177,7 +246,7 @@ class SchedulesModel {
         if (array_key_exists('id_creneau_fin', $data) || array_key_exists('heure_fin', $data)) {
             $resolvedCreneauFinId = $this->resolveCreneauId($data['id_creneau_fin'] ?? $data['heure_fin']);
             if ($resolvedCreneauFinId === null) {
-                return false;
+                throw new \RuntimeException('CRENEAU_INTROUVABLE');
             }
             $data['id_creneau_fin'] = $resolvedCreneauFinId;
             unset($data['heure_fin']);

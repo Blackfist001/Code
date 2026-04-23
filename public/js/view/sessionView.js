@@ -1,3 +1,7 @@
+/**
+ * Vue de session.
+ * Gère le rendu de la page de connexion et des barres de navigation selon le rôle.
+ */
 export default class SessionView {
 
     constructor(controller) {
@@ -6,6 +10,9 @@ export default class SessionView {
         this.nav = document.getElementById('nav');
     }
 
+    /**
+     * Affiche la page de connexion dans le conteneur principal.
+     */
     renderLogin() {
             this.nav.innerHTML = '';
             fetch('html/login.html')
@@ -17,6 +24,9 @@ export default class SessionView {
                 .catch(error => console.error('Error loading login:', error));
     }
 
+    /**
+     * Attache l'écouteur sur le formulaire de connexion et délègue au contrôleur.
+     */
     attachLoginHandler() {
         const form = document.querySelector('form');
         if(form) {
@@ -31,6 +41,10 @@ export default class SessionView {
         }
     }
 
+    /**
+     * Charge et affiche la navigation pour le rôle Surveillant.
+     * @returns {Promise<void>}
+     */
     renderUser() {
         return fetch('html/navUser.html')
             .then(response => response.text())
@@ -39,6 +53,10 @@ export default class SessionView {
             });
     }
 
+    /**
+     * Charge et affiche la navigation pour le rôle Administrateur.
+     * @returns {Promise<void>}
+     */
     renderAdmin() {
         return fetch('html/navAdmin.html')
             .then(response => response.text())
@@ -47,6 +65,10 @@ export default class SessionView {
             });
     }
 
+    /**
+     * Charge et affiche la navigation pour le rôle Gestionnaire.
+     * @returns {Promise<void>}
+     */
     renderGestion() {
         return fetch('html/navGestion.html')
             .then(response => response.text())

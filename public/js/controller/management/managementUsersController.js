@@ -1,9 +1,16 @@
+/**
+ * Sous-contrôleur de gestion des utilisateurs.
+ */
 export default class ManagementUsersController {
     constructor(parent, api) {
         this.parent = parent;
         this.api = api;
     }
 
+    /**
+     * Charge la liste des utilisateurs et l'affiche dans la vue.
+     * @returns {Promise<void>}
+     */
     async loadUsers() {
         try {
             const response = await this.api.getAllUsers();
@@ -19,6 +26,11 @@ export default class ManagementUsersController {
         }
     }
 
+    /**
+     * Ajoute un utilisateur après validation des champs obligatoires.
+     * @param {{username: string, password: string, role: string}} userData
+     * @returns {Promise<void>}
+     */
     async addUser(userData) {
         if (!userData.username || !userData.password || !userData.role) {
             alert('Veuillez remplir tous les champs');
@@ -38,6 +50,12 @@ export default class ManagementUsersController {
         }
     }
 
+    /**
+     * Met à jour un utilisateur. Le mot de passe n'est modifié que s'il est fourni.
+     * @param {number|string} userId
+     * @param {{username: string, role: string, password?: string}} userData
+     * @returns {Promise<void>}
+     */
     async updateUser(userId, userData) {
         if (!userData.username || !userData.role) {
             alert('Le nom d\'utilisateur et le rôle sont obligatoires');
@@ -66,6 +84,11 @@ export default class ManagementUsersController {
         }
     }
 
+    /**
+     * Supprime un utilisateur par son ID.
+     * @param {number|string} userId
+     * @returns {Promise<void>}
+     */
     async deleteUser(userId) {
         try {
             const response = await this.api.deleteUser(userId);

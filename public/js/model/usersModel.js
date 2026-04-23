@@ -1,11 +1,20 @@
 import api from "../api.js";
 
+/**
+ * Modèle des utilisateurs.
+ * Encapsule les appels API CRUD sur les utilisateurs de l'application.
+ */
 export default class UsersModel {
 
     constructor() {
         this.users = [];
     }
 
+    /**
+     * Ajoute un utilisateur via l'API.
+     * @param {{username: string, password: string, role: string}} userData
+     * @returns {Promise<void>}
+     */
     addUser(userData) {
         // Utiliser l'API centralisée
         return api.addUser(userData)
@@ -24,6 +33,11 @@ export default class UsersModel {
             });
     }
 
+    /**
+     * Supprime un utilisateur par son ID.
+     * @param {number|string} userId
+     * @returns {Promise<void>}
+     */
     removeUser(userId) {
         // Utiliser l'API centralisée
         return api.deleteUser(userId)
@@ -42,6 +56,12 @@ export default class UsersModel {
             });
     }
 
+    /**
+     * Met à jour les données d'un utilisateur.
+     * @param {number|string} userId
+     * @param {{username?: string, role?: string, password?: string}} userData
+     * @returns {Promise<void>}
+     */
     updateUser(userId, userData) {
         // Utiliser l'API centralisée
         return api.updateUser(userId, userData)
@@ -60,6 +80,10 @@ export default class UsersModel {
             });
     }
 
+    /**
+     * Récupère la liste de tous les utilisateurs.
+     * @returns {Promise<Array>}
+     */
     async getUsers() {
         try {
             const response = await api.getAllUsers();

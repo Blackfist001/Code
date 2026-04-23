@@ -1,11 +1,19 @@
 import { confirmDialog } from '../../utils/dialog.js';
 
+/**
+ * Sous-vue de gestion des étudiants.
+ * Affiche le tableau des étudiants, les filtres classe/ midi, et la modale d'édition.
+ */
 export default class ManagementStudentsView {
     constructor(parent) {
         this.parent = parent;
         this._allStudents = [];
     }
 
+    /**
+     * Branche les écouteurs du formulaire d'ajout et des filtres.
+     * @param {ManagementStudentsController} controller
+     */
     bindEvents(controller) {
         const addStudentBtn = document.getElementById('btn-add-student');
         if (addStudentBtn && controller) {
@@ -25,6 +33,9 @@ export default class ManagementStudentsView {
         });
     }
 
+    /**
+     * Resynchronise les options de classe dans tous les menus déroulants de la section étudiants.
+     */
     updateClassOptions() {
         const studentClasseSelect = document.getElementById('student-classe');
         if (studentClasseSelect) {
@@ -40,6 +51,10 @@ export default class ManagementStudentsView {
         }
     }
 
+    /**
+     * Filtre les étudiants stockés selon les valeurs des filtres DOM (classe, midi).
+     * @returns {Array}
+     */
     _getFilteredStudents() {
         const classeFilter = (document.getElementById('students-filter-classe')?.value || '').trim();
         const midiFilter = document.getElementById('students-filter-midi')?.value ?? '';
@@ -61,6 +76,11 @@ export default class ManagementStudentsView {
         });
     }
 
+    /**
+     * Injecte les lignes du tableau pour la liste d'étudiants donnée.
+     * @param {ManagementStudentsController} controller
+     * @param {Array} [students=[]] - Tableau des étudiants à afficher
+     */
     _renderRows(controller, students = []) {
         const tbody = document.getElementById('students-table-body');
         if (!tbody) return;
@@ -105,15 +125,29 @@ export default class ManagementStudentsView {
         });
     }
 
+    /**
+     * Re-filtre et re-rend les lignes après un changement de filtre.
+     * @param {ManagementStudentsController} controller
+     */
     _applyFilters(controller) {
         this._renderRows(controller, this._getFilteredStudents());
     }
 
+    /**
+     * Stocke la liste complète des étudiants et met à jour l'affichage.
+     * @param {ManagementStudentsController} controller
+     * @param {Array} [students=[]] - Liste complète des étudiants
+     */
     displayStudents(controller, students = []) {
         this._allStudents = Array.isArray(students) ? students : [];
         this._applyFilters(controller);
     }
 
+    /**
+     * Ouvre la modale d'édition préremplie pour un étudiant.
+     * @param {ManagementStudentsController} controller
+     * @param {Object} student - Données de l'étudiant sélectionné
+     */
     showEditStudentModal(controller, student) {
         this.parent._showModal(`
             <h3>Modifier l'étudiant</h3>

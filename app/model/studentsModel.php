@@ -26,6 +26,11 @@ class StudentsModel {
         $this->classesModel = new ClassesModel();
     }
 
+    /**
+     * Construit un tableau id_classe => nom_classe à partir de ClassesModel.
+     *
+     * @return array<int, string>
+     */
     private function getClassMapById(): array {
         $map = [];
         foreach ($this->classesModel->getAllClasses() as $class) {
@@ -34,6 +39,12 @@ class StudentsModel {
         return $map;
     }
 
+    /**
+     * Résout une valeur (id ou nom) en identifiant de classe.
+     *
+     * @param mixed $classeValue ID numérique ou nom de la classe
+     * @return int|null null si introuvable
+     */
     private function resolveClassId($classeValue): ?int {
         if ($classeValue === null || $classeValue === '') {
             return null;
@@ -46,6 +57,12 @@ class StudentsModel {
         return $class ? (int)$class['id_classe'] : null;
     }
 
+    /**
+     * Enrichit chaque étudiant avec le nom lisible de la classe.
+     *
+     * @param array $students Lignes etudiants issues de la BDD
+     * @return array Lignes avec 'classe' résolu en nom
+     */
     private function addClassNamesToStudents(array $students): array {
         if (empty($students)) {
             return $students;
@@ -63,6 +80,11 @@ class StudentsModel {
         return $students;
     }
 
+    /**
+     * Retourne tous les étudiants enrichis du nom de classe.
+     *
+     * @return array
+     */
     public function getAllStudents() {
         $pdo = $this->db->getPdo();
         $stmt = $pdo->query("SELECT e.* FROM etudiants e");
@@ -70,6 +92,12 @@ class StudentsModel {
         return $this->addClassNamesToStudents($students);
     }
 
+    /**
+     * Retourne un étudiant par son ID interne, ou false si non trouvé.
+     *
+     * @param int|string $id
+     * @return array|false
+     */
     public function getStudentById($id) {
         $pdo = $this->db->getPdo();
         $stmt = $pdo->prepare("SELECT e.* FROM etudiants e WHERE e.id_etudiant = :id");
@@ -80,6 +108,12 @@ class StudentsModel {
         return $students[0];
     }
 
+    /**
+     * Retourne un étudiant par son sourcedId externe (format UUID), ou false si non trouvé.
+     *
+     * @param string $sourcedId
+     * @return array|false
+     */
     public function getStudentBySourcedId($sourcedId) {
         $pdo = $this->db->getPdo();
         $stmt = $pdo->prepare("SELECT e.* FROM etudiants e WHERE e.sourcedId = :sourcedId");
@@ -90,6 +124,12 @@ class StudentsModel {
         return $students[0];
     }
 
+    /**
+     * Recherche des étudiants selon des filtres optionnels.
+     *
+     * @param array $filters Clés : id, sourcedId, name, surname, classe, statut
+     * @return array
+     */
     public function searchStudents($filters) {
         $pdo = $this->db->getPdo();
         $whereConditions = [];

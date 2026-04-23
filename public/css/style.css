@@ -154,7 +154,8 @@ font-weight:bold;
 }
 
 .status-info{
-color:blue;
+color:#fff;
+background:#3498db;
 font-weight:bold;
 }
 
@@ -162,6 +163,20 @@ font-weight:bold;
 .status-badge     { font-weight: bold; padding: 2px 8px; border-radius: 4px; }
 .status-present   { color: #fff; background: #27ae60; }
 .status-refuse    { color: #fff; background: #e74c3c; }
+
+.scan-main-card {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.scan-main-card.scan-card-success {
+  background: #9fd8b3;
+  border: 2px solid #2f8f5b;
+}
+
+.scan-main-card.scan-card-error {
+  background: #ee9f9f;
+  border: 2px solid #b33a3a;
+}
 
 .demi-journee-critical {
   color: #c0392b;
@@ -404,4 +419,22 @@ height:50px;
   background: #fdeeee;
   color: #8a1f1f;
   border: 1px solid #f2c5c5;
+}
+
+.list-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.list-pagination span {
+  color: #2c3e50;
+  font-size: 0.92rem;
+}
+
+.list-pagination button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

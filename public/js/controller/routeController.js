@@ -7,6 +7,10 @@ import HistoricalController from './historicalController.js';
 import ManagementController from './managementController.js';
 import SessionController from './sessionController.js';
 
+/**
+ * Contrôleur de routage SPA.
+ * Résout un nom de route en contrôleur et vérifie les droits d'accès selon le rôle.
+ */
 export default class RouteController {
 
     constructor() {
@@ -23,6 +27,12 @@ export default class RouteController {
         };
     }
 
+    /**
+     * Navigue vers une route donnée. Les accès interdits selon le rôle sont bloqués.
+     * Accepte un hash de section optionnel (ex : 'management#users').
+     * @param {string} route - Nom de la route (ex : 'dashboard', 'scan', 'management#users')
+     * @returns {Promise<void>}
+     */
     async navigate(route) {
         // Extraire le hash de section (éventuellement : "management#users" → route="management", section="users")
         let section = 'passages';
@@ -33,7 +43,7 @@ export default class RouteController {
         }
 
         const role = sessionStorage.getItem('role');
-        if (role === 'surveillant') {
+        if (role === 'Surveillant') {
             const allowedRoutes = ['scan', 'manualEncoding', 'logout'];
             if (!allowedRoutes.includes(route)) {
                 alert('Accès refusé à cette page.');
@@ -73,7 +83,7 @@ export default class RouteController {
                     break;
                 case 'management':
                 case 'gestion':
-                    if (sessionStorage.getItem('role') !== 'administrateur') {
+                    if (sessionStorage.getItem('role') !== 'Administrateur') {
                         alert('Accès refusé à la gestion.');
                         this.navigate('dashboard');
                         break;

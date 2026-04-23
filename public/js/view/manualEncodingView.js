@@ -1,5 +1,10 @@
 import api from '../api.js';
 
+/**
+ * Vue de la page d'encodage manuel.
+ * Permet de saisir manuellement un passage pour un étudiant via des listes déroulantes cascadées
+ * (classe → nom → prénom) et affiche l'historique des encodages manuels.
+ */
 export default class ManualEncodingView {
 
     constructor(controller) {
@@ -7,12 +12,16 @@ export default class ManualEncodingView {
         this.container = document.getElementById('container');
     }
 
+    /**
+     * Charge le HTML de la page encodage manuel et initialise les écouteurs.
+     */
     render() {
         fetch('html/manualEncoding.html')
             .then(response => response.text())
             .then(data => {
                 this.container.innerHTML = data;
                 this._loadClasses();
+                this._loadReasonOptions();
                 this.attachEventListeners();
                 this._setCurrentDateTimeDefaults();
                 this.refreshHistory();
@@ -20,6 +29,49 @@ export default class ManualEncodingView {
             .catch(error => console.error('Error loading manual encoding:', error));
     }
 
+    /**
+     * Charge les options de raison depuis l'API et alimente les menus déroulants.
+     * @returns {Promise<void>}
+     */
+    async _loadReasonOptions() {
+        const reasonSelect = document.getElementById('encoding-reason');
+        const filterReasonSelect = document.getElementById('encoding-filter-raison');
+        if (!reasonSelect && !filterReasonSelect) return;
+
+        const renderReasonOptions = (reasons) => {
+            if (reasonSelect) {
+                reasonSelect.innerHTML = '<option value="">-- Raison --</option>';
+                reasons.forEach(reason => {
+                    const opt = document.createElement('option');
+                    opt.value = reason;
+                    opt.textContent = reason;
+                    reasonSelect.appendChild(opt);
+                });
+            }
+
+            if (filterReasonSelect) {
+                filterReasonSelect.innerHTML = '<option value="">Toutes les raisons</option>';
+                reasons.forEach(reason => {
+                    const opt = document.createElement('option');
+                    opt.value = reason;
+                    opt.textContent = reason;
+                    filterReasonSelect.appendChild(opt);
+                });
+            }
+        };
+
+        try {
+            const response = await api.getMovementReasonOptions();
+            const reasons = response?.success ? (response.results || []) : [];
+            renderReasonOptions(reasons);
+        } catch (e) {
+            renderReasonOptions(['Certificat médical', 'Autorisation  des parents', 'Autre']);
+        }
+    }
+
+    /**
+     * Pré-remplit les champs date et heure avec la valeur courante.
+     */
     _setCurrentDateTimeDefaults() {
         const now = new Date();
         const dateEl = document.getElementById('encoding-date');
@@ -33,6 +85,10 @@ export default class ManualEncodingView {
         }
     }
 
+    /**
+     * Recharge et affiche l'historique des encodages manuels (15 derniers, filtrés).
+     * @returns {Promise<void>}
+     */
     async refreshHistory() {
         const tbody = document.getElementById('encoding-history-body');
         if (!tbody) return;
@@ -51,27 +107,51 @@ export default class ManualEncodingView {
                     ? movements.filter(m => Number(m.manual) === 1)
                     : movements);
 
+            const filterType = (document.getElementById('encoding-filter-type')?.value || '').trim();
+            const filterStatut = (document.getElementById('encoding-filter-statut')?.value || '').trim();
+            const filterRaison = (document.getElementById('encoding-filter-raison')?.value || '').trim();
+
+            const filteredMovements = manualMovements.filter(movement => {
+                const typeMatch = !filterType || (movement.type_passage || '') === filterType;
+                const statutMatch = !filterStatut || (movement.statut || '') === filterStatut;
+                const movementRaison = (movement.raison || movement.reason || '').trim();
+                const raisonMatch = !filterRaison || movementRaison === filterRaison;
+                return typeMatch && statutMatch && raisonMatch;
+            });
+
             tbody.innerHTML = '';
 
-            if (!manualMovements.length) {
-                tbody.innerHTML = '<tr><td colspan="6">Aucun encodage manuel enregistré</td></tr>';
+            if (!filteredMovements.length) {
+                tbody.innerHTML = '<tr><td colspan="7">Aucun encodage manuel enregistré</td></tr>';
                 return;
             }
 
-            manualMovements.slice(0, 15).forEach(movement => {
+            const STATUT_ROUGE = ['Absent', 'Refusé', 'En retard'];
+            const STATUT_VERT = ['Présent', 'Autorisé'];
+
+            filteredMovements.slice(0, 15).forEach(movement => {
+                const statut = movement.statut || '---';
+                const statutClass = STATUT_ROUGE.includes(statut)
+                    ? 'status-refuse'
+                    : STATUT_VERT.includes(statut)
+                        ? 'status-present'
+                        : 'status-info';
+                const typeLabel = movement.type_passage || '---';
+                const typeClass = 'status-info';
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${movement.date_passage || '---'}</td>
                     <td>${movement.heure_passage || '---'}</td>
                     <td>${movement.nom || '---'}</td>
                     <td>${movement.prenom || '---'}</td>
-                    <td>${movement.type_passage || '---'}</td>
+                    <td><span class="status-badge ${typeClass}">${typeLabel}</span></td>
+                    <td><span class="status-badge ${statutClass}">${statut}</span></td>
                     <td>${movement.raison || movement.reason || '---'}</td>
                 `;
                 tbody.appendChild(row);
             });
         } catch (error) {
-            tbody.innerHTML = '<tr><td colspan="6">Erreur lors du chargement de l\'historique</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7">Erreur lors du chargement de l\'historique</td></tr>';
         }
     }
 
@@ -100,13 +180,20 @@ export default class ManualEncodingView {
         }
     }
 
+    /**
+     * Branche tous les écouteurs du formulaire (classe, nom, prénom, filtres, soumission).
+     */
     attachEventListeners() {
         const classeSelect   = document.getElementById('encoding-classe');
         const nomSelect      = document.getElementById('encoding-name-student');
         const prenomSelect   = document.getElementById('encoding-surname-student');
         const addBtn         = document.getElementById('btn-add-encoding');
         const typeSelect     = document.getElementById('encoding-type');
+        const statusSelect   = document.getElementById('encoding-status');
         const reasonSelect   = document.getElementById('encoding-reason');
+        const filterTypeSelect = document.getElementById('encoding-filter-type');
+        const filterStatutSelect = document.getElementById('encoding-filter-statut');
+        const filterReasonSelect = document.getElementById('encoding-filter-raison');
 
         // --- Classe choisie → alimente le select Nom ---
         classeSelect.addEventListener('change', () => {
@@ -192,19 +279,110 @@ export default class ManualEncodingView {
                 type_passage: type,
                 date:  document.getElementById('encoding-date').value  || new Date().toISOString().split('T')[0],
                 heure: document.getElementById('encoding-time').value  || new Date().toTimeString().split(' ')[0],
-                statut: type === 'Sortie midi' || type === 'Rentrée midi' || type === 'Sortie autorisée'
-                    ? 'Autorisé'
-                    : 'Présent', // sera recalculé côté serveur pour Entrée matin
+                statut: statusSelect?.value || 'Présent',
+                raison: reasonSelect && reasonSelect.style.display !== 'none'
+                    ? (reasonSelect.value || null)
+                    : null,
             };
             this.controller.addEncoding(encodingData);
         });
 
-        // --- Afficher/masquer la raison ---
+        const STATUTS_PAR_TYPE = {
+            'Entrée matin': ['Présent', 'En retard'],
+            'Rentrée midi': ['Présent', 'En retard'],
+            'Entrée après-midi': ['Présent', 'En retard'],
+            'Sortie midi': ['Autorisé', 'Refusé'],
+            'Journée': ['Présent', 'Absent', 'Absence justifiée'],
+            'Sortie autorisée': ['Autorisé'],
+        };
+
+        // --- Afficher/masquer raison + options statut selon le type ---
+        const toggleTypeDependentFields = () => {
+            const type = typeSelect.value;
+            const statusOptions = STATUTS_PAR_TYPE[type] || ['Présent'];
+
+            if (statusSelect) {
+                const previousStatus = statusSelect.value;
+                statusSelect.innerHTML = '';
+
+                statusOptions.forEach(status => {
+                    const opt = document.createElement('option');
+                    opt.value = status;
+                    opt.textContent = status;
+                    statusSelect.appendChild(opt);
+                });
+
+                statusSelect.value = statusOptions.includes(previousStatus)
+                    ? previousStatus
+                    : statusOptions[0];
+            }
+
+            const showReason = type === 'Journée' && statusSelect?.value === 'Absence justifiée';
+            reasonSelect.style.display = showReason ? 'block' : 'none';
+            if (!showReason) {
+                reasonSelect.value = '';
+            }
+        };
+
         typeSelect.addEventListener('change', () => {
-            reasonSelect.style.display = typeSelect.value === 'Sortie autorisée' ? 'block' : 'none';
+            toggleTypeDependentFields();
         });
+        if (statusSelect) {
+            statusSelect.addEventListener('change', () => {
+                toggleTypeDependentFields();
+            });
+        }
+        toggleTypeDependentFields();
+
+        if (filterTypeSelect && filterStatutSelect) {
+            const toggleStatutFilter = () => {
+                const hideStatut = filterTypeSelect.value === 'Sortie autorisée';
+                if (hideStatut) {
+                    filterStatutSelect.value = '';
+                    filterStatutSelect.style.display = 'none';
+                } else {
+                    filterStatutSelect.style.display = 'block';
+                }
+            };
+
+            const toggleReasonFilter = () => {
+                if (!filterReasonSelect) return;
+                const type = filterTypeSelect.value;
+                const statut = filterStatutSelect.value;
+                const hideReason = (type === 'Sortie autorisée' || type === 'Sortie justifiée') && statut === 'Autorisé';
+                if (hideReason) {
+                    filterReasonSelect.value = '';
+                    filterReasonSelect.style.display = 'none';
+                } else {
+                    filterReasonSelect.style.display = 'block';
+                }
+            };
+
+            filterTypeSelect.addEventListener('change', async () => {
+                toggleStatutFilter();
+                toggleReasonFilter();
+                await this.refreshHistory();
+            });
+
+            filterStatutSelect.addEventListener('change', async () => {
+                toggleReasonFilter();
+                await this.refreshHistory();
+            });
+
+            if (filterReasonSelect) {
+                filterReasonSelect.addEventListener('change', async () => {
+                    await this.refreshHistory();
+                });
+            }
+
+            toggleStatutFilter();
+            toggleReasonFilter();
+        }
     }
 
+    /**
+     * Réinitialise les champs étudiant (id caché, info, bouton d'ajout).
+     */
     _clearStudentSelection() {
         document.getElementById('encoding-id-student').value = '';
         const infoDiv = document.getElementById('encoding-student-info');
@@ -213,6 +391,9 @@ export default class ManualEncodingView {
         if (addBtn) addBtn.disabled = true;
     }
 
+    /**
+     * Remet à zéro tous les champs du formulaire après un encodage réussi.
+     */
     clearForm() {
         document.getElementById('encoding-classe').value = '';
         document.getElementById('encoding-name-student').innerHTML = '<option value="">-- Nom --</option>';
@@ -220,12 +401,28 @@ export default class ManualEncodingView {
         document.getElementById('encoding-surname-student').innerHTML = '<option value="">-- Prénom --</option>';
         document.getElementById('encoding-surname-student').disabled = true;
         document.getElementById('encoding-type').value = 'Entrée matin';
+        const statusSelect = document.getElementById('encoding-status');
+        if (statusSelect) {
+            statusSelect.innerHTML = '';
+            ['Présent', 'En retard'].forEach(status => {
+                const opt = document.createElement('option');
+                opt.value = status;
+                opt.textContent = status;
+                statusSelect.appendChild(opt);
+            });
+            statusSelect.value = 'Présent';
+        }
         document.getElementById('encoding-reason').style.display = 'none';
         document.getElementById('encoding-reason').value = '';
         this._clearStudentSelection();
         this._setCurrentDateTimeDefaults();
     }
 
+    /**
+     * Affiche un message de résultat (succès ou erreur) dans la zone dédiée.
+     * @param {string} message       - Texte du message
+     * @param {boolean} [isError=false] - Si true, affiche en rouge
+     */
     displayMessage(message, isError = false) {
         const messageDiv = document.getElementById('encoding-message');
         if (!messageDiv) return;

@@ -4,6 +4,19 @@
 **Type:** Audit technique - Frontend JavaScript POO + Backend PHP POO  
 **PrioritÃ©:** CRITIQUE - Nombreux blocages empÃªchant le fonctionnement
 
+## Mise a jour du 23 avril 2026
+
+Le contenu ci-dessous reste utile comme historique d'audit initial, mais il ne represente plus entierement l'etat actuel du projet.
+
+### Correctifs etameliorations valides depuis la precedente mise a jour
+
+- Listes: pagination front sur `Absents`, `Recherche`, `Historique` (20 elements/page, boutons de navigation).
+- Scanner: feedback audio et visuel renforces (sons distincts, mapping son selon statut, coloration de card par statut).
+- Encodage manuel: logique metier de selection de statut selon type + logique conditionnelle de raison.
+- Donnees raisons: endpoint ajoute pour lire l'ENUM DB (`/api/movements/reasons`) et prise en charge `raison` en insertion/mise a jour passages.
+- Colonnes listees: ajout `Raison` sur plusieurs pages (`Absents`, `Recherche`, `Management Passages`).
+- Uniformisation UX: `Type` en bleu sur toutes les pages; valeurs `---` en bleu pour les badges.
+
 ## Mise a jour du 20 avril 2026
 
 Le contenu ci-dessous reste utile comme historique d'audit initial, mais il ne represente plus entierement l'etat actuel du projet.
@@ -309,9 +322,9 @@ login(username, password) {
         // DÃ©terminer le rÃ´le basÃ© sur le username (Ã  remplacer par un vrai appel API)
         let role = 'user';
         if(username.includes('admin')) {
-            role = 'administrateur';
+            role = 'Administrateur';
         } else if(username.includes('gestion')) {
-            role = 'administration';
+            role = 'Gestionnaire';
         }
         sessionStorage.setItem('role', role);  // âŒ Simulation dangereuse!
     }

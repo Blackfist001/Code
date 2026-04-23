@@ -14,6 +14,11 @@ class AbsenceController {
         $this->classesModel = new ClassesModel();
     }
 
+    /**
+     * Construit un tableau id_classe => nom_classe pour le contrôleur courant.
+     *
+     * @return array<int, string>
+     */
     private function getClassMapById(): array {
         $map = [];
         foreach ($this->classesModel->getAllClasses() as $class) {
@@ -22,6 +27,12 @@ class AbsenceController {
         return $map;
     }
 
+    /**
+     * Remplace le champ 'classe' (id numérique) par le nom lisible dans chaque ligne.
+     *
+     * @param array $rows Lignes issues de la base de données
+     * @return array Lignes avec 'classe' résolu en nom
+     */
     private function enrichClasseNom(array $rows): array {
         if (empty($rows)) {
             return $rows;

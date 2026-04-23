@@ -1,4 +1,25 @@
-﻿# RÃ‰SUMÃ‰ EXÃ‰CUTIF - Bugs & Actions Requises
+﻿# RESUME EXECUTIF - Bugs & Actions Requises
+
+## MISE A JOUR DU 23/04/2026
+
+### Actions realisees
+
+- Documentation PHPDoc ajoutee sur tous les fichiers backend :
+  - `app/controller/` : CourseController, ClassesController, schedulesController, scanController, absenceController, historicalController, searchController, manualEncodingController
+  - `app/model/` : movementsModel, usersModel, courseModel, schedulesModel, studentsModel
+  - `app/core/` : router, dataBase
+- Documentation JSDoc ajoutee sur tous les fichiers frontend JS :
+  - `public/js/controller/` : 9 controllers (session, route, scan, dashboard, absence, historical, search, manualEncoding, management)
+  - `public/js/controller/management/` : 7 sous-controllers (users, passages, students, schedules, classes, matieres, qrcodes)
+  - `public/js/view/` : 8 vues principales (scan, session, dashboard, absence, historical, search, manualEncoding, management)
+  - `public/js/view/management/` : 7 sous-vues (users, passages, students, schedules, classes, matieres, qrcodes)
+  - `public/js/model/` : movementsModel, studentsModel, usersModel
+  - `public/js/utils/` : dialog, sweetalert-setup
+  - `public/js/main.js`
+- Verification syntaxique PHP (`php -l`) : OK sur tous les fichiers modifies
+
+---
+
 
 ## MISE A JOUR DU 20/04/2026
 

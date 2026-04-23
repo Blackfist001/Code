@@ -1,5 +1,10 @@
 const nativeAlert = window.alert.bind(window);
 
+/**
+ * Détermine l'icône et le titre SweetAlert2 à utiliser selon le contenu du message.
+ * @param {string} text - Texte du message
+ * @returns {{icon: string, title: string}}
+ */
 function resolveAlertPresentation(text) {
     const normalized = String(text || '').trim().toLowerCase();
 
@@ -37,6 +42,11 @@ function resolveAlertPresentation(text) {
     return { icon: 'info', title: 'Information' };
 }
 
+/**
+ * Remplace `window.alert` par une version utilisant SweetAlert2 (avec icône contextuelle).
+ * Replie vers `window.alert` natif si SweetAlert2 n'est pas chargé.
+ * @param {string} [message=''] - Texte à afficher
+ */
 window.alert = function alertWithSweetAlert(message = '') {
     const text = String(message ?? '');
 

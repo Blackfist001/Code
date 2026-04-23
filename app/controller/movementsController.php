@@ -139,6 +139,24 @@ class MovementsController {
     }
 
     /**
+     * API: Récupérer les raisons disponibles (ENUM passages.raison)
+     */
+    public function getReasonOptions() {
+        header('Content-Type: application/json');
+
+        try {
+            $reasons = $this->movementsModel->getReasonOptions();
+            echo json_encode([
+                'success' => true,
+                'count' => count($reasons),
+                'results' => $reasons,
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
      * API: Récupérer les passages (avec filtrage date)
      */
     public function getPassages() {

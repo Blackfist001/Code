@@ -1,9 +1,16 @@
+/**
+ * Sous-contrôleur de gestion des étudiants.
+ */
 export default class ManagementStudentsController {
     constructor(parent, api) {
         this.parent = parent;
         this.api = api;
     }
 
+    /**
+     * Charge et affiche la liste des étudiants.
+     * @returns {Promise<void>}
+     */
     async loadStudents() {
         try {
             const response = await this.api.getAllStudents();
@@ -14,6 +21,10 @@ export default class ManagementStudentsController {
         }
     }
 
+    /**
+     * Alimente la liste déroulante d'étudiants dans le formulaire d'ajout de passage.
+     * @returns {Promise<void>}
+     */
     async loadPassageFormStudents() {
         try {
             const response = await this.api.getAllStudents();
@@ -24,6 +35,11 @@ export default class ManagementStudentsController {
         }
     }
 
+    /**
+     * Ajoute un étudiant après validation des champs obligatoires (nom, prénom, classe).
+     * @param {Object} data - Champs du formulaire
+     * @returns {Promise<void>}
+     */
     async addStudent(data) {
         if (!data.nom || !data.prenom || !data.classe) {
             alert('Nom, prénom et classe sont obligatoires.');
@@ -54,6 +70,12 @@ export default class ManagementStudentsController {
         }
     }
 
+    /**
+     * Met à jour les données d'un étudiant.
+     * @param {number|string} id
+     * @param {Object} data - Champs à modifier
+     * @returns {Promise<void>}
+     */
     async updateStudent(id, data) {
         try {
             const response = await this.api.updateStudent(id, data);
@@ -68,6 +90,11 @@ export default class ManagementStudentsController {
         }
     }
 
+    /**
+     * Supprime un étudiant par son ID.
+     * @param {number|string} id
+     * @returns {Promise<void>}
+     */
     async deleteStudent(id) {
         try {
             const response = await this.api.deleteStudent(id);

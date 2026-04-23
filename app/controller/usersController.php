@@ -50,6 +50,12 @@ class UsersController {
             } else {
                 echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'ajout']);
             }
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'DUPLICATE') {
+                echo json_encode(['success' => false, 'message' => "Nom d'utilisateur déjà utilisé — veuillez choisir un autre nom."]);
+            } else {
+                echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+            }
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }

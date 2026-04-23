@@ -1,10 +1,18 @@
 import { confirmDialog } from '../../utils/dialog.js';
 
+/**
+ * Sous-vue de gestion des classes.
+ * Affiche le tableau des classes et la modale d'édition.
+ */
 export default class ManagementClassesView {
     constructor(parent) {
         this.parent = parent;
     }
 
+    /**
+     * Branche les écouteurs du formulaire d'ajout de classe.
+     * @param {ManagementClassesController} controller
+     */
     bindEvents(controller) {
         const addClassBtn = document.getElementById('btn-add-class');
         if (!addClassBtn || !controller) return;
@@ -17,6 +25,11 @@ export default class ManagementClassesView {
         });
     }
 
+    /**
+     * Peuple le tableau des classes avec les lignes édit/suppr.
+     * @param {ManagementClassesController} controller
+     * @param {Array} [classes=[]] - Liste des classes
+     */
     displayClasses(controller, classes = []) {
         const tbody = document.getElementById('classes-table-body');
         if (!tbody) return;
@@ -49,6 +62,12 @@ export default class ManagementClassesView {
         });
     }
 
+    /**
+     * Ouvre la modale d'édition préremplie pour une classe.
+     * @param {ManagementClassesController} controller
+     * @param {number|string} classId
+     * @param {string} currentClasse - Nom actuel de la classe
+     */
     showEditClassModal(controller, classId, currentClasse) {
         this.parent._showModal(`
             <h3>Modifier la classe</h3>

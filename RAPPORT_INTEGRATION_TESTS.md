@@ -4,6 +4,27 @@
 **Serveur:** PHP 8.3.30 sur localhost:8000  
 **Statut:** âœ… **TOUS LES TESTS RÃ‰USSIS**
 
+## Mise a jour du 23 avril 2026
+
+### Tests de non-regression realises sur les evolutions recentes
+
+- Syntaxe JS validee sur les vues modifiees (`node --check`):
+- `absenceView.js`, `searchView.js`, `historicalView.js`, `dashboardView.js`,
+- `manualEncodingView.js`, `management/managementPassagesView.js`,
+- `controller/scanController.js`, `controller/manualEncodingController.js`.
+- Syntaxe PHP validee (`php -l`) sur les fichiers backend modifies:
+- `app/model/movementsModel.php`,
+- `app/controller/movementsController.php`.
+- Verifications fonctionnelles ciblees:
+- presence des nouveaux champs/colonnes (`Raison`, `Statut`) dans les vues,
+- presence de la route `/api/movements/reasons`,
+- verification des mappings de classes de badge (type/statut/valeur manquante).
+
+### Statut
+
+- Aucun blocage syntaxique detecte.
+- Evolutions front/back coherentes avec les regles demandees.
+
 ---
 
 ## 1ï¸âƒ£ Tests d'API Backend

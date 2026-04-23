@@ -12,6 +12,12 @@ class UsersModel {
         $this->db = new DataBase();
     }
 
+    /**
+     * Recherche un utilisateur par son nom d'utilisateur.
+     *
+     * @param string $username
+     * @return array|false Données de l'utilisateur, ou false si non trouvé
+     */
     public function getUserByUsername($username) {
         $pdo = $this->db->getPdo();
         $stmt = $pdo->prepare("SELECT * FROM utilisateurs WHERE nom = :username");
@@ -19,17 +25,29 @@ class UsersModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Retourne tous les utilisateurs (id, username, role).
+     *
+     * @return array
+     */
     public function getAllUsers() {
         $pdo = $this->db->getPdo();
         $stmt = $pdo->query("SELECT id_user AS id, nom AS username, role FROM utilisateurs");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Crée un nouvel utilisateur avec mot de passe haché.
+     *
+     * @param array $userData Champs attendus : username (ou nom), password (ou mot_de_passe), role
+     * @return bool true si l'insertion a réussi
+     * @throws \RuntimeException('DUPLICATE') si le nom d'utilisateur est déjà pris
+     */
     public function addUser($userData) {
         $pdo = $this->db->getPdo();
         $username = $userData['username'] ?? $userData['nom'] ?? '';
         $password = $userData['password'] ?? $userData['mot_de_passe'] ?? '';
-        $role = $userData['role'] ?? 'surveillant';
+        $role = $userData['role'] ?? 'Surveillant';
 
         if (empty($username) || empty($password)) {
             return false;
@@ -37,17 +55,28 @@ class UsersModel {
 
         $stmt = $pdo->prepare("INSERT INTO utilisateurs (nom, mot_de_passe, role) VALUES (:username, :password, :role)");
         try {
+            if ($this->getUserByUsername($username)) {
+                throw new \RuntimeException('DUPLICATE');
+            }
             $stmt->execute([
                 ':username' => $username,
                 ':password' => password_hash($password, PASSWORD_DEFAULT),
                 ':role' => $role
             ]);
             return true;
+        } catch (\RuntimeException $e) {
+            throw $e;
         } catch (Exception $e) {
             return false;
         }
     }
 
+    /**
+     * Supprime un utilisateur par son ID. L'utilisateur 'admin' est protégé.
+     *
+     * @param int|string $id
+     * @return bool|'protected' 'protected' si l'utilisateur admin, true si supprimé, false sinon
+     */
     public function deleteUser($id) {
         $pdo = $this->db->getPdo();
         // Vérifier que ce n'est pas l'utilisateur admin (protégé)
@@ -62,6 +91,13 @@ class UsersModel {
         return $stmt->rowCount() > 0;
     }
 
+    /**
+     * Met à jour les champs d'un utilisateur. Le mot de passe est automaquement haché si fourni.
+     *
+     * @param int|string $id         ID de l'utilisateur
+     * @param array      $updateData Champs à mettre à jour (username/nom, password/mot_de_passe, role)
+     * @return bool true si au moins une ligne modifiée
+     */
     public function updateUser($id, $updateData) {
         $pdo = $this->db->getPdo();
         $setClauses = [];
@@ -96,6 +132,12 @@ class UsersModel {
         return $stmt->rowCount() > 0;
     }
 
+    /**
+     * Recherche un utilisateur par son ID (retourne id, username, role).
+     *
+     * @param int|string $id
+     * @return array|false
+     */
     public function getUserById($id) {
         $pdo = $this->db->getPdo();
         $stmt = $pdo->prepare("SELECT id_user AS id, nom AS username, role FROM utilisateurs WHERE id_user = :id");
@@ -103,6 +145,13 @@ class UsersModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Authentifie un utilisateur par username + password.
+     *
+     * @param string $username
+     * @param string $password Mot de passe en clair (vérifié contre le hash)
+     * @return array|false Données complètes de l'utilisateur, ou false si échec
+     */
     public function authenticate($username, $password) {
         $pdo = $this->db->getPdo();
         $stmt = $pdo->prepare("SELECT * FROM utilisateurs WHERE nom = :username");

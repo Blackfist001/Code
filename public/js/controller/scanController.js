@@ -3,6 +3,10 @@ import MovementsModel from "../model/movementsModel.js";
 import api from "../api.js";
 import QrScanner from "../vendor/qr-scanner.min.js";
 
+/**
+ * Contrôleur du scanner de cartes QR.
+ * Gère la saisie manuelle, la caméra QR et le traitement des scans via l'API.
+ */
 export default class ScanController {
 
     constructor() {
@@ -15,6 +19,9 @@ export default class ScanController {
         this.audioContext = null;
     }
 
+    /**
+     * Charge la page du scanner et initialise les écouteurs et la caméra.
+     */
     loadScan() {
         this.view.render(() => {
             this.attachEventListeners();
@@ -23,6 +30,9 @@ export default class ScanController {
         });
     }
 
+    /**
+     * Attache les écouteurs d'événements sur le champ de saisie, le bouton scan et les boutons caméra.
+     */
     attachEventListeners() {
         const scanInput = document.getElementById('scan-input');
         if (scanInput) {
@@ -62,6 +72,10 @@ export default class ScanController {
         }
     }
 
+    /**
+     * Initialise le scanner QR sur l'élément vidéo et démarre automatiquement la caméra si disponible.
+     * @returns {Promise<void>}
+     */
     async initQrScanner() {
         const video = document.getElementById('qr-video');
         const cameraStatus = document.getElementById('camera-status');
@@ -101,6 +115,9 @@ export default class ScanController {
         }
     }
 
+    /**
+     * Observe le DOM pour détruire la caméra automatiquement lorsque la vue est démontée.
+     */
     setupAutoCleanup() {
         const container = document.getElementById('container');
         if (!container) {
@@ -117,6 +134,10 @@ export default class ScanController {
         observer.observe(container, { childList: true, subtree: true });
     }
 
+    /**
+     * Gère le résultat détecté par le scanner QR, avec anti-doublons (délai 1,5 s).
+     * @param {string|Object} result - Résultat brut du scanner (string ou {data: string})
+     */
     handleQrResult(result) {
         const value = (typeof result === 'string' ? result : result?.data || '').trim();
         if (!value) {
@@ -139,6 +160,10 @@ export default class ScanController {
         this.processScan(value);
     }
 
+    /**
+     * Démarre la caméra QR.
+     * @returns {Promise<void>}
+     */
     async startCamera() {
         if (!this.qrScanner) {
             return;
@@ -152,6 +177,10 @@ export default class ScanController {
         }
     }
 
+    /**
+     * Stoppe la caméra QR sans la détruire.
+     * @returns {Promise<void>}
+     */
     async stopCamera() {
         if (!this.qrScanner) {
             return;
@@ -165,6 +194,9 @@ export default class ScanController {
         }
     }
 
+    /**
+     * Stoppe et libère les ressources du scanner QR.
+     */
     destroyCamera() {
         if (!this.qrScanner) {
             return;
@@ -175,6 +207,11 @@ export default class ScanController {
         this.qrScanner = null;
     }
 
+    /**
+     * Joue un son de retour sonore selon le type de résultat.
+     * Succès : double bip montant (1250 → 1520 Hz). Échec : double bip descendant (1250 → 800 Hz).
+     * @param {'success'|'error'} [type='success'] - Type de son
+     */
     playFeedbackSound(type = 'success') {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         if (!AudioContextClass) {
@@ -189,38 +226,51 @@ export default class ScanController {
             this.audioContext.resume().catch(() => {});
         }
 
-        const now = this.audioContext.currentTime;
-        const oscillator = this.audioContext.createOscillator();
-        const gainNode = this.audioContext.createGain();
+        const ctx = this.audioContext;
+        const now = ctx.currentTime;
+
+        const createTone = (frequency, startAt, duration, peakGain, wave = 'sine', endFrequency = null) => {
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+
+            oscillator.type = wave;
+            oscillator.frequency.setValueAtTime(frequency, startAt);
+            if (endFrequency) {
+                oscillator.frequency.exponentialRampToValueAtTime(endFrequency, startAt + duration);
+            }
+
+            gainNode.gain.setValueAtTime(0.0001, startAt);
+            gainNode.gain.exponentialRampToValueAtTime(peakGain, startAt + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, startAt + duration);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+
+            oscillator.start(startAt);
+            oscillator.stop(startAt + duration + 0.01);
+        };
 
         if (type === 'error') {
-            oscillator.type = 'triangle';
-            oscillator.frequency.setValueAtTime(320, now);
-            oscillator.frequency.exponentialRampToValueAtTime(220, now + 0.14);
-            gainNode.gain.setValueAtTime(0.0001, now);
-            gainNode.gain.exponentialRampToValueAtTime(0.16, now + 0.006);
-            gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+            // Son refuse: double bip descendant 1250 Hz -> 800 Hz.
+            createTone(1250, now, 0.07, 0.55, 'square');
+            createTone(800, now + 0.1, 0.075, 0.5, 'square');
         } else {
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(920, now);
-            gainNode.gain.setValueAtTime(0.0001, now);
-            gainNode.gain.exponentialRampToValueAtTime(0.12, now + 0.005);
-            gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+            // Son succes style scanner: double bip aigu rapide et net (grave -> aigu).
+            createTone(1250, now, 0.07, 0.5, 'square');
+            createTone(1520, now + 0.1, 0.075, 0.55, 'square');
         }
-
-        const duration = type === 'error' ? 0.16 : 0.1;
-
-        oscillator.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
-
-        oscillator.start(now);
-        oscillator.stop(now + duration);
     }
 
     addMovement(movementData) {
         this.model.addMovement(movementData);
     }
 
+    /**
+     * Traite un scan (saisie manuelle ou QR) : appelle l'API, joue le son et met à jour la vue.
+     * Un verrou empêche les doubles appels simultanés.
+     * @param {string} sourcedId - Identifiant externe de la carte étudiant
+     * @returns {Promise<void>}
+     */
     async processScan(sourcedId) {
         if (!sourcedId) {
             this.view.displayMessage('ID étudiant requis', true);
@@ -236,7 +286,9 @@ export default class ScanController {
             const response = await api.scanStudent(sourcedId);
 
             if (response.success) {
-                this.playFeedbackSound('success');
+                const STATUT_ROUGE = ['Absent', 'Refusé', 'En retard'];
+                const soundType = STATUT_ROUGE.includes(response.statut) ? 'error' : 'success';
+                this.playFeedbackSound(soundType);
                 const student = response.student;
                 this.view.renderNewScan(
                     `${student.prenom} ${student.nom}`,

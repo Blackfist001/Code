@@ -11,6 +11,11 @@ class CourseController {
         $this->courseModel = new CourseModel();
     }
 
+    /**
+     * API : Récupérer toutes les matières
+     *
+     * @return void Réponse JSON {success, count, results[]}
+     */
     public function getAll() {
         header('Content-Type: application/json');
 
@@ -26,6 +31,12 @@ class CourseController {
         }
     }
 
+    /**
+     * API : Récupérer une matière par son ID
+     *
+     * @param array $params Paramètres de route, doit contenir 'id'
+     * @return void Réponse JSON {success, result}
+     */
     public function getById($params) {
         header('Content-Type: application/json');
 
@@ -48,6 +59,11 @@ class CourseController {
         }
     }
 
+    /**
+     * API : Rechercher des matières par filtres (id, matiere)
+     *
+     * @return void Réponse JSON {success, count, results[]}
+     */
     public function search() {
         header('Content-Type: application/json');
 
@@ -69,6 +85,12 @@ class CourseController {
         }
     }
 
+    /**
+     * API : Ajouter une matière
+     *
+     * @return void Réponse JSON {success, message}
+     * @throws \RuntimeException('DUPLICATE') si le nom de matière est déjà utilisé
+     */
     public function add() {
         header('Content-Type: application/json');
 
@@ -80,14 +102,27 @@ class CourseController {
             }
 
             $success = $this->courseModel->addMatiere($input);
-            echo json_encode($success
-                ? ['success' => true, 'message' => 'Matiere ajoutee']
-                : ['success' => false, 'message' => 'Erreur lors de l\'ajout']);
+            echo json_encode(['success' => true, 'message' => 'Matiere ajoutee']);
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'DUPLICATE') {
+                echo json_encode([
+                    'success' => false,
+                    'message' => "Matière déjà encodée — vous ne pouvez pas encoder plusieurs fois une même matière."
+                ]);
+            } else {
+                echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+            }
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
+    /**
+     * API : Mettre à jour une matière
+     *
+     * @return void Réponse JSON {success, message}
+     * @throws \RuntimeException('DUPLICATE') si le nouveau nom est déjà utilisé par une autre matière
+     */
     public function update() {
         header('Content-Type: application/json');
 
@@ -105,11 +140,23 @@ class CourseController {
             echo json_encode($success
                 ? ['success' => true, 'message' => 'Matiere mise a jour']
                 : ['success' => false, 'message' => 'Erreur lors de la mise a jour']);
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'DUPLICATE') {
+                echo json_encode(['success' => false, 'message' => "Matière déjà encodée — ce nom est utilisé par une autre matière."]);
+            } else {
+                echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+            }
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
+    /**
+     * API : Supprimer une matière
+     *
+     * @return void Réponse JSON {success, message}
+     * @throws \RuntimeException('USED_IN_SCHEDULES') si la matière est référencée dans des horaires
+     */
     public function delete() {
         header('Content-Type: application/json');
 
@@ -124,6 +171,12 @@ class CourseController {
             echo json_encode($success
                 ? ['success' => true, 'message' => 'Matiere supprimee']
                 : ['success' => false, 'message' => 'Suppression impossible']);
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'USED_IN_SCHEDULES') {
+                echo json_encode(['success' => false, 'message' => "Suppression impossible — cette matière est utilisée dans des horaires de cours. Supprimez d'abord les horaires associés."]);
+            } else {
+                echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+            }
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }

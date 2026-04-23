@@ -5,6 +5,30 @@
 
 ---
 
+## Mise a jour du 23 avril 2026
+
+### Evolutions fonctionnelles recentes
+
+- Pagination 20 elements/page sur `Absents`, `Recherche` et `Historique` avec navigation en bas de liste.
+- Scanner:
+- sons succes/refus retravailles (volume et signature),
+- logique sonore basee sur le statut (rouge -> son refus),
+- carte scanner coloree selon le statut avec contraste renforce.
+- Encodage manuel:
+- ajout colonne `Statut` dans l'historique,
+- logique `Type -> Statuts autorises` appliquee,
+- affichage conditionnel de `Raison` selon `Type/Statut`,
+- integration des raisons depuis l'ENUM DB via `/api/movements/reasons`.
+- Recherche/Absents/Management Passages:
+- ajout colonne `Raison`,
+- styles badges harmonises,
+- `Type` uniformise en bleu,
+- valeurs `---` uniformisees en bleu sur les colonnes badge.
+
+### Verification
+
+- Controle syntaxe JS/PHP des fichiers touches: OK.
+
 ## Mise a jour du 20 avril 2026
 
 ### Gestion admin refactorisee

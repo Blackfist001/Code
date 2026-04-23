@@ -1,9 +1,16 @@
+/**
+ * Sous-contrôleur de gestion des horaires de cours.
+ */
 export default class ManagementSchedulesController {
     constructor(parent, api) {
         this.parent = parent;
         this.api = api;
     }
 
+    /**
+     * Charge les listes de classes et de matières pour les menus déroulants du formulaire.
+     * @returns {Promise<void>}
+     */
     async loadScheduleOptions() {
         try {
             const [classesResponse, matieresResponse] = await Promise.all([
@@ -20,10 +27,18 @@ export default class ManagementSchedulesController {
         }
     }
 
+    /**
+     * Recharge les options de classes et matières (après un ajout ou une suppression).
+     * @returns {Promise<void>}
+     */
     async refreshScheduleOptions() {
         await this.loadScheduleOptions();
     }
 
+    /**
+     * Charge les créneaux horaires disponibles et les transmet à la vue.
+     * @returns {Promise<void>}
+     */
     async loadScheduleSlots() {
         try {
             const response = await this.api.getScheduleSlots();
@@ -34,6 +49,10 @@ export default class ManagementSchedulesController {
         }
     }
 
+    /**
+     * Charge et affiche tous les horaires de cours.
+     * @returns {Promise<void>}
+     */
     async loadSchedules() {
         try {
             const response = await this.api.getAllSchedules();
@@ -44,6 +63,11 @@ export default class ManagementSchedulesController {
         }
     }
 
+    /**
+     * Ajoute un horaire de cours.
+     * @param {Object} data - Champs du formulaire
+     * @returns {Promise<void>}
+     */
     async addSchedule(data) {
         try {
             const response = await this.api.addSchedule(data);
@@ -57,6 +81,12 @@ export default class ManagementSchedulesController {
         }
     }
 
+    /**
+     * Met à jour un horaire de cours.
+     * @param {number|string} id
+     * @param {Object} data - Champs à modifier
+     * @returns {Promise<void>}
+     */
     async updateSchedule(id, data) {
         try {
             const response = await this.api.updateSchedule(id, data);
@@ -70,6 +100,11 @@ export default class ManagementSchedulesController {
         }
     }
 
+    /**
+     * Supprime un horaire de cours.
+     * @param {number|string} id
+     * @returns {Promise<void>}
+     */
     async deleteSchedule(id) {
         try {
             const response = await this.api.deleteSchedule(id);

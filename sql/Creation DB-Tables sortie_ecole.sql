@@ -48,9 +48,9 @@ CREATE TABLE utilisateurs (
     nom VARCHAR(100),
     mot_de_passe VARCHAR(255),
     role ENUM(
-        'surveillant',
-        'administration',
-        'administrateur'
+        'Surveillant',
+        'Gestionnaire',
+        'Administrateur'
     )
 );
 

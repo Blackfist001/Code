@@ -1,9 +1,24 @@
 ﻿# CHECKLIST DE VALIDATION - Suivi des Corrections
 
-**Utiliser ce fichier pour cocher chaque correction au fur et Ã  mesure.**
+**Utiliser ce fichier pour cocher chaque correction au fur et a mesure.**
+
+## Mise a jour du 23 avril 2026
+
+### Documentation du code
+
+- [x] PHPDoc ajoute sur tous les controllers PHP (`app/controller/`)
+- [x] PHPDoc ajoute sur tous les models PHP (`app/model/`)
+- [x] PHPDoc ajoute sur les fichiers core PHP (`app/core/router.php`, `app/core/dataBase.php`)
+- [x] JSDoc ajoute sur tous les controllers JS (`public/js/controller/` et sous-dossier `management/`)
+- [x] JSDoc ajoute sur toutes les vues JS (`public/js/view/` et sous-dossier `management/`)
+- [x] JSDoc ajoute sur tous les models JS (`public/js/model/`)
+- [x] JSDoc ajoute sur les utilitaires JS (`public/js/utils/dialog.js`, `sweetalert-setup.js`)
+- [x] JSDoc ajoute sur le point d'entree principal (`public/js/main.js`)
+- [x] Verification syntaxique PHP (`php -l`) : OK sur tous les fichiers modifies
+
+---
 
 ## Mise a jour du 20 avril 2026
-
 Le detail historique ci-dessous est conserve. La checklist suivante reflete les validations importantes ajoutees ou finalisees lors des evolutions recentes.
 
 ### Etat actuel - Evolutions recentes validees

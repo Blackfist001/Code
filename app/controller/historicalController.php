@@ -14,6 +14,11 @@ class HistoricalController {
         $this->classesModel = new ClassesModel();
     }
 
+    /**
+     * Construit un tableau id_classe => nom_classe pour le contrôleur courant.
+     *
+     * @return array<int, string>
+     */
     private function getClassMapById(): array {
         $map = [];
         foreach ($this->classesModel->getAllClasses() as $class) {
@@ -22,6 +27,12 @@ class HistoricalController {
         return $map;
     }
 
+    /**
+     * Remplace le champ 'classe' (id numérique) par le nom lisible dans chaque ligne.
+     *
+     * @param array $rows Lignes issues de la base de données
+     * @return array Lignes avec 'classe' résolu en nom
+     */
     private function enrichClasseNom(array $rows): array {
         if (empty($rows)) {
             return $rows;
@@ -180,16 +191,19 @@ class HistoricalController {
             if (ob_get_length()) {
                 ob_clean();
             }
-            header('Content-Type: text/csv; charset=UTF-8');
+            header('Content-Type: text/csv; charset=UTF-16LE');
             header('Content-Disposition: attachment; filename="' . $filename . '"');
             header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
             header('Pragma: no-cache');
             
             $output = fopen('php://output', 'w');
-            fwrite($output, "\xEF\xBB\xBF");
+            // Excel Windows interprète plus fiablement les accents en UTF-16LE.
+            fwrite($output, "\xFF\xFE");
+            stream_filter_append($output, 'convert.iconv.UTF-8/UTF-16LE');
+            fwrite($output, "sep=;\r\n");
             
             // En-têtes
-            fputcsv($output, ['Date', 'Heure', 'Nom', 'Prénom', 'Classe', 'Type', 'Statut']);
+            fputcsv($output, ['Date', 'Heure', 'Nom', 'Prénom', 'Classe', 'Type', 'Statut'], ';');
             
             // Données
             foreach ($results as $row) {
@@ -201,7 +215,7 @@ class HistoricalController {
                     $row['classe'] ?? '',
                     $row['type_passage'],
                     $row['statut']
-                ]);
+                ], ';');
             }
             
             fclose($output);

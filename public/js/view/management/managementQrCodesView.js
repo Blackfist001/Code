@@ -1,11 +1,18 @@
 import '../../vendor/easy.qrcode.min.js';
 
+/**
+ * Sous-vue d'affichage des QR codes étudiants.
+ * Permet de filtrer les étudiants par classe/nom/prénom et affiche leurs QR codes avec export.
+ */
 export default class ManagementQrCodesView {
     constructor(parent) {
         this.parent = parent;
         this._allStudents = [];
     }
 
+    /**
+     * Branche les écouteurs de filtres (classe, nom, prénom) en cascade.
+     */
     bindEvents() {
         const classeSelect = document.getElementById('qrcodes-filter-classe');
         const nomSelect = document.getElementById('qrcodes-filter-nom');
@@ -33,11 +40,19 @@ export default class ManagementQrCodesView {
         }
     }
 
+    /**
+     * Retourne le libellé de classe correspondant à un ID.
+     * @param {number|string} classId
+     * @returns {string}
+     */
     _getClassLabelById(classId) {
         const cls = (this.parent._classes || []).find(c => String(c.id_classe) === String(classId));
         return cls ? String(cls.classe || '') : '';
     }
 
+    /**
+     * Met à jour le menu déroulant de classe avec les données courantes.
+     */
     updateClassOptions() {
         const classeSelect = document.getElementById('qrcodes-filter-classe');
         if (!classeSelect) return;
@@ -51,6 +66,10 @@ export default class ManagementQrCodesView {
         this._renderFilteredList();
     }
 
+    /**
+     * Retourne les étudiants de la classe actuellement sélectionnée (ou tous si aucune).
+     * @returns {Array}
+     */
     _studentsForSelectedClass() {
         const classId = (document.getElementById('qrcodes-filter-classe')?.value || '').trim();
         if (!classId) return [...(this._allStudents || [])];
@@ -64,6 +83,9 @@ export default class ManagementQrCodesView {
         });
     }
 
+    /**
+     * Recharge les options du filtre nom selon la classe sélectionnée.
+     */
     _refreshNameOptions() {
         const nomSelect = document.getElementById('qrcodes-filter-nom');
         if (!nomSelect) return;
@@ -80,6 +102,9 @@ export default class ManagementQrCodesView {
         }
     }
 
+    /**
+     * Recharge les options du filtre prénom selon le nom sélectionné.
+     */
     _refreshSurnameOptions() {
         const prenomSelect = document.getElementById('qrcodes-filter-prenom');
         const nomSelect = document.getElementById('qrcodes-filter-nom');
@@ -104,6 +129,10 @@ export default class ManagementQrCodesView {
         }
     }
 
+    /**
+     * Retourne les étudiants correspondant à la combinaison classe/nom/prénom des filtres.
+     * @returns {Array}
+     */
     _filteredStudents() {
         const classe = (document.getElementById('qrcodes-filter-classe')?.value || '').trim();
         const nom = (document.getElementById('qrcodes-filter-nom')?.value || '').trim();
@@ -135,6 +164,11 @@ export default class ManagementQrCodesView {
         return { hasFilter: true, results };
     }
 
+    /**
+     * Affiche un message dans la zone de notification de la section QR codes.
+     * @param {string} [message=''] - Texte du message
+     * @param {'info'|'error'} [type='info'] - Type de message
+     */
     _showMessage(message = '', type = 'info') {
         const box = document.getElementById('qrcodes-message');
         if (!box) return;
@@ -142,6 +176,11 @@ export default class ManagementQrCodesView {
         box.className = `message message-${type}`;
     }
 
+    /**
+     * Génère le QR code d'un étudiant dans le conteneur donné.
+     * @param {HTMLElement} container - Élément DOM cible
+     * @param {string} sourcedId      - Identifiant unique de l'étudiant
+     */
     _renderQrCode(container, sourcedId) {
         if (!container || !sourcedId || !window.QRCode) return;
 
@@ -156,6 +195,9 @@ export default class ManagementQrCodesView {
         });
     }
 
+    /**
+     * Branche les boutons d'export PNG/ imprimer sur chaque carte QR code.
+     */
     _bindExportButtons() {
         document.querySelectorAll('.btn-export-qr-pdf').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -171,6 +213,9 @@ export default class ManagementQrCodesView {
         });
     }
 
+    /**
+     * Applique les filtres courants et affiche la liste des cartes QR codes filtrée.
+     */
     _renderFilteredList() {
         const listContainer = document.getElementById('qrcodes-students-list');
         if (!listContainer) return;
@@ -231,6 +276,11 @@ export default class ManagementQrCodesView {
         this._bindExportButtons();
     }
 
+    /**
+     * Stocke la liste complète des étudiants, initialise les filtres et affiche les QR codes.
+     * @param {ManagementQrCodesController} controller
+     * @param {Array} [students=[]] - Liste complète des étudiants
+     */
     displayStudents(controller, students = []) {
         this._allStudents = Array.isArray(students) ? students : [];
         this._refreshNameOptions();

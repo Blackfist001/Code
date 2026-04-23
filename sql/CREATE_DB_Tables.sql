@@ -145,7 +145,7 @@ CREATE TABLE IF NOT EXISTS `utilisateurs` (
   `id_user` int NOT NULL AUTO_INCREMENT,
   `nom` varchar(100) DEFAULT NULL,
   `mot_de_passe` varchar(255) DEFAULT NULL,
-  `role` enum('surveillant','administration','administrateur') DEFAULT NULL,
+  `role` enum('Surveillant','Gestionnaire','Administrateur') DEFAULT NULL,
   PRIMARY KEY (`id_user`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 

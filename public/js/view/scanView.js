@@ -1,9 +1,17 @@
+/**
+ * Vue de la page scanner.
+ * Gère l'affichage des résultats de scan, de l'emploi du temps et des messages.
+ */
 export default class ScanView {
 
     constructor() {
         this.container = document.getElementById('container');
     }
 
+    /**
+     * Charge le HTML de la page scanner dans le conteneur principal.
+     * @param {Function|null} [onReady] - Callback appelé une fois le HTML injecté
+     */
     render(onReady = null) {
         fetch('html/scan.html')
             .then(response => response.text())
@@ -16,10 +24,22 @@ export default class ScanView {
             });
     }
 
+    /**
+     * Met à jour la carte de résultat après un scan.
+     * Applique les classes couleur (vert/rouge) sur la carte principale selon le statut.
+     * @param {string} name       - Nom complet de l'étudiant
+     * @param {string} classe     - Classe de l'étudiant
+     * @param {string} typeLabel  - Libellé du type de passage
+     * @param {string} statut     - Valeur brute du statut (ex : 'Présent', 'Refusé')
+     * @param {string} statutLabel - Libellé affiché du statut
+     */
     renderNewScan(name, classe, typeLabel, statut, statutLabel) {
         // Afficher le résultat du scan
         const resultDiv = document.getElementById('scan-result');
         const messageDiv = document.getElementById('message');
+        const scanCard = document.getElementById('scan-main-card');
+        const STATUT_VERT = ['Présent', 'Autorisé'];
+        const STATUT_ROUGE = ['Absent', 'Refusé', 'En retard'];
 
         if (resultDiv) {
             document.getElementById('name-value').textContent = name;
@@ -27,11 +47,20 @@ export default class ScanView {
             document.getElementById('type-value').textContent = typeLabel;
 
             const statusEl = document.getElementById('status-value');
-            const isPositive = statut === 'Présent' || statut === 'Autorisé';
+            const isPositive = STATUT_VERT.includes(statut);
             statusEl.textContent = statutLabel;
             statusEl.className = `status-badge ${isPositive ? 'status-present' : 'status-refuse'}`;
 
             resultDiv.style.display = 'block';
+        }
+
+        if (scanCard) {
+            scanCard.classList.remove('scan-card-success', 'scan-card-error');
+            if (STATUT_VERT.includes(statut)) {
+                scanCard.classList.add('scan-card-success');
+            } else if (STATUT_ROUGE.includes(statut)) {
+                scanCard.classList.add('scan-card-error');
+            }
         }
 
         if (messageDiv) {
@@ -43,6 +72,10 @@ export default class ScanView {
         }
     }
 
+    /**
+     * Peuple le tableau de l'emploi du temps avec les matières pour les créneaux fixes.
+     * @param {Array} schedule - Liste des horaires (objets avec heure_debut et matiere)
+     */
     displaySchedule(schedule) {
         const table = document.querySelector('.card table');
         const thead = table?.querySelector('thead');
@@ -86,6 +119,12 @@ export default class ScanView {
         tbody.appendChild(row);
     }
 
+    /**
+     * Retourne les horaires codés en dur pour une classe donnée (ancien code de démo).
+     * @deprecated Utiliser `displaySchedule` avec les données API à la place.
+     * @param {string} classe - Identifiant de classe
+     * @returns {Array}
+     */
     addToHistory(time, name, studentId) {
         const schedules = {
             '6A': [
@@ -111,6 +150,11 @@ export default class ScanView {
         return schedules[classe] || schedules['default'];
     }
 
+    /**
+     * Affiche l'emploi du temps d'une classe via les données codées en dur (ancien code de démo).
+     * @deprecated Utiliser `displaySchedule` avec les données API à la place.
+     * @param {string} classe - Identifiant de classe
+     */
     renderSchedule(classe) {
         const tbody = document.getElementById('scan-schedule-body');
         if (!tbody) return;
@@ -129,6 +173,12 @@ export default class ScanView {
         });
     }
 
+    /**
+     * Ajoute une ligne dans le tableau d'historique des 10 derniers scans.
+     * @param {string} time      - Heure du scan (HH:MM)
+     * @param {string} name      - Nom complet de l'étudiant
+     * @param {string} studentId - Identifiant de l'étudiant
+     */
     addToHistory(time, name, studentId) {
         const tbody = document.getElementById('scan-history-body');
         if (!tbody) return;
@@ -150,6 +200,11 @@ export default class ScanView {
         }
     }
 
+    /**
+     * Affiche un message temporaire (3 s) dans la zone de notification du scanner.
+     * @param {string} text          - Texte du message
+     * @param {boolean} [isError=false] - Si true, texte en rouge
+     */
     displayMessage(text, isError = false) {
         const messageDiv = document.getElementById('message');
         if (messageDiv) {

@@ -1,9 +1,16 @@
+/**
+ * Sous-contrôleur de gestion des passages.
+ */
 export default class ManagementPassagesController {
     constructor(parent, api) {
         this.parent = parent;
         this.api = api;
     }
 
+    /**
+     * Charge tous les passages et les affiche.
+     * @returns {Promise<void>}
+     */
     async loadPassages() {
         try {
             const response = await this.api.searchMovementsByStudent({});
@@ -14,6 +21,12 @@ export default class ManagementPassagesController {
         }
     }
 
+    /**
+     * Charge les passages filtrés par plage de dates.
+     * @param {string} dateFrom - Date de début (Y-m-d)
+     * @param {string} dateTo   - Date de fin (Y-m-d)
+     * @returns {Promise<void>}
+     */
     async loadPassagesByDateRange(dateFrom, dateTo) {
         try {
             const response = await this.api.searchMovementsByStudent({ date_from: dateFrom, date_to: dateTo });
@@ -24,6 +37,11 @@ export default class ManagementPassagesController {
         }
     }
 
+    /**
+     * Ajoute un passage manuel.
+     * @param {Object} data - Champs du formulaire (id_etudiant obligatoire)
+     * @returns {Promise<void>}
+     */
     async addPassage(data) {
         if (!data.id_etudiant) {
             alert('Veuillez sélectionner un étudiant');
@@ -52,6 +70,11 @@ export default class ManagementPassagesController {
         }
     }
 
+    /**
+     * Déclenche l'export CSV des passages pour la période donnée.
+     * @param {string} dateFrom - Date de début (Y-m-d)
+     * @param {string} dateTo   - Date de fin (Y-m-d)
+     */
     exportPassagesCSV(dateFrom, dateTo) {
         try {
             const params = new URLSearchParams({ date_from: dateFrom, date_to: dateTo });
@@ -62,6 +85,12 @@ export default class ManagementPassagesController {
         }
     }
 
+    /**
+     * Met à jour un passage existant.
+     * @param {number|string} id - ID du passage
+     * @param {Object} data      - Champs à modifier
+     * @returns {Promise<void>}
+     */
     async updatePassage(id, data) {
         try {
             const response = await this.api.updateMovement(id, data);
@@ -75,6 +104,11 @@ export default class ManagementPassagesController {
         }
     }
 
+    /**
+     * Supprime un passage par son ID.
+     * @param {number|string} id
+     * @returns {Promise<void>}
+     */
     async deletePassage(id) {
         try {
             const response = await this.api.deleteMovement(id);

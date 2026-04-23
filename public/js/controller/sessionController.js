@@ -1,6 +1,10 @@
 import SessionView from "../view/sessionView.js";
 import api from "../api.js";
 
+/**
+ * Contrôleur de session.
+ * Gère l'authentification, la déconnexion et l'état de la session (rôle utilisateur).
+ */
 export default class SessionController {
 
     constructor() {
@@ -9,6 +13,12 @@ export default class SessionController {
         this.sessionCheck();
     }
 
+    /**
+     * Authentifie l'utilisateur et initialise la session si les identifiants sont valides.
+     * @param {string} username - Nom d'utilisateur
+     * @param {string} password - Mot de passe en clair
+     * @returns {Promise<void>}
+     */
     async login(username, password) {
         try {
             const response = await api.login(username, password);
@@ -36,6 +46,10 @@ export default class SessionController {
         }
     }
 
+    /**
+     * Affiche un résumé de la synchronisation OneRoster (SweetAlert ou alert natif).
+     * @param {Object|null} syncInfo - Résultat de synchronisation retourné par l'API login
+     */
     _showOneRosterSyncSummary(syncInfo) {
         if (!syncInfo || !syncInfo.executed) {
             return;
@@ -83,6 +97,10 @@ export default class SessionController {
         alert(errorText);
     }
 
+    /**
+     * Déconnecte l'utilisateur, vide la session et redirige vers la page de connexion.
+     * @returns {Promise<void>}
+     */
     async logout() {
         try {
             const response = await api.logout();
@@ -100,6 +118,11 @@ export default class SessionController {
         await this.sessionCheck();
     }
 
+    /**
+     * Vérifie l'état de la session et affiche la nav et la page adaptées au rôle.
+     * Redirige vers la connexion si aucun rôle n'est détecté.
+     * @returns {Promise<void>}
+     */
     async sessionCheck() {
         if (this.sessionRole === null) {
             this.sessionView.renderLogin();
@@ -108,11 +131,11 @@ export default class SessionController {
 
         let defaultRoute = 'dashboard';
 
-        if (this.sessionRole === 'administrateur') {
+        if (this.sessionRole === 'Administrateur') {
             await this.sessionView.renderAdmin();
-        } else if (this.sessionRole === 'administration') {
+        } else if (this.sessionRole === 'Gestionnaire') {
             await this.sessionView.renderGestion();
-        } else if (this.sessionRole === 'surveillant') {
+        } else if (this.sessionRole === 'Surveillant') {
             await this.sessionView.renderUser();
             defaultRoute = 'scan';
         }

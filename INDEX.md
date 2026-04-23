@@ -2,15 +2,13 @@
 
 Tous les documents d'analyse ont été générés le **25 mars 2026** pour le projet **MVC - Scan Sorties Étudiants**.
 
-## Mise a jour documentaire - 20 avril 2026
+## Mise a jour documentaire - 23 avril 2026
 
 Les documents de synthese ont ete mis a jour pour refleter :
 
-- la refactorisation modulaire de la page `management`
-- le decoupage HTML en partials de gestion
-- la mutualisation CSS de la zone gestion
-- les evolutions recentes des pages gestion passages, gestion etudiants, absents et encodage manuel
-- l'abandon de l'integration OAuth SmartSchool et la suppression des fichiers associes
+- l'ajout de commentaires PHPDoc sur l'ensemble des fichiers backend (controllers, models, core)
+- l'ajout de commentaires JSDoc sur l'ensemble des fichiers frontend JS (controllers, views, models, utils, main.js)
+- verification syntaxique PHP (`php -l`) et JS (`node --check`) : OK sur tous les fichiers modifies
 
 ---
 

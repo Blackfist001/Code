@@ -22,6 +22,15 @@
                 <option value="Sortie autorisée">Sortie autorisée</option>
                 <option value="Journée">Journée</option>
             </select>
+            <select id="encoding-status" style="width:auto;">
+                <option value="Présent">Présent</option>
+                <option value="Autorisé">Autorisé</option>
+                <option value="En retard">En retard</option>
+                <option value="Refusé">Refusé</option>
+                <option value="Absent">Absent</option>
+                <option value="Absence justifiée">Absence justifiée</option>
+                <option value="Sortie justifiée">Sortie justifiée</option>
+            </select>
             <select id="encoding-reason" style="display:none;width:auto;">
                 <option value="">-- Raison --</option>
                 <option value="medical">Certificat médical</option>
@@ -37,6 +46,30 @@
 
     <div class="card">
         <h3>Derniers passages manuels enregistrés</h3>
+        <div class="form-container" style="flex-direction:row;flex-wrap:wrap;align-items:flex-end;justify-content:flex-start;gap:10px;margin-bottom:10px;">
+            <select id="encoding-filter-type" style="width:auto;">
+                <option value="">Tous les types</option>
+                <option value="Entrée matin">Entrée matin</option>
+                <option value="Sortie midi">Sortie midi</option>
+                <option value="Rentrée midi">Rentrée midi</option>
+                <option value="Entrée après-midi">Entrée après-midi</option>
+                <option value="Sortie autorisée">Sortie autorisée</option>
+                <option value="Journée">Journée</option>
+            </select>
+            <select id="encoding-filter-statut" style="width:auto;">
+                <option value="">Tous les statuts</option>
+                <option value="Présent">Présent</option>
+                <option value="Autorisé">Autorisé</option>
+                <option value="En retard">En retard</option>
+                <option value="Refusé">Refusé</option>
+                <option value="Absent">Absent</option>
+                <option value="Absence justifiée">Absence justifiée</option>
+                <option value="Sortie justifiée">Sortie justifiée</option>
+            </select>
+            <select id="encoding-filter-raison" style="width:auto;">
+                <option value="">Toutes les raisons</option>
+            </select>
+        </div>
         <table>
             <thead>
                 <tr>
@@ -45,6 +78,7 @@
                     <th>Nom</th>
                     <th>Prénom</th>
                     <th>Type</th>
+                    <th>Statut</th>
                     <th>Raison</th>
                 </tr>
             </thead>

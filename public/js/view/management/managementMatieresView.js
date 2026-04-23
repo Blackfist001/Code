@@ -1,10 +1,18 @@
 import { confirmDialog } from '../../utils/dialog.js';
 
+/**
+ * Sous-vue de gestion des matières.
+ * Affiche le tableau des matières et la modale d'édition.
+ */
 export default class ManagementMatieresView {
     constructor(parent) {
         this.parent = parent;
     }
 
+    /**
+     * Branche les écouteurs du formulaire d'ajout de matière.
+     * @param {ManagementMatieresController} controller
+     */
     bindEvents(controller) {
         const addMatiereBtn = document.getElementById('btn-add-matiere');
         if (!addMatiereBtn || !controller) return;
@@ -17,6 +25,11 @@ export default class ManagementMatieresView {
         });
     }
 
+    /**
+     * Peuple le tableau des matières avec les lignes édit/suppr.
+     * @param {ManagementMatieresController} controller
+     * @param {Array} [matieres=[]] - Liste des matières
+     */
     displayMatieres(controller, matieres = []) {
         const tbody = document.getElementById('matieres-table-body');
         if (!tbody) return;
@@ -49,6 +62,12 @@ export default class ManagementMatieresView {
         });
     }
 
+    /**
+     * Ouvre la modale d'édition préremplie pour une matière.
+     * @param {ManagementMatieresController} controller
+     * @param {number|string} matiereId
+     * @param {string} currentMatiere - Nom actuel de la matière
+     */
     showEditMatiereModal(controller, matiereId, currentMatiere) {
         this.parent._showModal(`
             <h3>Modifier la matière</h3>

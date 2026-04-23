@@ -9,6 +9,11 @@ import ManagementSchedulesController from "./management/managementSchedulesContr
 import ManagementClassesController from "./management/managementClassesController.js";
 import ManagementMatieresController from "./management/managementMatieresController.js";
 
+/**
+ * Contrôleur principal de la page de gestion.
+ * Délègue chaque sous-domaine (utilisateurs, étudiants, passages, horaires, classes, matières, QR)
+ * aux sous-contrôleurs dédiés et expose leurs méthodes publiques.
+ */
 export default class ManagementController {
     constructor() {
         this.view = new ManagementView(this);
@@ -43,6 +48,11 @@ export default class ManagementController {
         ['loadMatieres', 'addMatiere', 'updateMatiere', 'deleteMatiere'].forEach(m => delegate(m, this.matieresController));
     }
 
+    /**
+     * Charge la page de gestion pour une section donnée et initialise les listes dépendantes.
+     * @param {string} [section='passages'] - Section à afficher initialement
+     * @returns {Promise<void>}
+     */
     async loadManagement(section = 'passages') {
         await this.view.render(section);
         await this.loadScheduleOptions();

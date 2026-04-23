@@ -17,6 +17,11 @@ class SearchController {
         $this->classesModel = new ClassesModel();
     }
 
+    /**
+     * Construit un tableau id_classe => nom_classe pour le contrôleur courant.
+     *
+     * @return array<int, string>
+     */
     private function getClassMapById(): array {
         $map = [];
         foreach ($this->classesModel->getAllClasses() as $class) {
@@ -25,6 +30,12 @@ class SearchController {
         return $map;
     }
 
+    /**
+     * Résout une valeur (id ou nom) en identifiant de classe.
+     *
+     * @param mixed $classeValue ID numérique ou nom de la classe
+     * @return int|null ID de la classe, ou null si introuvable
+     */
     private function resolveClassId($classeValue): ?int {
         if ($classeValue === null || $classeValue === '') {
             return null;
@@ -39,6 +50,12 @@ class SearchController {
         return $class ? (int)$class['id_classe'] : null;
     }
 
+    /**
+     * Remplace le champ 'classe' (id numérique) par le nom lisible dans chaque ligne.
+     *
+     * @param array $rows Lignes issues de la base de données
+     * @return array Lignes avec 'classe' résolu en nom
+     */
     private function enrichClasseNom(array $rows): array {
         if (empty($rows)) {
             return $rows;

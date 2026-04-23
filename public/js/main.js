@@ -1,3 +1,11 @@
+/**
+ * Point d'entrée principal de la SPA sortie-école.
+ *
+ * - Instancie les contrôleurs de session, de routage et de scan.
+ * - Expose `routeController` globalement pour les liens de navigation.
+ * - Vérifie la session active au chargement et gère la navigation SPA
+ *   via délégation d'événements sur les éléments `<a>`.
+ */
 import sessionController from "./controller/sessionController.js";
 import routeController from "./controller/routeController.js";
 import scanController from './controller/scanController.js';

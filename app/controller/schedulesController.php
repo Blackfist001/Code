@@ -11,6 +11,12 @@ class SchedulesController {
         $this->schedulesModel = new SchedulesModel();
     }
 
+    /**
+     * API : Récupérer l'horaire d'une classe pour un jour donné
+     *
+     * @param array $params Paramètres de route, doit contenir 'classe'
+     * @return void Réponse JSON {success, classe, jour, schedule}
+     */
     public function getByClass($params) {
         header('Content-Type: application/json');
         try {
@@ -36,6 +42,11 @@ class SchedulesController {
         }
     }
 
+    /**
+     * API : Récupérer tous les créneaux horaires disponibles
+     *
+     * @return void Réponse JSON {success, count, results[]}
+     */
     public function getCreneaux() {
         header('Content-Type: application/json');
         try {
@@ -50,6 +61,11 @@ class SchedulesController {
         }
     }
 
+    /**
+     * API : Récupérer tous les horaires de cours
+     *
+     * @return void Réponse JSON {success, count, results[]}
+     */
     public function getAll() {
         header('Content-Type: application/json');
         try {
@@ -60,6 +76,14 @@ class SchedulesController {
         }
     }
 
+    /**
+     * API : Ajouter un horaire de cours
+     *
+     * @return void Réponse JSON {success, message}
+     * @throws \RuntimeException('CLASSE_INTROUVABLE') si la classe n'existe pas
+     * @throws \RuntimeException('MATIERE_INTROUVABLE') si la matière n'existe pas
+     * @throws \RuntimeException('CRENEAU_INTROUVABLE') si le créneau est introuvable
+     */
     public function add() {
         header('Content-Type: application/json');
         try {
@@ -76,11 +100,27 @@ class SchedulesController {
             echo json_encode($success
                 ? ['success' => true,  'message' => 'Horaire ajouté']
                 : ['success' => false, 'message' => 'Erreur lors de l\'ajout']);
+        } catch (\RuntimeException $e) {
+            $messages = [
+                'CLASSE_INTROUVABLE'  => "Classe introuvable — vérifiez que la classe sélectionnée existe.",
+                'MATIERE_INTROUVABLE' => "Matière introuvable — vérifiez que la matière sélectionnée existe.",
+                'CRENEAU_INTROUVABLE' => "Créneau horaire introuvable — vérifiez les créneaux sélectionnés.",
+            ];
+            $msg = $messages[$e->getMessage()] ?? $e->getMessage();
+            echo json_encode(['success' => false, 'message' => $msg]);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
+    /**
+     * API : Mettre à jour un horaire de cours
+     *
+     * @return void Réponse JSON {success, message}
+     * @throws \RuntimeException('CLASSE_INTROUVABLE') si la classe n'existe pas
+     * @throws \RuntimeException('MATIERE_INTROUVABLE') si la matière n'existe pas
+     * @throws \RuntimeException('CRENEAU_INTROUVABLE') si le créneau est introuvable
+     */
     public function update() {
         header('Content-Type: application/json');
         try {
@@ -95,11 +135,24 @@ class SchedulesController {
             echo json_encode($success
                 ? ['success' => true,  'message' => 'Horaire modifié']
                 : ['success' => false, 'message' => 'Erreur lors de la modification']);
+        } catch (\RuntimeException $e) {
+            $messages = [
+                'CLASSE_INTROUVABLE'  => "Classe introuvable — vérifiez que la classe sélectionnée existe.",
+                'MATIERE_INTROUVABLE' => "Matière introuvable — vérifiez que la matière sélectionnée existe.",
+                'CRENEAU_INTROUVABLE' => "Créneau horaire introuvable — vérifiez les créneaux sélectionnés.",
+            ];
+            $msg = $messages[$e->getMessage()] ?? $e->getMessage();
+            echo json_encode(['success' => false, 'message' => $msg]);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
+    /**
+     * API : Supprimer un horaire de cours
+     *
+     * @return void Réponse JSON {success, message}
+     */
     public function delete() {
         header('Content-Type: application/json');
         try {
