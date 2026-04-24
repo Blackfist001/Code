@@ -60,7 +60,7 @@ class CourseController {
     }
 
     /**
-     * API : Rechercher des matières par filtres (id, matiere)
+    * API : Rechercher des matières par filtres (id, matiere, id_professeur)
      *
      * @return void Réponse JSON {success, count, results[]}
      */
@@ -72,6 +72,7 @@ class CourseController {
             $filters = [
                 'id' => $_GET['id'] ?? ($body['id'] ?? ''),
                 'matiere' => $_GET['matiere'] ?? ($body['matiere'] ?? ''),
+                'id_professeur' => $_GET['id_professeur'] ?? ($body['id_professeur'] ?? ''),
             ];
 
             $results = $this->courseModel->searchMatieres($filters);
@@ -109,6 +110,11 @@ class CourseController {
                     'success' => false,
                     'message' => "Matière déjà encodée — vous ne pouvez pas encoder plusieurs fois une même matière."
                 ]);
+            } elseif ($e->getMessage() === 'TEACHER_NOT_FOUND') {
+                echo json_encode([
+                    'success' => false,
+                    'message' => "Professeur introuvable — vérifiez l'identifiant du professeur pour cette matière."
+                ]);
             } else {
                 echo json_encode(['success' => false, 'message' => $e->getMessage()]);
             }
@@ -143,6 +149,8 @@ class CourseController {
         } catch (\RuntimeException $e) {
             if ($e->getMessage() === 'DUPLICATE') {
                 echo json_encode(['success' => false, 'message' => "Matière déjà encodée — ce nom est utilisé par une autre matière."]);
+            } elseif ($e->getMessage() === 'TEACHER_NOT_FOUND') {
+                echo json_encode(['success' => false, 'message' => "Professeur introuvable — vérifiez l'identifiant du professeur pour cette matière."]);
             } else {
                 echo json_encode(['success' => false, 'message' => $e->getMessage()]);
             }

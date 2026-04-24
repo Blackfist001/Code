@@ -1,4 +1,5 @@
 import '../../vendor/easy.qrcode.min.js';
+import '../../vendor/jspdf.umd.min.js';
 
 /**
  * Sous-vue d'affichage des QR codes étudiants.
@@ -38,6 +39,8 @@ export default class ManagementQrCodesView {
                 this._renderFilteredList();
             });
         }
+
+        this._bindExportAllButton();
     }
 
     /**
@@ -203,13 +206,153 @@ export default class ManagementQrCodesView {
             btn.addEventListener('click', () => {
                 const sourcedId = String(btn.dataset.sourcedid || '').trim();
                 if (!sourcedId) {
-                    this._showMessage('Aucun sourcedId pour cet étudiant.', 'warning');
+                    this._showMessage('Aucun sourcedId pour cet étudiant.', 'error');
                     return;
                 }
 
-                this._showMessage('Export PDF indisponible pour le moment (bibliothèque PDF à installer).', 'warning');
-                alert(`Export PDF à venir pour le sourcedId : ${sourcedId}`);
+                const jsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+                if (!jsPDF) {
+                    this._showMessage('Bibliothèque PDF non chargée.', 'error');
+                    return;
+                }
+
+                // Trouver la carte de cet étudiant dans le DOM
+                const listItem = btn.closest('.historical-list-item');
+                if (!listItem) return;
+
+                const qrCell = listItem.querySelector('.qrcodes-qr-cell');
+                const canvas = qrCell ? qrCell.querySelector('canvas') : null;
+
+                const studentSpan = listItem.querySelector('.historical-student');
+                const classSpan   = listItem.querySelector('.historical-class');
+                const nomPrenom   = studentSpan ? studentSpan.textContent.trim() : '';
+                const classe      = classSpan   ? classSpan.textContent.trim()   : '';
+
+                // Format carte badge : 85.6 x 54 mm (ISO 7810 ID-1)
+                const doc = new jsPDF({ format: [85.6, 54], unit: 'mm', orientation: 'landscape' });
+
+                // Fond blanc
+                doc.setFillColor(255, 255, 255);
+                doc.rect(0, 0, 85.6, 54, 'F');
+
+                // QR code (canvas → PNG)
+                if (canvas) {
+                    try {
+                        const imgData = canvas.toDataURL('image/png');
+                        doc.addImage(imgData, 'PNG', 4, 4, 30, 30);
+                    } catch (_) { /* canvas tainted ou absent */ }
+                }
+
+                // Textes
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(12);
+                doc.setTextColor(31, 41, 55);
+                doc.text(nomPrenom || '---', 38, 14);
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9);
+                doc.setTextColor(80, 80, 80);
+                if (classe) doc.text(classe, 38, 21);
+
+                const safeName = (nomPrenom || sourcedId).replace(/[^a-z0-9_-]/gi, '_').substring(0, 40);
+                doc.save(`carte-${safeName}.pdf`);
+
+                this._showMessage('PDF exporté avec succès.', 'info');
             });
+        });
+    }
+
+    /**
+     * Active ou désactive le bouton "Exporter tout" selon le nombre de cartes affichées.
+     * @param {number} count
+     */
+    _updateExportAllButtonState(count) {
+        const btn = document.getElementById('btn-export-all-qr-pdf');
+        if (!btn) return;
+        btn.disabled = count < 2;
+    }
+
+    /**
+     * Branche le bouton "Exporter tous les QR Codes en PDF".
+     */
+    _bindExportAllButton() {
+        const btn = document.getElementById('btn-export-all-qr-pdf');
+        if (!btn) return;
+
+        btn.addEventListener('click', () => {
+            const jsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+            if (!jsPDF) {
+                this._showMessage('Bibliothèque PDF non chargée.', 'error');
+                return;
+            }
+
+            const items = document.querySelectorAll('#qrcodes-students-list .historical-list-item');
+            if (items.length < 2) return;
+
+            // Mise en page A4 paysage — grille de badges
+            const pageW   = 297;   // mm A4 landscape
+            const pageH   = 210;
+            const marginX = 10;
+            const marginY = 10;
+            const badgeW  = 85.6;  // ISO 7810 ID-1
+            const badgeH  = 54;
+            const gapX    = 4;
+            const gapY    = 4;
+
+            const cols    = Math.floor((pageW - marginX * 2 + gapX) / (badgeW + gapX)); // 3
+            const rows    = Math.floor((pageH - marginY * 2 + gapY) / (badgeH + gapY)); // 3
+            const perPage = cols * rows;
+
+            const doc = new jsPDF({ format: 'a4', unit: 'mm', orientation: 'landscape' });
+
+            items.forEach((item, index) => {
+                const pageIndex  = Math.floor(index / perPage);
+                const posOnPage  = index % perPage;
+                const col        = posOnPage % cols;
+                const row        = Math.floor(posOnPage / cols);
+
+                if (index > 0 && posOnPage === 0) {
+                    doc.addPage('a4', 'landscape');
+                }
+
+                const bx = marginX + col * (badgeW + gapX);
+                const by = marginY + row * (badgeH + gapY);
+
+                // Fond blanc + bordure grise pour délimiter la carte
+                doc.setFillColor(255, 255, 255);
+                doc.setDrawColor(200, 200, 200);
+                doc.roundedRect(bx, by, badgeW, badgeH, 2, 2, 'FD');
+
+                const qrCell = item.querySelector('.qrcodes-qr-cell');
+                const canvas = qrCell ? qrCell.querySelector('canvas') : null;
+
+                const studentSpan = item.querySelector('.historical-student');
+                const classSpan   = item.querySelector('.historical-class');
+                const nomPrenom   = studentSpan ? studentSpan.textContent.trim() : '';
+                const classe      = classSpan   ? classSpan.textContent.trim()   : '';
+
+                // QR code (calé en haut à gauche de la carte)
+                if (canvas) {
+                    try {
+                        const imgData = canvas.toDataURL('image/png');
+                        doc.addImage(imgData, 'PNG', bx + 4, by + 4, 30, 30);
+                    } catch (_) { /* canvas tainted ou absent */ }
+                }
+
+                // Textes
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(12);
+                doc.setTextColor(31, 41, 55);
+                doc.text(nomPrenom || '---', bx + 38, by + 14);
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9);
+                doc.setTextColor(80, 80, 80);
+                if (classe) doc.text(classe, bx + 38, by + 21);
+            });
+
+            doc.save('qrcodes-etudiants.pdf');
+            this._showMessage(`PDF exporté avec succès (${items.length} cartes, ${Math.ceil(items.length / perPage)} page(s)).`, 'info');
         });
     }
 
@@ -225,6 +368,7 @@ export default class ManagementQrCodesView {
 
         if (!hasFilter) {
             this._showMessage('Sélectionnez au moins un filtre pour afficher les étudiants.', 'info');
+            this._updateExportAllButtonState(0);
             return;
         }
 
@@ -232,13 +376,14 @@ export default class ManagementQrCodesView {
 
         if (!results.length) {
             listContainer.innerHTML = '<p class="historical-empty">Aucun étudiant pour ce filtre.</p>';
+            this._updateExportAllButtonState(0);
             return;
         }
 
         const header = document.createElement('div');
         header.className = 'historical-list-header';
         header.innerHTML = `
-            <span class="historical-date">SourcedId</span>
+            <span class="historical-date qrcodes-sourcedid-cell">SourcedId</span>
             <span class="historical-student">Nom Prénom</span>
             <span class="historical-class">Classe</span>
             <span class="historical-type">QR Code</span>
@@ -256,7 +401,7 @@ export default class ManagementQrCodesView {
             const item = document.createElement('li');
             item.className = 'historical-list-item';
             item.innerHTML = `
-                <span class="historical-date">${sourcedId || '---'}</span>
+                <span class="historical-date qrcodes-sourcedid-cell">${sourcedId || '---'}</span>
                 <span class="historical-student">${student.nom || '---'} ${student.prenom || ''}</span>
                 <span class="historical-class">${student.classe || '---'}</span>
                 <span class="historical-type qrcodes-qr-cell" id="${qrContainerId}">${sourcedId ? '' : '---'}</span>
@@ -274,6 +419,7 @@ export default class ManagementQrCodesView {
 
         listContainer.appendChild(list);
         this._bindExportButtons();
+        this._updateExportAllButtonState(results.length);
     }
 
     /**

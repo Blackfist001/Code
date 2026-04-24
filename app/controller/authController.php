@@ -2,16 +2,15 @@
 namespace App\Controller;
 
 use App\Model\UsersModel;
-use App\Service\OneRosterSync;
+use App\Service\SmartschoolSync;
 use Exception;
 
 class AuthController {
     private UsersModel $usersModel;
-    private OneRosterSync $oneRosterSync;
+    private ?SmartschoolSync $smartschoolSync = null;
 
     public function __construct() {
         $this->usersModel = new UsersModel();
-        $this->oneRosterSync = new OneRosterSync();
     }
 
     /**
@@ -64,15 +63,16 @@ class AuthController {
                 ];
 
                 try {
-                    $stats = $this->oneRosterSync->syncStudents(false);
+                    $this->smartschoolSync ??= new SmartschoolSync();
+                    $stats = $this->smartschoolSync->syncAll(false);
                     $syncResult = [
                         'executed' => true,
                         'success' => true,
                         'stats' => $stats,
-                        'message' => 'Synchronisation OneRoster terminee'
+                        'message' => 'Synchronisation Smartschool SOAP V3 terminee'
                     ];
                 } catch (Exception $syncError) {
-                    error_log('OneRoster sync error at login: ' . $syncError->getMessage());
+                    error_log('Smartschool sync error at login: ' . $syncError->getMessage());
                     $syncResult = [
                         'executed' => true,
                         'success' => false,
@@ -85,7 +85,7 @@ class AuthController {
                     'success' => true,
                     'message' => 'Authentification réussie',
                     'user' => $user,
-                    'oneroster_sync' => $syncResult
+                    'smartschool_sync' => $syncResult
                 ]);
             } else {
                 echo json_encode([

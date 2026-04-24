@@ -41,6 +41,12 @@ CREATE TABLE IF NOT EXISTS `creneau_horaire` (
 CREATE TABLE IF NOT EXISTS `etudiants` (
   `id_etudiant` int NOT NULL AUTO_INCREMENT,
   `sourcedId` varchar(100) DEFAULT NULL,
+  `internnummer` varchar(20) DEFAULT NULL COMMENT 'Numéro interne Smartschool',
+  `stamboeknummer` varchar(30) DEFAULT NULL COMMENT 'Numéro de registre scolaire',
+  `referenceIdentifier` varchar(100) DEFAULT NULL COMMENT 'Identifiant référence externe Smartschool',
+  `gebruikersnaam` varchar(100) DEFAULT NULL COMMENT 'Nom d\'utilisateur Smartschool',
+  `geslacht` char(1) DEFAULT NULL COMMENT 'Genre (m/v/x)',
+  `emailadres` varchar(255) DEFAULT NULL COMMENT 'Email Smartschool',
   `nom` varchar(100) DEFAULT NULL,
   `prenom` varchar(100) DEFAULT NULL,
   `classe` int DEFAULT NULL,
@@ -113,12 +119,44 @@ CREATE TABLE IF NOT EXISTS `logs_sync` (
 
 -- Les données exportées n'étaient pas sélectionnées.
 
+-- Listage de la structure de table sortie_ecole. professeurs
+CREATE TABLE IF NOT EXISTS `professeurs` (
+  `id_professeur` int NOT NULL AUTO_INCREMENT,
+  `sourcedId` varchar(100) NOT NULL,
+  `internnummer` varchar(20) DEFAULT NULL COMMENT 'Numéro interne Smartschool',
+  `stamboeknummer` varchar(30) DEFAULT NULL COMMENT 'Abréviation / matricule enseignant',
+  `referenceIdentifier` varchar(100) DEFAULT NULL COMMENT 'Identifiant référence externe Smartschool',
+  `nom` varchar(100) DEFAULT NULL,
+  `prenom` varchar(100) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `username` varchar(100) DEFAULT NULL,
+  `enabled_user` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id_professeur`),
+  UNIQUE KEY `uq_professeurs_sourcedId` (`sourcedId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
 -- Listage de la structure de table sortie_ecole. matieres
 CREATE TABLE IF NOT EXISTS `matieres` (
   `id_matiere` int NOT NULL AUTO_INCREMENT,
   `matiere` varchar(50) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL COMMENT 'Description du cours (Smartschool)',
+  `active` tinyint(1) NOT NULL DEFAULT 1 COMMENT 'Cours actif dans Smartschool',
   PRIMARY KEY (`id_matiere`)
 ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table sortie_ecole. matieres_professeurs
+CREATE TABLE IF NOT EXISTS `matieres_professeurs` (
+  `id_matiere` int NOT NULL,
+  `id_professeur` int NOT NULL,
+  PRIMARY KEY (`id_matiere`,`id_professeur`),
+  KEY `fk_mp_professeur` (`id_professeur`),
+  CONSTRAINT `fk_mp_matiere` FOREIGN KEY (`id_matiere`) REFERENCES `matieres` (`id_matiere`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_mp_professeur` FOREIGN KEY (`id_professeur`) REFERENCES `professeurs` (`id_professeur`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 

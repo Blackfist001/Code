@@ -421,3 +421,114 @@ Stack trace:
 [23-Apr-2026 12:33:46 UTC] Login input: {"username":"admin","password":"admin"}
 [23-Apr-2026 12:33:46 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
 [23-Apr-2026 12:33:46 UTC] UsersModel password_verify: true
+[24-Apr-2026 09:27:06 UTC] AuthController verify called
+[24-Apr-2026 09:27:06 UTC] Login input: {"username":"admin","password":"admin"}
+[24-Apr-2026 09:27:06 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[24-Apr-2026 09:27:06 UTC] UsersModel password_verify: true
+[24-Apr-2026 09:27:29 UTC] OneRoster sync error at login: OneRoster GET error: Failed to connect to centreleonarddefrance.smartschool.be port 443 after 21024 ms: Could not connect to server
+[24-Apr-2026 09:50:21 UTC] AuthController verify called
+[24-Apr-2026 09:50:21 UTC] Login input: {"username":"admin","password":"admin"}
+[24-Apr-2026 09:50:21 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[24-Apr-2026 09:50:21 UTC] UsersModel password_verify: true
+[24-Apr-2026 09:50:59 UTC] OneRoster sync error at login: OneRoster GET error: Failed to connect to centreleonarddefrance.smartschool.be port 443 after 21030 ms: Could not connect to server
+[24-Apr-2026 11:41:38 UTC] AuthController verify called
+[24-Apr-2026 11:41:38 UTC] Login input: {"username":"admin","password":"admin"}
+[24-Apr-2026 11:41:38 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[24-Apr-2026 11:41:38 UTC] UsersModel password_verify: true
+[24-Apr-2026 11:41:38 UTC] Smartschool sync error at login: Extension SOAP PHP manquante. Activez php_soap pour recuperer les donnees.
+[24-Apr-2026 11:52:12 UTC] AuthController verify called
+[24-Apr-2026 11:52:12 UTC] Login input: {"username":"admin","password":"admin"}
+[24-Apr-2026 11:52:13 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[24-Apr-2026 11:52:13 UTC] UsersModel password_verify: true
+[24-Apr-2026 11:52:13 UTC] Smartschool sync error at login: Extension SOAP PHP manquante. Activez php_soap pour recuperer les donnees.
+[24-Apr-2026 11:52:50 UTC] PHP Fatal error:  Uncaught SoapFault exception: [WSDL] SOAP-ERROR: Parsing WSDL: Couldn't load from 'https://centreleonarddefrance.smartschool.be/Webservices/V3?wsdl' : failed to load external entity "https://centreleonarddefrance.smartschool.be/Webservices/V3?wsdl"
+ in C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php:130
+Stack trace:
+#0 C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php(130): SoapClient->__construct('https://centrel...', Array)
+#1 C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php(22): App\Service\SmartschoolWebServiceV3Client->createSoapClient()
+#2 C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolSync.php(37): App\Service\SmartschoolWebServiceV3Client->__construct()
+#3 C:\ProgsCodes\#ECI\Stage\test\Code\app\controller\authController.php(14): App\Service\SmartschoolSync->__construct()
+#4 C:\ProgsCodes\#ECI\Stage\test\Code\app\core\router.php(192): App\Controller\AuthController->__construct()
+#5 C:\ProgsCodes\#ECI\Stage\test\Code\public\index.php(20): App\Core\Router->run()
+#6 {main}
+  thrown in C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php on line 130
+[24-Apr-2026 11:53:55 UTC] AuthController verify called
+[24-Apr-2026 11:53:55 UTC] Login input: {"username":"admin","password":"admin"}
+[24-Apr-2026 11:53:55 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[24-Apr-2026 11:53:55 UTC] UsersModel password_verify: true
+[24-Apr-2026 11:54:16 UTC] Smartschool sync error at login: Smartschool SOAP getClassListJson failed: Could not connect to host
+[24-Apr-2026 11:55:08 UTC] PHP Fatal error:  Uncaught SoapFault exception: [WSDL] SOAP-ERROR: Parsing WSDL: Couldn't load from 'https://centreleonarddefrance.smartschool.be/Webservices/V3?wsdl' : failed to load external entity "https://centreleonarddefrance.smartschool.be/Webservices/V3?wsdl"
+ in C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php:130
+Stack trace:
+#0 C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php(130): SoapClient->__construct('https://centrel...', Array)
+#1 C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php(22): App\Service\SmartschoolWebServiceV3Client->createSoapClient()
+#2 C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolSync.php(37): App\Service\SmartschoolWebServiceV3Client->__construct()
+#3 C:\ProgsCodes\#ECI\Stage\test\Code\app\controller\authController.php(14): App\Service\SmartschoolSync->__construct()
+#4 C:\ProgsCodes\#ECI\Stage\test\Code\app\core\router.php(192): App\Controller\AuthController->__construct()
+#5 C:\ProgsCodes\#ECI\Stage\test\Code\public\index.php(20): App\Core\Router->run()
+#6 {main}
+  thrown in C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php on line 130
+[24-Apr-2026 11:55:44 UTC] PHP Fatal error:  Uncaught SoapFault exception: [WSDL] SOAP-ERROR: Parsing WSDL: Couldn't load from 'https://centreleonarddefrance.smartschool.be/Webservices/V3?wsdl' : failed to load external entity "https://centreleonarddefrance.smartschool.be/Webservices/V3?wsdl"
+ in C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php:130
+Stack trace:
+#0 C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php(130): SoapClient->__construct('https://centrel...', Array)
+#1 C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php(22): App\Service\SmartschoolWebServiceV3Client->createSoapClient()
+#2 C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolSync.php(37): App\Service\SmartschoolWebServiceV3Client->__construct()
+#3 C:\ProgsCodes\#ECI\Stage\test\Code\app\controller\authController.php(14): App\Service\SmartschoolSync->__construct()
+#4 C:\ProgsCodes\#ECI\Stage\test\Code\app\core\router.php(192): App\Controller\AuthController->__construct()
+#5 C:\ProgsCodes\#ECI\Stage\test\Code\public\index.php(20): App\Core\Router->run()
+#6 {main}
+  thrown in C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php on line 130
+[24-Apr-2026 11:56:06 UTC] PHP Fatal error:  Uncaught SoapFault exception: [WSDL] SOAP-ERROR: Parsing WSDL: Couldn't load from 'https://centreleonarddefrance.smartschool.be/Webservices/V3?wsdl' : failed to load external entity "https://centreleonarddefrance.smartschool.be/Webservices/V3?wsdl"
+ in C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php:130
+Stack trace:
+#0 C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php(130): SoapClient->__construct('https://centrel...', Array)
+#1 C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php(22): App\Service\SmartschoolWebServiceV3Client->createSoapClient()
+#2 C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolSync.php(37): App\Service\SmartschoolWebServiceV3Client->__construct()
+#3 C:\ProgsCodes\#ECI\Stage\test\Code\app\controller\authController.php(14): App\Service\SmartschoolSync->__construct()
+#4 C:\ProgsCodes\#ECI\Stage\test\Code\app\core\router.php(192): App\Controller\AuthController->__construct()
+#5 C:\ProgsCodes\#ECI\Stage\test\Code\public\index.php(20): App\Core\Router->run()
+#6 {main}
+  thrown in C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php on line 130
+[24-Apr-2026 11:56:50 UTC] PHP Fatal error:  Uncaught SoapFault exception: [WSDL] SOAP-ERROR: Parsing WSDL: Couldn't load from 'https://centreleonarddefrance.smartschool.be/Webservices/V3?wsdl' : failed to load external entity "https://centreleonarddefrance.smartschool.be/Webservices/V3?wsdl"
+ in C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php:130
+Stack trace:
+#0 C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php(130): SoapClient->__construct('https://centrel...', Array)
+#1 C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php(22): App\Service\SmartschoolWebServiceV3Client->createSoapClient()
+#2 C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolSync.php(37): App\Service\SmartschoolWebServiceV3Client->__construct()
+#3 C:\ProgsCodes\#ECI\Stage\test\Code\app\controller\authController.php(14): App\Service\SmartschoolSync->__construct()
+#4 C:\ProgsCodes\#ECI\Stage\test\Code\app\core\router.php(192): App\Controller\AuthController->__construct()
+#5 C:\ProgsCodes\#ECI\Stage\test\Code\public\index.php(20): App\Core\Router->run()
+#6 {main}
+  thrown in C:\ProgsCodes\#ECI\Stage\test\Code\app\service\SmartschoolWebServiceV3Client.php on line 130
+[24-Apr-2026 12:01:34 UTC] AuthController verify called
+[24-Apr-2026 12:01:34 UTC] Login input: {"username":"admin","password":"admin"}
+[24-Apr-2026 12:01:34 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[24-Apr-2026 12:01:34 UTC] UsersModel password_verify: true
+[24-Apr-2026 12:02:11 UTC] Smartschool sync error at login: Smartschool SOAP getClassListJson failed: Could not connect to host
+[24-Apr-2026 12:09:36 UTC] AuthController verify called
+[24-Apr-2026 12:09:36 UTC] Login input: {"username":"admin","password":"admin"}
+[24-Apr-2026 12:09:36 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[24-Apr-2026 12:09:36 UTC] UsersModel password_verify: true
+[24-Apr-2026 12:09:58 UTC] Smartschool sync error at login: Serveur Smartschool injoignable (réseau). Synchronisation ignorée.
+[24-Apr-2026 12:10:19 UTC] AuthController verify called
+[24-Apr-2026 12:10:19 UTC] Login input: {"username":"admin","password":"admin"}
+[24-Apr-2026 12:10:19 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[24-Apr-2026 12:10:19 UTC] UsersModel password_verify: true
+[24-Apr-2026 12:10:40 UTC] Smartschool sync error at login: Serveur Smartschool injoignable (réseau). Synchronisation ignorée.
+[24-Apr-2026 12:17:07 UTC] AuthController verify called
+[24-Apr-2026 12:17:07 UTC] Login input: {"username":"admin","password":"admin"}
+[24-Apr-2026 12:17:07 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[24-Apr-2026 12:17:08 UTC] UsersModel password_verify: true
+[24-Apr-2026 13:22:38 UTC] AuthController verify called
+[24-Apr-2026 13:22:38 UTC] Login input: {"username":"admin","password":"admin"}
+[24-Apr-2026 13:22:38 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[24-Apr-2026 13:22:38 UTC] UsersModel password_verify: true
+[24-Apr-2026 13:32:09 UTC] AuthController verify called
+[24-Apr-2026 13:32:09 UTC] Login input: {"username":"admin","password":"admin"}
+[24-Apr-2026 13:32:09 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[24-Apr-2026 13:32:09 UTC] UsersModel password_verify: true
+[24-Apr-2026 13:58:22 UTC] AuthController verify called
+[24-Apr-2026 13:58:22 UTC] Login input: {"username":"admin","password":"admin"}
+[24-Apr-2026 13:58:22 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[24-Apr-2026 13:58:22 UTC] UsersModel password_verify: true

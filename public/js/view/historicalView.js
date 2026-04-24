@@ -1,3 +1,5 @@
+import '../vendor/jspdf.umd.min.js';
+
 /**
  * Vue de la page historique des passages.
  * Affiche la liste paginée des passages et les statistiques agrégées sur la période.
@@ -243,5 +245,149 @@ export default class HistoricalView {
                 }
             });
         }
+
+        const exportPdfBtn = document.getElementById('btn-export-pdf');
+        if (exportPdfBtn) {
+            exportPdfBtn.addEventListener('click', () => {
+                const { dateFrom, dateTo } = this._getDateRange();
+                this.showMessage('');
+                if (!dateFrom || !dateTo) {
+                    this.showMessage('Veuillez sélectionner une plage de dates', 'warning');
+                    return;
+                }
+                if (!this.passages || this.passages.length === 0) {
+                    this.showMessage('Aucun passage à exporter.', 'warning');
+                    return;
+                }
+                this._exportPDF(dateFrom, dateTo);
+            });
+        }
+    }
+
+    /**
+     * Génère et télécharge un PDF de la liste des passages filtrée.
+     * @param {string} dateFrom - Date de début (Y-m-d)
+     * @param {string} dateTo   - Date de fin (Y-m-d)
+     */
+    _exportPDF(dateFrom, dateTo) {
+        const jsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+        if (!jsPDF) {
+            this.showMessage('Bibliothèque PDF non chargée.', 'error');
+            return;
+        }
+
+        const doc = new jsPDF({ format: 'a4', unit: 'mm', orientation: 'landscape' });
+        const pageW = 297;
+        const pageH = 210;
+        const marginX = 12;
+        const marginY = 12;
+        const rowH = 7;
+        const colWidths = [38, 50, 28, 30, 30]; // Date, Nom, Classe, Type, Statut
+        const headers = ['Date & Heure', 'Nom Prénom', 'Classe', 'Type', 'Statut'];
+
+        const STATUT_ROUGE = ['Absent', 'Refusé', 'En retard'];
+        const STATUT_VERT  = ['Présent', 'Autorisé'];
+
+        let y = marginY;
+
+        // Titre
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(31, 41, 55);
+        doc.text('Historique des présences', marginX, y);
+        y += 7;
+
+        // Sous-titre période
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(80, 80, 80);
+        doc.text(`Période : ${dateFrom}  →  ${dateTo}`, marginX, y);
+        y += 5;
+
+        // Ligne de séparation
+        doc.setDrawColor(180, 180, 180);
+        doc.line(marginX, y, pageW - marginX, y);
+        y += 4;
+
+        const drawHeader = () => {
+            doc.setFillColor(44, 62, 80);
+            doc.rect(marginX, y, colWidths.reduce((a, b) => a + b, 0), rowH, 'F');
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            doc.setTextColor(255, 255, 255);
+            let x = marginX;
+            headers.forEach((h, i) => {
+                doc.text(h, x + 2, y + rowH - 2);
+                x += colWidths[i];
+            });
+            y += rowH;
+        };
+
+        drawHeader();
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7.5);
+
+        this.passages.forEach((passage, idx) => {
+            // Nouvelle page si besoin
+            if (y + rowH > pageH - marginY) {
+                doc.addPage('a4', 'landscape');
+                y = marginY;
+                drawHeader();
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(7.5);
+            }
+
+            // Fond alterné
+            if (idx % 2 === 0) {
+                doc.setFillColor(245, 247, 250);
+                doc.rect(marginX, y, colWidths.reduce((a, b) => a + b, 0), rowH, 'F');
+            }
+
+            const statut = passage.statut || '---';
+            const cells = [
+                `${passage.date_passage || '---'} ${passage.heure_passage || ''}`.trim(),
+                `${passage.nom || '---'} ${passage.prenom || ''}`.trim(),
+                passage.classe || '---',
+                passage.type_passage || '---',
+                statut
+            ];
+
+            let x = marginX;
+            cells.forEach((cell, i) => {
+                if (i === 4) {
+                    // Couleur statut
+                    if (STATUT_ROUGE.includes(statut)) doc.setTextColor(192, 57, 43);
+                    else if (STATUT_VERT.includes(statut)) doc.setTextColor(39, 174, 96);
+                    else doc.setTextColor(80, 80, 80);
+                } else {
+                    doc.setTextColor(31, 41, 55);
+                }
+                const truncated = doc.splitTextToSize(cell, colWidths[i] - 3)[0] || '';
+                doc.text(truncated, x + 2, y + rowH - 2);
+                x += colWidths[i];
+            });
+
+            // Bordure basse légère
+            doc.setDrawColor(220, 220, 220);
+            doc.line(marginX, y + rowH, marginX + colWidths.reduce((a, b) => a + b, 0), y + rowH);
+
+            y += rowH;
+        });
+
+        // Pied de page
+        const totalPages = doc.internal.getNumberOfPages();
+        for (let p = 1; p <= totalPages; p++) {
+            doc.setPage(p);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7);
+            doc.setTextColor(150, 150, 150);
+            doc.text(`Page ${p} / ${totalPages}`, pageW - marginX - 20, pageH - 5);
+            doc.text(`Exporté le ${new Date().toLocaleDateString('fr-BE')}`, marginX, pageH - 5);
+        }
+
+        const safeDateFrom = dateFrom.replace(/-/g, '');
+        const safeDateTo   = dateTo.replace(/-/g, '');
+        doc.save(`Historique_présences_${safeDateFrom}_${safeDateTo}.pdf`);
     }
 }

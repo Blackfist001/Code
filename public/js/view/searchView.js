@@ -1,4 +1,5 @@
 import api from '../api.js';
+import '../vendor/jspdf.umd.min.js';
 
 /**
  * Vue de la page de recherche.
@@ -137,6 +138,14 @@ export default class SearchView {
         if (statutSelect) {
             statutSelect.addEventListener('change', () => this._performSearch());
         }
+
+        const exportPdfBtn = document.getElementById('btn-search-export-pdf');
+        if (exportPdfBtn) {
+            exportPdfBtn.addEventListener('click', () => {
+                if (!this.results || this.results.length === 0) return;
+                this._exportPDF();
+            });
+        }
     }
 
     /**
@@ -166,6 +175,11 @@ export default class SearchView {
         this.results = Array.isArray(results) ? results : [];
         this.currentPage = 1;
         this._renderResultsPage();
+
+        const exportPdfBtn = document.getElementById('btn-search-export-pdf');
+        if (exportPdfBtn) {
+            exportPdfBtn.disabled = this.results.length === 0;
+        }
     }
 
     /**
@@ -287,5 +301,137 @@ export default class SearchView {
         if (messageDiv) {
             messageDiv.textContent = '';
         }
+    }
+
+    /**
+     * Génère et télécharge un PDF de tous les résultats de la recherche courante.
+     */
+    _exportPDF() {
+        const jsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+        if (!jsPDF) {
+            const msg = document.getElementById('search-message');
+            if (msg) { msg.textContent = 'Bibliothèque PDF non chargée.'; msg.className = 'message message-error'; }
+            return;
+        }
+
+        const doc = new jsPDF({ format: 'a4', unit: 'mm', orientation: 'landscape' });
+        const pageW  = 297;
+        const pageH  = 210;
+        const mX     = 12;
+        const mY     = 12;
+        const rowH   = 7;
+        // Date, Heure, Nom, Prénom, Classe, Demi-j., Type, Statut, Raison
+        const colW   = [28, 18, 34, 30, 22, 18, 28, 28, 35];
+        const headers = ['Date', 'Heure', 'Nom', 'Prénom', 'Classe', 'Demi-j.', 'Type', 'Statut', 'Raison'];
+
+        const STATUT_ROUGE = ['Absent', 'Refusé', 'En retard'];
+        const STATUT_VERT  = ['Présent', 'Autorisé'];
+
+        // Filtres actifs pour le sous-titre
+        const classe = document.getElementById('search-classe')?.value || '';
+        const nom    = document.getElementById('search-name')?.value || '';
+        const prenom = document.getElementById('search-surname')?.value || '';
+        const statut = document.getElementById('search-statut')?.value || '';
+        const filterParts = [
+            classe && `Classe : ${classe}`,
+            nom    && `Nom : ${nom}`,
+            prenom && `Prénom : ${prenom}`,
+            statut && `Statut : ${statut}`
+        ].filter(Boolean);
+
+        let y = mY;
+
+        // Titre
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(31, 41, 55);
+        doc.text('Recherche étudiant — Résultats', mX, y);
+        y += 7;
+
+        // Sous-titre filtres
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(80, 80, 80);
+        doc.text(filterParts.length ? filterParts.join('   |   ') : 'Tous les étudiants', mX, y);
+        y += 5;
+
+        doc.setDrawColor(180, 180, 180);
+        doc.line(mX, y, pageW - mX, y);
+        y += 4;
+
+        const drawHeader = () => {
+            doc.setFillColor(44, 62, 80);
+            doc.rect(mX, y, colW.reduce((a, b) => a + b, 0), rowH, 'F');
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7.5);
+            doc.setTextColor(255, 255, 255);
+            let x = mX;
+            headers.forEach((h, i) => { doc.text(h, x + 2, y + rowH - 2); x += colW[i]; });
+            y += rowH;
+        };
+
+        drawHeader();
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7);
+
+        this.results.forEach((passage, idx) => {
+            if (y + rowH > pageH - mY) {
+                doc.addPage('a4', 'landscape');
+                y = mY;
+                drawHeader();
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(7);
+            }
+
+            if (idx % 2 === 0) {
+                doc.setFillColor(245, 247, 250);
+                doc.rect(mX, y, colW.reduce((a, b) => a + b, 0), rowH, 'F');
+            }
+
+            const stat = passage.statut || '---';
+            const cells = [
+                passage.date_passage   || '---',
+                passage.heure_passage  || '---',
+                passage.nom            || '---',
+                passage.prenom         || '---',
+                passage.classe         || '---',
+                String(Number(passage.total_demi_journees) || 0),
+                passage.type_passage   || '---',
+                stat,
+                passage.raison || passage.reason || '---'
+            ];
+
+            let x = mX;
+            cells.forEach((cell, i) => {
+                if (i === 7) {
+                    if (STATUT_ROUGE.includes(stat))      doc.setTextColor(192, 57, 43);
+                    else if (STATUT_VERT.includes(stat))  doc.setTextColor(39, 174, 96);
+                    else                                   doc.setTextColor(80, 80, 80);
+                } else {
+                    doc.setTextColor(31, 41, 55);
+                }
+                const truncated = doc.splitTextToSize(cell, colW[i] - 3)[0] || '';
+                doc.text(truncated, x + 2, y + rowH - 2);
+                x += colW[i];
+            });
+
+            doc.setDrawColor(220, 220, 220);
+            doc.line(mX, y + rowH, mX + colW.reduce((a, b) => a + b, 0), y + rowH);
+            y += rowH;
+        });
+
+        // Pied de page
+        const totalPages = doc.internal.getNumberOfPages();
+        for (let p = 1; p <= totalPages; p++) {
+            doc.setPage(p);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7);
+            doc.setTextColor(150, 150, 150);
+            doc.text(`Page ${p} / ${totalPages}`, pageW - mX - 20, pageH - 5);
+            doc.text(`Exporté le ${new Date().toLocaleDateString('fr-BE')}`, mX, pageH - 5);
+        }
+
+        const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
+        doc.save(`Recherche_etudiants_${today}.pdf`);
     }
 }

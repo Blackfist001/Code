@@ -24,6 +24,7 @@ return [
         '/api/movements/reasons' => ['MovementsController', 'getReasonOptions'],
         '/api/movements/student/{id}' => ['MovementsController', 'getByStudentId'],
         '/api/users' => ['UsersController', 'getAll'],
+        '/api/teachers' => ['TeachersController', 'getAll'],
         '/api/passages' => ['HistoricalController', 'getPassages'],
         '/api/stats/dates' => ['HistoricalController', 'getStatsByDate'],
         '/api/stats' => ['DashboardController', 'getStats'],

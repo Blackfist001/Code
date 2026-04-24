@@ -189,12 +189,22 @@ class StudentsModel {
         $pdo = $this->db->getPdo();
         $classeId = $this->resolveClassId($studentData['classe'] ?? null);
         $stmt = $pdo->prepare("
-            INSERT INTO etudiants (sourcedId, nom, prenom, classe, date_naissance, autorisation_midi)
-            VALUES (:sourcedId, :nom, :prenom, :classe, :date_naissance, :autorisation_midi)
+            INSERT INTO etudiants (sourcedId, internnummer, stamboeknummer, referenceIdentifier,
+                                   gebruikersnaam, geslacht, emailadres,
+                                   nom, prenom, classe, date_naissance, autorisation_midi)
+            VALUES (:sourcedId, :internnummer, :stamboeknummer, :referenceIdentifier,
+                    :gebruikersnaam, :geslacht, :emailadres,
+                    :nom, :prenom, :classe, :date_naissance, :autorisation_midi)
         ");
         try {
             $stmt->execute([
                 ':sourcedId'         => $studentData['sourcedId']        ?? null,
+                ':internnummer'      => $studentData['internnummer']      ?? null,
+                ':stamboeknummer'    => $studentData['stamboeknummer']    ?? null,
+                ':referenceIdentifier' => $studentData['referenceIdentifier'] ?? null,
+                ':gebruikersnaam'    => $studentData['gebruikersnaam']    ?? null,
+                ':geslacht'          => $studentData['geslacht']          ?? null,
+                ':emailadres'        => $studentData['emailadres']        ?? null,
                 ':nom'               => $studentData['nom']               ?? '',
                 ':prenom'            => $studentData['prenom']            ?? '',
                 ':classe'            => $classeId,
@@ -249,7 +259,9 @@ class StudentsModel {
         $pdo = $this->db->getPdo();
         $setClauses = [];
         $params = [':sourcedId' => $sourcedId];
-        foreach (['nom', 'prenom', 'date_naissance', 'autorisation_midi'] as $field) {
+        foreach (['nom', 'prenom', 'date_naissance', 'autorisation_midi',
+                  'internnummer', 'stamboeknummer', 'referenceIdentifier',
+                  'gebruikersnaam', 'geslacht', 'emailadres'] as $field) {
             if (array_key_exists($field, $data)) {
                 $setClauses[] = "$field = :$field";
                 $params[":$field"] = $data[$field];

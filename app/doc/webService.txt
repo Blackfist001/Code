@@ -1,0 +1,649 @@
+Services web V3 (SOAP)
+
+
+Ci-dessous, vous trouverez toutes les informations des différentes méthodes que vous pouvez utiliser via nos services web.
+Nous ne supportons que les requêtes qui utilisent la version TLS 1.2 ou supérieure.
+Liens URL
+
+    https://centreleonarddefrance.smartschool.be/Webservices/V3
+    https://centreleonarddefrance.smartschool.be/Webservices/V3?wsdl
+
+Exemples d'applications en PHP et en C#
+
+Nous vous offrons quelques exemples concrets de code de programmation et C# et en PHP qui utilisent les services web et OAuth:
+
+    Application C# qui permet de modifier le statut et le mot de passe d'un utilisateur.
+    Application PHP qui permet de modifier le mot de passe d'un utilisateur.
+    Application PHP pour commander des sandwich, authentication avec OAuth.
+
+Le code source de toutes les applications peuvent être téléchargées comme source d'inspiration. Il ne sont pas prêts à l'emploi, mais peuvent être utilisés comme premier pas ou comme exemple.
+Aperçu des méthodes
+
+    string addCourse (string $accesscode, string $coursename, string $coursedesc, int $visibility)
+    int $visilibity est facultatif
+    mixed addCourseStudents (string $accesscode, string $coursename, string $coursedesc, string $groupIds)
+    mixed addCourseTeacher (string $accesscode, string $coursename, string $coursedesc, string $internnummer, string $userlist)
+    mixed addHelpdeskTicket (string $accescode, string $title, string $description, integer $priority, string $miniDbItem, string $userIdentifier)
+    mixed changeGroupOwners (string $accesscode, $code, $userlist)
+    mixed changeInternNumber (string $accesscode, $username, $newInternNumber)
+    mixed changePasswordAtNextLogin (string $accesscode, string $userIdentifier, integer $accountType)
+    mixed changeUsername (string $accesscode, $internNumber, $newUsername)
+    string checkStatus (string $accesscode, string $serviceId)
+    string clearGroup (string $accesscode, string $group, string $officialDate)
+    string $officialDate est facultatif
+    mixed delClass (string $accesscode, string $code)
+    mixed delUser (string $accesscode, string $userIdentifier, string $officialDate)
+    string $officialDate est facultatif
+    mixed forcePasswordReset (string $accesscode, string $userIdentifier, integer $accountType)
+    mixed getAbsents (string $accesscode, string $userIdentifier, string $schoolYear)
+    mixed getAbsentsWithAlias (string $accesscode, string $userIdentifier, string $schoolYear)
+    mixed getAbsentsByDate (string $accesscode, string $date)
+    mixed getAbsentsWithAliasByDate (string $accesscode, string $date)
+    mixed getAbsentsWithAliasByDate (string $accesscode, string $date)
+    mixed getAbsentsWithInternalNumberByDate ($accesscode, string $date)
+    mixed getAbsentsWithUsernameByDate ($accesscode, string $date)
+    mixed getAbsentsByDateAndGroup ($accesscode, string $date, string $code)
+    mixed getAccountPhoto (string $accesscode, string $userIdentifier)
+    mixed getAllAccounts (string $accesscode, string $code, string $recursive)
+    mixed getAllAccountsExtended (string $accesscode, string $code, string $recursive)
+    mixed getAllGroupsAndClasses (string $accesscode)
+    string getClassList (string $accesscode)
+    string getClassListJson (string $accesscode)
+    mixed getClassTeachers (string $accesscode, boolean $getAllOwners)
+    string getCourses (string $accesscode)
+    mixed getHelpdeskMiniDbItems (string $accescode)
+    mixed getSchoolyearDataOfClass (string $accesscode, string $classCode)
+    mixed getSkoreClassTeacherCourseRelation (string $accesscode)
+    string getStudentCareer (string $accesscode, string $userIdentifier)
+    mixed getUserDetails (string $accesscode, string $userIdentifier)
+    mixed getUserDetailsByNumber (string $accesscode, string $number)
+    mixed getUserDetailsByScannableCode (string $accesscode, string $scannableCode)
+    mixed getUserDetailsByUsername (string $accesscode, string $username)
+    mixed getUserOfficialClass (string $accesscode, string $userIdentifier, string $date)
+    string $date est facultatif
+    string removeCoAccount (string $accesscode, string $userIdentifier, integer $accountType)
+    string removeUserFromGroup (string $accesscode, string $userIdentifier, string $class, string $officialDate)
+    string $officialDate est facultatif
+    mixed replaceInum (string $accesscode, string $oldInum, string $newInum)
+    string returnCsvErrorCodes
+    string returnJsonErrorCodes
+    mixed saveClass (string $accesscode, string $name, string $desc, string $code, string $parent, string $untis, string $instituteNumber, string $adminNumber, string $schoolYearDate)
+    string $instituteNumber, string $adminNumber et string $schoolYearDate sont facultatifs
+    mixed saveClassList (string $accesscode, string $serializedList)
+    mixed saveClassListJson (string $accesscode, string $jsonList)
+    mixed saveGroup (string $accesscode, string $name, string $desc, string $code, string $parent, string $untis)
+    mixed savePassword (string $accesscode, string $userIdentifier, string $password, integer $accountType, integer $changePasswordAtNextLogin)
+    mixed saveSchoolyearDataOfClass (string $accesscode, string $classCode, string $date, string $instituteNumber, string $administrativeGroupNumber, string $residence, string $domain, string $principal)
+    mixed saveSignature (string $accesscode, string $userIdentifier, integer $accountType, string $signature)
+    mixed saveUser (string $accesscode, string $internnumber, string $username, string $passwd1, string $passwd2, string $passwd3, string $name, string $surname, string $extranames, string $initials, string $sex, string $birthday, string $birthplace, string $birthcountry, string $address, string $postalCode, string $location, string $country, string $email, string $mobilephone, string $homephone, string $fax, string $prn, string $stamboeknummer, string $basisrol, string $untis)
+    mixed saveUserParameter (string $accesscode, string $userIdentifier, string $paramName, string $paramValue)
+    string $paramName a été élargi de comptes secondaires
+    mixed saveUserToClass (string $accesscode, string $userIdentifier, string $class, string $officialDate)
+    string $officialDate est facultatif
+    mixed saveUserToClasses (string $accesscode, string $userIdentifier, string $csvList)
+    mixed saveUserToClassesAndGroups (string $accesscode, string $userIdentifier, string $csvList, integer $keepOld)
+    mixed sendMsg (string $accesscode, string $userIdentifier, string $title, string $body, string $senderIdentifier, array $attachments, integer $coaccount, boolean $copyToLVS)
+    array $attachments, integer $coaccount, boolean $copyToLVS sont facultatifs
+    mixed setAccountPhoto (string $accesscode, string $userIdentifier, string $photo)
+    mixed setAccountStatus (string $accesscode, string $userIdentifier, mixed $accountStatus)
+    string startSkoreSync (string $accesscode)
+    mixed unregisterStudent (string $accesscode, string $userIdentifier, string $officialDate)
+    string $officialDate est facultatif
+
+Détails des méthodes
+addCourse
+
+Cette méthode permet de créer des cours dans Smartschool. Le fichier xml exige 3 paramètres:
+
+    string $accesscode: mot de passe services web
+    string $coursename: nom du cours
+    string $coursedesc: description du cours
+    int $visibility: Visibilité (facultatif: '1' = visible (valeur par défaut) ou '0' = invisible)
+
+addCourseStudents
+
+Cette méthode permet d'ajouter des classes à un cours. Le fichier xml exige 4 paramètres:
+
+    string $accesscode: mot de passe services web
+    string $coursename: nom du cours
+    string $coursedesc: description du cours
+    string $groupIds: liste CSV avec un (des) code(s) classe ou un (des) code(s) groupe unique(s)
+
+addCourseTeacher
+
+Cette méthode permet d'ajouter des enseignants à un cours. Le fichier xml exige 5 paramètres:
+
+    string $accesscode: mot de passe services web
+    string $coursename: nom du cours
+    string $coursedesc: description du cours
+    string $internnummer: champ utilisateur unique
+    string $userlist: liste CSV avec un champ utilisateur unique
+
+addHelpdeskTicket
+
+Cette méthode permet de créer un ticket dans le module Helpdesk. Utilisez la méthode 'getHelpdeskMiniDbItems' pour récupérer tous les éléments des minibases de données qui peuvent être utilisé dans le module Helpdesk.
+
+    string $accescode: mot de passe services web
+    string $title: titre du ticket Helpdesk
+    string $description: description du ticket Helpdesk
+    integer $priority: priorité du ticket Helpdesk. Valeur entre 1 et 5 (valeur par défaut est 3).
+    string $miniDbItem: élément de la minibase de données
+    string $userIdentifier: champ utilisateur unique
+
+changeGroupOwners
+
+Cette méthode permet de modifier le(s) titulaire(s) de classe.
+
+    string $accesscode: mot de passe services web
+    string $code: code classe ou code groupe unique
+    string $userlist: liste CSV avec un champ utilisateur unique
+
+changeInternNumber
+
+Cette méthode permet de modifier le numéro interne d'un utilisateur en utilisant l'identifiant comme champ clé.
+
+    string $accesscode: mot de passe services web
+    string $username: identifiant
+    string $newInternNumber: nouveau numéro interne
+
+changePasswordAtNextLogin
+
+Cette méthode permet d'obliger un compte principal ou secondaire de modifier son mot de passe lors de la prochaine connexion.
+
+    string $accescode: mot de passe services web
+    string $userIdentifier: champ utilisateur unique
+    integer $accountType: type du compte ('0' = hoofdaccount, '1' = co-account 1, '2' = co-account 2…)
+
+changeUsername
+
+Cette méthode permet de modifier l'identifiant d'un utilisateur en utilisant le numéro interne comme champ clé.
+
+    string $accesscode: mot de passe services web
+    string $internNumber: numéro interne
+    string $newUsername: nouvel identifiant
+
+checkStatus
+
+Cette méthode permet de demander le statut de la demande de synchronisation de la méthode startSkoreSync.
+
+    string $accesscode: Mot de passe services web
+    string $serviceID: Le code unique de la demande de synchronisation de la méthode startSkoreSync
+
+Cette méthode donne en retour le statut du travail de synchronisation:
+
+    no_status: il n'y a pas de travail trouvé pour ce serviceID
+    busy: le travail est en cours
+    done: le travail est terminé
+    error: le travail n'est pas terminé à cause d'une erreur lors du travail
+
+clearGroup
+
+    string $accesscode: mot de passe services web
+    string $group: code classe ou code groupe unique
+    string $officialDate: date officielle (facultatif: sans date officielle, l'éventuel changement de classe devra encore être confirmé dans Smartschool; format: YYYY-MM-DD)
+
+delClass
+
+Cette méthode permet de supprimer des groupes, classes et des classes officielles de Smartschool. Cette méthode peut être appelée avec 1 paramètre supplémentaire: $code. Il suffit d'identifier le groupe. Les membres de ce groupe ne sont pas supprimés de Smartschool.
+
+    string $accesscode: mot de passe services web
+    string $code: code classe ou code groupe unique
+
+delUser
+
+Cette méthode permet de supprimer l'utilisateur indiqué de Smartschool. Les données suivantes sont exigées:
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ utilisateur unique
+    string $officialDate: date officielle (facultatif: sans date officielle, le changement de classe doit être confirmé dans Smartschool; format: AAAA-MM-JJ)
+
+forcePasswordReset
+
+Cette méthode permet d'obliger un certain utlisateur de modifier son mot de passe à la prochaine connexion.
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ utilisateur unique
+    integer $accountType: type de compte ('0' = compte principal, '1' = compte secondaire 1 ou '2' = compte secondaire 2 …)
+
+getAbsents
+
+Cette méthode permet de récupérer les absences officielles d'un élève (matin et après-midi) pour une certaine année scolaire. Cette méthode fournit un objet JSON.
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ unique utilisateur
+    string $schoolYear: l'année de départ de l'année scolaire (par exemple: '2013' pour l'année scolaire 2013-2014)
+
+getAbsentsWithAlias
+
+Cette méthode permet de récupérer les absences officielles d'un élève (matin et après-midi) y compris les alias pour une certaine année scolaire. Cette méthode fournit un objet JSON.
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ unique utilisateur
+    string $schoolYear: l'année de départ de l'année scolaire (par exemple: '2013' pour l'année scolaire 2013-2014)
+
+getAbsentsByDate
+
+Cette méthode permet de récupérer les absences officielles des tous les élèves (matin et après-midi) pour un certain jour. Cette méthode fournit un objet JSON.
+
+    string $accesscode: mot de passe services web
+    string $date: Date (format: AAAA-MM-JJ)
+
+getAbsentsWithAliasByDate
+
+Cette méthode permet de récupérer les absences officielles de tous les élèves (matin et après-midi) y compris les alias pour un certain jour. Cette méthode fournit un objet JSON.
+
+    string $accesscode: mot de passe services web
+    string $date: date (format AAAA-MM-JJ)
+
+getAbsentsWithInternalNumberByDate
+
+Cette méthode permet de récupérer les absences officielles de tous les élèves (matin et après-midi) pour un certain jour. Cette méthode fournit un objet JSON.
+
+    string $accesscode: mot de passe services web
+    string $date: date (format AAAA-MM-JJ)
+
+getAbsentsWithUsernameByDate
+
+Cette méthode permet de récupérer les absences officielles de tous les élèves (matin et après-midi) pour un certain jour. Cette méthode fournit un objet JSON.
+
+    string $accesscode: mot de passe services web
+    string $date: date (format AAAA-MM-JJ)
+
+getAbsentsByDateAndGroup
+
+Cette méthode permet de récupérer les absences officielles de tous les élèves (matin et après-midi) pour un certain jour. Cette méthode fournit un objet JSON.
+
+    string $accesscode: mot de passe services web
+    string $date: date (format AAAA-MM-JJ)
+    string $code: code classe ou code groupe unique
+
+getAccountPhoto
+
+Cette méthode permet de récupérer la photo de l'élève. Cette méthode fournit un string base64encoded.
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ unique utilisateur
+
+getAllAccounts
+
+Cette méthode permet de récupérer le prénom, le nom, l'identifiant et les numéros internes des utilisateurs dans un groupe. Cette méthode fournit un XML encodé dans base64.
+
+    string $accesscode: mot de passe services web
+    string $code: code classe ou code groupe unique du groupe à récupérer
+    string $recursive: récupérer aussi les sous-groupes ('0' si non exigé ou '1' si exigé)
+
+getAllAccountsExtended
+
+Cette méthode permet de récupérer tous les champs profils (sauf les mots de passe et la photo du profil), le numéro de la classe officielle, les adhésions aux groupes des utilisateurs dans un groupe et les dernières connexions. Cette méthode fournit un objet JSON.
+
+    string $accesscode: mot de passe services web
+    string $code: code classe ou code groupe unique du groupe à récupérer
+    string $recursive: récupérer aussi les sous-groupes ('0' si non exigé ou '1' si exigé)
+
+getAllGroupsAndClasses
+
+Cette méthode demande tous les groupes et toutes les classes de la plateforme Smartschool. Elle fournit un XML encodé dans base64 avec le nom de la classe ou du groupe, la description, le code classe ou groupe unique et le type.
+
+    string $accesscode: mot de passe services web
+
+getClassList
+
+Cette méthode demande une liste de toutes les classes. Cette méthode fournit un array sérialisé avec le nom de la classe, la description, la visibilité et le code classe unique. Il est aussi indiqué s'il s'agit d'une classe officielle ou pas.
+
+    string $accesscode: mot de passe services web
+
+getClassListJson
+
+Cette méthode demande une liste de toutes les classes. Cette méthode fournit un array JSON avec le nom de la classe, la description, la visibilité et le code classe unique. Il est aussi indiqué s'il s'agit d'une classe officielle ou pas.
+
+    string $accesscode: mot de passe services web
+
+getClassTeachers
+
+Cette méthode demande une liste des titulaires de classe. Cette méthode fournit un objet JSON.
+
+    string $accesscode: mot de passe services web
+    boolean $getAllOwners: Il est possible de demander tous les titulaires de classe (if true) et non seulement le premier (default false).
+
+getCourses
+
+Cette méthode demande tous les cours de la plateforme Smartschool. Cette méthode fournit un XML encodé dans base64.
+
+    string $accesscode: mot de passe services web
+
+getHelpdeskMiniDbItems
+
+Cette méthode permet de récupérer tous les éléments des minibases de données qui peuvent être utilisés dans le module Helpdesk.
+
+    string $accesscode: mot de passe services web
+
+getReferenceField
+
+Cette méthode permet d'identifier le champ unique qui est paramétré sur la plateforme ('number' pour le numéro interne ou ‘username’ pour l'identifiant).
+
+    string $accesscode: mot de passe services web
+
+getSchoolyearDataOfClass
+
+Cette méthode demande toutes les données de l'année scolaire de la classe.
+
+    string $accesscode: mot de passe services web
+    string $classCode: code classe ou code groupe unique
+
+getSkoreClassTeacherCourseRelation
+
+Cette méthode demande une liste avec le lien entre les classes, les enseignants, les cours et les informations sur l'élève (nom, prénom, identifiant, numéro interne, numéro de matricule …) et Skore (lien avec les carnets de cotes). Cette méthode fournit un fichier XML.
+
+    string $accesscode: mot de passe services web
+
+getStudentCareer
+
+Cette méthode permet de récupérer le parcours scolaire. Cette méthode fournit un objet JSON.
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ unique utilisateur
+
+getUserDetails
+
+Cette méthode permet de récupérer tous les champs profils (sauf les mots de passe et la photo du profil) et les adhésions du groupe des utilisateurs dans un groupe. Cette méthode fournit un objet JSON.
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ unique utilisateur
+
+getUserDetailsByNumber
+
+Cette méthode permet de récupérer tous les champs profils (sauf les mots de passe et la photo du profil) et les adhésions du groupe des utilisateurs dans un groupe. Cette méthode fournit un objet JSON.
+
+    string $accesscode: mot de passe services web
+    string $number: numéro interne
+
+getUserDetailsByScannableCode
+
+Cette méthode permet de reconnaître un élève via le code à scanner par défaut ou votre propre code à scanner.
+
+    string $accesscode: mot de passe services web
+    string $scannableCode: code à scanner
+
+getUserDetailsByUsername
+
+Cette méthode permet de récupérer tous les champs profils (sauf les mots de passe et la photo du profil) et les adhésions du groupe des utilisateurs dans un groupe. Cette méthode fournit un objet JSON.
+
+    string $accesscode: mot de passe services web
+    string $username: identifiant
+
+getUserOfficialClass
+
+Cette méthode permet de contrôler dans quelle classe officielle un élève se trouve pour un jour indiqué.
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ unique utilisateur
+    string $date: Date (facultatif: sans date indiquée le jour actuel est retourné; format: AAAA-MM-JJ)
+
+removeCoAccount
+
+Cette méthode permet de supprimer un compte secondaire spécifique d'un utilisateur.
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champs unique utilisateur
+    integer $accountType: type de compte ('1' = compte secondaire 1 ou '2' = compte secondaire 2 …)
+
+removeUserFromGroup
+
+Cette méthode permet de supprimer un utilisateur d'un groupe specifique.
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ unique utilisateur
+    string $class: Code classe ou code groupe unique
+    string $officialDate: date officielle (facultatif)
+
+replaceInum
+
+Cette méthode permet de remplacer le numéro interne d'un utilisateur.
+
+    string $accesscode: mot de passe services web
+    string $oldInum: ancien numéro interne
+    string $newInum: nouveau numéro interne
+
+returnCsvErrorCodes
+
+Cette méthode récupère tous les codes d'erreur dans un fichier CSV.
+
+    string returnCsvErrorCodes ()
+
+returnJsonErrorCodes
+
+Cette méthode récupère tous les codes d'erreur dans un objet JSON.
+
+    string returnJsonErrorCodes ()
+
+saveClass
+
+Cette méthode permet de créer ou de modifier des classes ou des classes officielles dans Smartschool. Il n'est pas possible de modifier le nom des classes existantes (officielles) ou de les déplacer sous un autre groupe ou classe principale. Le fichier XML exige 6 paramètres et 3 paramètres facultatifs.
+
+Si aucune classe (officielle) n'apparaît avec un string identification ($name) fourni, Smartschool va créer une nouvelle classe ( officielle ). S'il exsiste déjà une classe (officielle) avec un string identification fourni, les paramètres existants seront alors modifiés.
+
+    string $accesscode: mot de passe services web
+    string $name: nom de la classe ou du groupe
+    string $desc: description
+    string $code: code classe ou code groupe unique
+    string $parent: code classe ou code groupe unique du groupe parent (vide ou '0' pour le parent actuel)
+    Il n'est pas possible de déplacer une classe (officielle) existante via les API.
+    string $untis: code horaire
+    string $instituteNumber: numéro FASE (facultatif: seulement pour la création d'une classe officielle)
+    string $adminNumber: numéro du groupe administratif (facultatif: seulement pour la création d'une classe officielle)
+    string $schoolYearDate: ce string adapte le numéro FASE et le numéro du groupe administratif pour l'année scolaire attribuée (si l'année scolaire n'est pas attribuée ce string sera adapté pour l'année scolaire actuelle)
+
+saveClassList
+
+Cette méthode permet de mettre à jour une liste de classes.
+
+    string $accesscode: mot de passe services web
+    string $serializedList: un tableau sérialisé avec toutes les classes
+
+saveClassListJson
+
+Cette méthode permet de mettre à jour une liste de classes.
+
+    string $accesscode: mot de passe services web
+    string $jsonList: un tableau JSON avec toutes les classes
+
+saveGroup
+
+Cette méthode permet de créer ou de modifier des groupes dans Smartschool. Il n'est pas possible de modifier le nom des groupes existants ou de les déplacer. Le fichier XML exige 6 paramètres.
+
+Si aucun groupe n'apparaît avec un string identification ($code) fourni, Smartschool va créer un nouveau groupe. S'il exsiste déjà un groupe avec un string identification fourni, les paramètres existants seront alors modifiés.
+
+    string $accesscode: mot de passe services web
+    string $name: nom de la classe ou du groupe
+    string $desc: description
+    string $code: code classe ou code groupe unique
+    string $parent: code classe ou code groupe unique du groupe parent (vide ou '0' pour le parent actuel)
+    Il n'est pas possible de déplacer un groupe existant via les API.
+    string $untis: code horaire
+
+savePassword
+
+Cette méthode paramètre le mot de passe pour un compte principal ou secondaire.
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ utilisateur unique
+    string $password: mot ou phrase de passe
+    Retrouvez ici toutes les informations concernant les critères d'un mot ou d'une phrase de passe.
+    integer $accountType: type de compte ('0' = compte principal, '1' = compte secondaire 1 ou '2' = compte secondaire 2 …)
+    integer $changePasswordAtNextLogin: Paramétrer si le mot de passe devrait être modifié (ou non). Valeur optionnelle (0 = pas de modification, 1 = modification du mot de passe, la valeur par défaut est 1)
+
+saveSchoolyearDataOfClass
+
+Cette méthode permet de modifier les données de l'année scolaire de la classe.
+
+    string $accesscode: mot de passe services web
+    string $classCode: code classe ou code groupe unique
+    string $date: date (format: YYYY-MM-DD)
+    string $instituteNumber: numéro FASE
+    string $administrativeGroupNumber: numéro du groupe administratif
+    string $residence: lieu d'établissement
+    string $domain: domaine d'étude
+    string $principal: nom prénom ou prénom nom du membre de la direction
+
+saveSignature
+
+Cette méthode permet de paramétrer la signature (Messages) d'un compte principal ou secondaire.
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ unique utilisateur
+    integer $accountType: type de compte ('0' = compte principal, '1' = compte secondaire 1 ou '2' = compte secondaire 2 …)
+    string $signature: signature
+
+saveUser
+
+Ajoute un utilisateur ou modifie un utilisateur existant.
+
+Lorsque la méthode saveUser est appelée, le champ unique paramétré (userIdentifier) est alors contrôlé. Si aucun compte n'existe avec le champ unique paramétré, un nouveau compte sera alors ajouté. Si un compte avec un champ unique paramétré existe déjà, les données de ce compte seront alors mises à jour avec les données fournies.
+
+    string $accesscode: mot de passe services web
+    string $internnumber: numéro interne
+    string $username: identifiant (au moins 2 caractères)
+    string $passwd1: mot de passe du compte principal
+    Il faut obligatoirement indiquer ce mot de passe pour les nouveaux utilisateurs. Pour les utilisateurs existants, il est possible de laisser ce string vide. Le mot de passe de cet utilisateur ne sera alors pas modifié.
+    Retrouvez ici toutes les informations concernant les critères d'un mot ou d'une phrase de passe.
+    string $passwd2: mot de passe compte secondaire (facultatif)
+    string $passwd3: mot de passe deuxième compte secondaire (facultatif)
+    string $name: prénom (au moins 1 caractère)
+    string $surname: nom de famille (au moins 1 caractère)
+    string $extranames: prénoms supplémentaires (facultatif)
+    string $initials: initiales (facultatif)
+    string $sex: sexe: 'm' ou 'f' (facultatif)
+    string $birthday: date de naissance (facultatif; format AAAA-MM-JJ ou JJ-MM-AAAA)
+    string $birthplace: lieu de naissance (facultatif)
+    string $birthcountry: pays de naissance (facultatif)
+    string $address: adresse (facultatif)
+    Le numéro de la maison et le numéro de la boîte peuvent être indiqués dans le paramètre '$address'. Lorsque l'adresse a la forme <nom de la rue> espace <numéro de la maison> espace <numéro de la boîte>, le saveUser service la reconnaîtra et insérera les données dans les champs corrects de la base de données. Par exemple: Rue de l'église 22 ou Rue de l'église 22 boîte 1. Parfois on utilise une barre oblique pour séparer le numéro de la rue et le numéro de la boîte. Rue de l'église 22/1 devient Rue de l'église 22 boîte 1.
+    string $postalcode: code postal (facultatif)
+    string $location: ville/commune (facultatif)
+    string $country: pays (facultatif)
+    string $email: adresse e-mail (facultatif)
+    string $mobilephone: numéro de GSM (facultatif)
+    string $homephone: numéro de téléphone (facultatif)
+    string $fax: fax (facultatif)
+    string $prn: numéro de registre national (facultatif)
+    string $stamboeknummer: numéro de matricule (facultatif)
+    string $basisrol: rôle de base: 'élève', 'enseignant', 'direction' ou 'autre' (obligatoire)
+    string $untis: code horaire (facultatif)
+
+saveUserParameter
+
+Cette méthode permet de compléter les champs profil suivants:
+
+    name, surname, extranames, initials, sex, status, role, stamboeknummer, number, sort, birthday, birthplace, birthcountry, prn, street, streetnr, busnr, postalCode, location, country, email, website, untis, mobilePhone, homePhone, fax, im, website, type_coaccount1, type_coaccount2, name_coaccount1, name_coaccount2, surname_coaccount1, surname_coaccount2, status_coaccount1, status_coaccount2, email_coaccount1, email_coaccount2, homePhone_coaccount1, homePhone_coaccount2, mobilePhone_coaccount1, mobilePhone_coaccount2
+    La numérotation des comptes secondaires continue (p.ex. name_coaccount3, name_coaccount4, name_coaccount5, name_coaccount6). Ainsi vous pourrez gérer les comptes secondaires de 1 à 6 à l'aide de cette fonction.
+    vos champs de profil supplémentaires (autres informations)
+        paramName: nom du champ
+        paramValue: valeur
+    statut du compte secondaire
+        paramName: status_coaccount1..6
+        paramValue: 'actief' (activé) ou 'niet actief' (désactivé) ou 'actief tot en met yyyy/mm/dd' (actif jusqu'au …)
+    choix de la philosophie
+        paramName: 'Godsdienstkeuze'
+        paramValue: 'MOR' (morale non confessionnelle), 'CAT' (religion catholique), 'PRO' (religion protestante), 'ISR' (religion israélite), 'ISL' (religion islamique), 'ORT' (religion orthodoxe), 'ANG' (religion anglicane), 'DIS' (dispensé ou ne s'applique pas), 'CUL' (citoyenneté), 'PER' (religion personnelle)
+    type d'élève
+        paramName: 'Soort leerling'
+        paramValue:
+            enseignement secondaire: '01' (élève libre), '02' (régulier finançable), '03' (régulier non finançable), '99' (élève accepté sous réserve)
+            enseignement fondamental: '01' (coefficient 1), '02' (coefficient 1,5), '99' (non finançable)
+    langue moderne I
+        paramName: 'modernlang1'
+        paramValue: '0' (aucune), 'de' (allemand), 'en' (anglais) ou 'nl' (néerlandais)
+    langue moderne II
+        paramName: 'modernlang2'
+        paramValue: '0' (aucune), 'de' (allemand), 'en' (anglais), 'es' (espagnol), 'it' (italien) ou 'nl' (néerlandais)
+    nationalité
+        paramName: 'Nationaliteit'
+        paramValue: voir la liste des nationalités dans la Gestion des utilisateurs (en regardant le profil d'un utilisateur aléatoire).
+
+La fonction exige 4 paramètres:
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ unique utilisateur
+    string $paramName: nom du paramètre
+    string $paramValue: paramètre valeur (pour les cases à cocher, vous devez séparer plusieurs choix par un point-virgule)
+
+saveUserToClass
+
+Cette méthode permet de déplacer l'utilisateur dans une (nouvelle) classe officielle. Un élève ne peut être associé qu'à une seule classe officielle. La date officielle est facultative.
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ utilisateur unique
+    string $class: code classe ou code groupe unique
+    string $officialDate: date officielle (facultatif: sans date officielle, le changement de classe doit être confirmé dans Smartschool; format: AAAA-MM-JJ)
+
+saveUserToClasses
+
+Cette méthode permet d'associer un utilisateur à plusieurs classes/groupes. Les nouvelles classes et les nouveaux groupes sont ajoutés aux classes et aux groupes existants. Dans le cas d'une classe officielle: l'élève sera supprimé de sa classe officielle actuelle et à nouveau associée à la classe officielle indiquée. La méthode exige 3 paramètres:
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ unique utilisateur
+    string $csvList: liste CSV avec un (des) code(s) classe ou un (des) code(s) groupe unique(s)
+
+saveUserToClassesAndGroups
+
+Cette méthode permet d'indiquer les appartenances à la classe officielle, aux classes et groupes d'un utilisateur. Il est possible d'ajouter de telles appartenances aux appartenances existantes ou de supprimer d'abord les appartenances existantes. Lors d'éventuelles erreurs pendant le traitement, un fichier CSV avec tous les codes d'erreur sera généré.
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ utilisateur unique
+    string $csvList: liste CSV avec un (des) code(s) classe ou un (des) code(s) groupe unique(s)
+    integer $keepOld: ('1' = conserver les appartenances existantes et ajouter de nouvelles appartenances, '0' = supprimer les appartenances existantes et créer uniquement les nouvelles appartenances)
+
+sendMsg
+
+Cette méthode permet d'envoyer un message au compte principal ou à un compte secondaire d'un utilisateur. La pièce jointe est facultatif.
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ unique utilisateur du destinataire
+    string $title: titre du message
+    string $body: texte du message
+    string $senderIdentifier: champ unique utilisateur de l'expéditeur. Utilisez 'Null' afin de ne pas paramétrer d'expéditeur.
+    mixed $attachments: pièces jointes (1 ou plus) dans un encodage base64 (facultatif)
+    integer $coaccount: type de compte ('0' = compte principal, '1' = compte secondaire 1 ou '2' = compte secondaire 2 …)
+    $coaccount est facultatif: s'il n'est pas indiqué, le message est envoyé au compte principal.
+    boolean $copyToLVS: Valeur 'true' ajoute le message dans le Suivi des élèves (facultatif et valeur par défault est 'false')
+
+Le array des pièces jointes dans le pseudo-code ressemble à ceci:
+
+[ ['filename' ⇒ 'test1.docx', 'filedata' ⇒ 'base64encoded string'] ['filename' ⇒ 'test2.docx', 'filedata' ⇒ 'base64encoded string'] ]
+
+Ou vous pouvez attribuer un string JSON avec la structure suivante:
+
+[
+{ “filename”: “test1.docx”, “filedata”: “base64encoded string” },
+{ “filename”: “test2.docx”, “filedata”: “base64encoded string” }
+]
+setAccountPhoto
+
+Cette méthode permet de compléter la photo de l'élève. En envoyant une photo 'vide', la photo peut aussi être effacée. La fonction accepte 3 paramètres:
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ unique utilisateur
+    string $photo: photo base64encoded
+
+setAccountStatus
+
+Cette méthode permet de modifier le statut de l'élève. La méthode exige 3 paramètres:
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ unique utilisateur
+    mixed $accountStatus: statut du compte
+
+Le dernier paramètre peut avoir les valeurs suivantes:
+
+    'actief', 'active' ou 'enabled' pour activer le compte
+    'inactief', 'inactive' ou 'disabled' pour désactiver le compte
+    'administrative' ou 'administratief' afin de créer un compte administratif du compte
+
+unregisterStudent
+
+Cette méthode permet de désinscrire l'élève. La date officielle peut éventuellement être fournie. La méthode exige 3 paramètres:
+
+    string $accesscode: mot de passe services web
+    string $userIdentifier: champ unique utilisateur
+    string $officialDate: date officielle (facultatif: sans date officielle, le changement de classe doit être confirmé dans Smartschool; format: AAAA-MM-JJ)
+

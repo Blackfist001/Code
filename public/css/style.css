@@ -375,10 +375,27 @@ height:50px;
   min-width: 120px;
 }
 
+.qrcodes-sourcedid-cell {
+  min-width: 280px;
+  word-break: break-all;
+  font-family: monospace;
+  font-size: 0.82rem;
+}
+
 .qrcodes-qr-cell {
   display: inline-flex;
   align-items: center;
   min-height: 76px;
+}
+
+.btn-export-qr-pdf-all {
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+.btn-export-qr-pdf-all:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .qrcodes-export-cell {
