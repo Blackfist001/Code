@@ -4,6 +4,11 @@
 # === Fichiers de config sensibles ===
 app/config/smartschool.php
 app/config/oneroster.php
+app/config/webService.php
+app/config/oauth_credentials.php
+
+# === Images WebP ===
+*.webp
 
 # === Logs ===
 app/logs/*.log
