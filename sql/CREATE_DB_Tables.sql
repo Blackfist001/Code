@@ -28,11 +28,20 @@ CREATE TABLE IF NOT EXISTS `classes` (
 
 -- Les données exportées n'étaient pas sélectionnées.
 
--- Listage de la structure de table sortie_ecole. creneau_horaire
-CREATE TABLE IF NOT EXISTS `creneau_horaire` (
-  `id_creneau` int NOT NULL AUTO_INCREMENT,
+-- Listage de la structure de table sortie_ecole. creneau_horaire_debut
+CREATE TABLE IF NOT EXISTS `creneau_horaire_debut` (
+  `id_creneau_debut` int NOT NULL AUTO_INCREMENT,
   `creneau` time DEFAULT '00:00:00',
-  PRIMARY KEY (`id_creneau`)
+  PRIMARY KEY (`id_creneau_debut`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table sortie_ecole. creneau_horaire_fin
+CREATE TABLE IF NOT EXISTS `creneau_horaire_fin` (
+  `id_creneau_fin` int NOT NULL AUTO_INCREMENT,
+  `creneau` time DEFAULT '00:00:00',
+  PRIMARY KEY (`id_creneau_fin`)
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
@@ -76,8 +85,8 @@ CREATE TABLE IF NOT EXISTS `horaires_cours` (
   KEY `fk_horaires_creneau_fin` (`id_creneau_fin`),
   KEY `fk_horaires_matiere` (`id_matiere`),
   CONSTRAINT `fk_horaires_classe` FOREIGN KEY (`id_classe`) REFERENCES `classes` (`id_classe`),
-  CONSTRAINT `fk_horaires_creneau_debut` FOREIGN KEY (`id_creneau_debut`) REFERENCES `creneau_horaire` (`id_creneau`),
-  CONSTRAINT `fk_horaires_creneau_fin` FOREIGN KEY (`id_creneau_fin`) REFERENCES `creneau_horaire` (`id_creneau`),
+  CONSTRAINT `fk_horaires_creneau_debut` FOREIGN KEY (`id_creneau_debut`) REFERENCES `creneau_horaire_debut` (`id_creneau_debut`),
+  CONSTRAINT `fk_horaires_creneau_fin` FOREIGN KEY (`id_creneau_fin`) REFERENCES `creneau_horaire_fin` (`id_creneau_fin`),
   CONSTRAINT `fk_horaires_matiere` FOREIGN KEY (`id_matiere`) REFERENCES `matieres` (`id_matiere`)
 ) ENGINE=InnoDB AUTO_INCREMENT=126 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -170,7 +179,7 @@ CREATE TABLE IF NOT EXISTS `passages` (
   `statut` enum('Autorisé','Refusé','Absence justifiée','Sortie justifiée','Absent','En retard','Présent') DEFAULT NULL,
   `scan` tinyint(1) NOT NULL DEFAULT '0',
   `manualEncoding` tinyint(1) NOT NULL DEFAULT '0',
-  `demi_journee` int NOT NULL DEFAULT '0',
+  `demi_journee_absence` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id_passage`),
   KEY `id_etudiant` (`id_etudiant`),
   CONSTRAINT `passages_ibfk_1` FOREIGN KEY (`id_etudiant`) REFERENCES `etudiants` (`id_etudiant`)

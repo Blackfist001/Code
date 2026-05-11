@@ -3,8 +3,23 @@
 --   - event_scheduler active (SET GLOBAL event_scheduler = ON;)
 --   - table passages avec colonnes scan/manualEncoding
 
-ALTER TABLE passages
-  ADD COLUMN IF NOT EXISTS demi_journee INT NOT NULL DEFAULT 0 AFTER manualEncoding;
+SET @passages_col_exists := (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'passages'
+      AND COLUMN_NAME = 'demi_journee_absence'
+);
+
+SET @sql_add_col := IF(
+    @passages_col_exists = 0,
+    'ALTER TABLE passages ADD COLUMN demi_journee_absence INT NOT NULL DEFAULT 0 AFTER manualEncoding',
+    'DO 1'
+);
+
+PREPARE stmt_add_col FROM @sql_add_col;
+EXECUTE stmt_add_col;
+DEALLOCATE PREPARE stmt_add_col;
 
 ALTER TABLE passages
     MODIFY COLUMN type_passage ENUM(
@@ -46,7 +61,7 @@ BEGIN
             statut,
             scan,
             manualEncoding,
-            demi_journee
+            demi_journee_absence
         )
         SELECT
             e.id_etudiant,
@@ -54,7 +69,7 @@ BEGIN
             (
                 SELECT ch.creneau
                 FROM horaires_cours hc
-                JOIN creneau_horaire ch ON ch.id_creneau = hc.id_creneau_debut
+                JOIN creneau_horaire_debut ch ON ch.id_creneau = hc.id_creneau_debut
                 WHERE hc.id_classe = e.classe
                   AND LOWER(hc.jour_semaine) = jour_fr
                   AND ch.creneau < '12:00:00'
@@ -70,7 +85,7 @@ BEGIN
         WHERE EXISTS (
                 SELECT 1
                 FROM horaires_cours hc
-                JOIN creneau_horaire ch ON ch.id_creneau = hc.id_creneau_debut
+                JOIN creneau_horaire_debut ch ON ch.id_creneau = hc.id_creneau_debut
                 WHERE hc.id_classe = e.classe
                   AND LOWER(hc.jour_semaine) = jour_fr
                   AND ch.creneau < '12:00:00'
@@ -80,7 +95,7 @@ BEGIN
           AND TIME(NOW()) >= (
                 SELECT ch.creneau
                 FROM horaires_cours hc
-                JOIN creneau_horaire ch ON ch.id_creneau = hc.id_creneau_debut
+                JOIN creneau_horaire_debut ch ON ch.id_creneau = hc.id_creneau_debut
                 WHERE hc.id_classe = e.classe
                   AND LOWER(hc.jour_semaine) = jour_fr
                   AND ch.creneau < '12:00:00'
@@ -125,15 +140,15 @@ BEGIN
     IF DAYOFWEEK(CURDATE()) BETWEEN 2 AND 6 THEN
         UPDATE passages p
         JOIN etudiants e ON e.id_etudiant = p.id_etudiant
-        SET p.demi_journee = 2
+        SET p.demi_journee_absence = 2
         WHERE p.date_passage = CURDATE()
           AND p.type_passage = 'Journée'
           AND p.statut = 'Absent'
-          AND p.demi_journee = 1
+          AND p.demi_journee_absence = 1
           AND EXISTS (
                 SELECT 1
                 FROM horaires_cours hc
-                JOIN creneau_horaire ch ON ch.id_creneau = hc.id_creneau_debut
+                JOIN creneau_horaire_debut ch ON ch.id_creneau = hc.id_creneau_debut
                 WHERE hc.id_classe = e.classe
                   AND LOWER(hc.jour_semaine) = jour_fr
                   AND ch.creneau >= '12:00:00'
@@ -143,7 +158,7 @@ BEGIN
           AND TIME(NOW()) >= (
                 SELECT ch.creneau
                 FROM horaires_cours hc
-                JOIN creneau_horaire ch ON ch.id_creneau = hc.id_creneau_debut
+                JOIN creneau_horaire_debut ch ON ch.id_creneau = hc.id_creneau_debut
                 WHERE hc.id_classe = e.classe
                   AND LOWER(hc.jour_semaine) = jour_fr
                   AND ch.creneau >= '12:00:00'

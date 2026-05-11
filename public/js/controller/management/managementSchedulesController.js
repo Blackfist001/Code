@@ -42,10 +42,10 @@ export default class ManagementSchedulesController {
     async loadScheduleSlots() {
         try {
             const response = await this.api.getScheduleSlots();
-            this.parent.view.setScheduleSlots(response.success ? response.results : []);
+            this.parent.view.setScheduleSlots(response.success ? response.results : {});
         } catch (error) {
             console.error('Erreur loadScheduleSlots:', error);
-            this.parent.view.setScheduleSlots([]);
+            this.parent.view.setScheduleSlots({});
         }
     }
 

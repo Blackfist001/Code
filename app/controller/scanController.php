@@ -5,6 +5,7 @@ use App\Core\ScanRules;
 use App\Model\MovementsModel;
 use App\Model\StudentsModel;
 use App\Model\SchedulesModel;
+use App\Service\ValidationService;
 
 class ScanController {
 
@@ -41,6 +42,13 @@ class ScanController {
             if (!$sourcedId) {
                 ob_end_clean();
                 echo json_encode(['success' => false, 'message' => 'sourcedId manquant']);
+                return;
+            }
+
+            // Valider le format du sourcedId (UUID générique)
+            if (!ValidationService::validateUUIDGeneric($sourcedId)) {
+                ob_end_clean();
+                echo json_encode(['success' => false, 'message' => 'sourcedId invalide (format UUID attendu)']);
                 return;
             }
 

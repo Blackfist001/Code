@@ -6,6 +6,42 @@
 class API {
     constructor(baseUrl = '/api') {
         this.baseUrl = baseUrl;
+        this.csrfToken = null;
+        this.csrfTokenPromise = null;
+    }
+
+    async ensureCsrfToken() {
+        if (this.csrfToken) {
+            return this.csrfToken;
+        }
+
+        if (this.csrfTokenPromise) {
+            return this.csrfTokenPromise;
+        }
+
+        this.csrfTokenPromise = fetch(`${this.baseUrl}/csrf-token`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+            .then(async (response) => {
+                if (!response.ok) {
+                    throw new Error(`Impossible de récupérer le token CSRF (HTTP ${response.status})`);
+                }
+                const data = await response.json();
+                if (!data?.success || !data?.csrf_token) {
+                    throw new Error('Réponse CSRF invalide');
+                }
+                this.csrfToken = data.csrf_token;
+                return this.csrfToken;
+            })
+            .finally(() => {
+                this.csrfTokenPromise = null;
+            });
+
+        return this.csrfTokenPromise;
     }
 
     /**
@@ -13,11 +49,23 @@ class API {
      */
     async request(endpoint, options = {}) {
         const url = `${this.baseUrl}/${endpoint}`;
+        const method = (options.method || 'GET').toUpperCase();
+        const stateChangingMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
+
+        const headers = {
+            'Content-Type': 'application/json',
+            ...options.headers
+        };
+
+        if (stateChangingMethods.includes(method)) {
+            const csrfToken = await this.ensureCsrfToken();
+            headers['X-CSRF-Token'] = csrfToken;
+        }
+
         const fetchOptions = {
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            }
+            method,
+            headers,
+            credentials: 'same-origin'
         };
 
         try {
@@ -283,6 +331,27 @@ class API {
 
     async getScheduleSlots() {
         return this.request('schedules/creneaux');
+    }
+
+    async addScheduleSlot(data) {
+        return this.request('schedules/slots/add', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    async updateScheduleSlot(id, data) {
+        return this.request('schedules/slots/update', {
+            method: 'POST',
+            body: JSON.stringify({ id, ...data })
+        });
+    }
+
+    async deleteScheduleSlot(id, type) {
+        return this.request('schedules/slots/delete', {
+            method: 'POST',
+            body: JSON.stringify({ id, type })
+        });
     }
 
     async addSchedule(data) {

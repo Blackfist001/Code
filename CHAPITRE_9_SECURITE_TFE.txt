@@ -1,0 +1,233 @@
+CHAPITRE 9 - SÉCURITÉ MISE EN PLACE
+Projet : Application de gestion des sorties/entrées étudiants (École de Beauvoir)
+Date de mise à jour : 11 mai 2026
+
+9.1 POURQUOI J'AI TRAVAILLÉ LA SÉCURITÉ
+
+Dans ce projet, mon objectif n'était pas seulement que l'application "fonctionne".
+Je voulais aussi qu'elle soit "fiable" et "difficile à attaquer", même dans un contexte scolaire local.
+
+Concrètement, je me suis posé une question simple :
+"Si une personne mal intentionnée essaie de lire des données sensibles ou de modifier des informations sans autorisation, est-ce que le système peut la bloquer ?"
+
+J'ai donc avancé en 3 étapes :
+- P0 (urgent) : enlever les risques les plus graves tout de suite
+- P1 (important) : mieux contrôler qui a le droit de faire quoi
+- P2 (protection avancée) : ajouter des défenses supplémentaires
+
+
+9.2 CE QUE J'AI FAIT EN PRIORITÉ P0
+
+9.2.1 J'ai retiré les secrets du code
+
+Avant, certains mots de passe et identifiants étaient écrits directement dans les fichiers PHP.
+Le problème : si le code est exposé un jour, les secrets sortent aussi.
+
+Ce que j'ai fait :
+- j'ai déplacé ces secrets dans un fichier .env
+- le code lit maintenant les valeurs via des variables d'environnement
+- le fichier .env est ignoré par Git pour éviter une fuite accidentelle
+
+Image simple :
+Avant = "clef de maison laissée sur la porte"
+Après = "clef rangée dans une boîte fermée"
+
+
+9.2.2 J'ai ajouté des protections navigateur (headers HTTP)
+
+J'ai activé plusieurs en-têtes de sécurité (X-Frame-Options, CSP, etc.).
+Pour un non technicien, cela revient à poser des règles de sécurité que le navigateur doit respecter.
+
+Exemple :
+- empêcher qu'une page soit affichée dans un faux cadre (anti-clickjacking)
+- limiter les scripts autorisés (anti injection)
+
+
+9.2.3 J'ai caché les erreurs techniques aux utilisateurs
+
+Avant, certaines erreurs pouvaient afficher des détails techniques dans le navigateur.
+C'est dangereux, car cela aide un attaquant à comprendre le système.
+
+Ce que j'ai fait :
+- erreurs détaillées cachées côté utilisateur
+- erreurs conservées dans un fichier de log serveur pour l'administrateur
+
+Donc :
+- utilisateur : voit un message propre
+- administrateur : garde les informations utiles pour corriger
+
+
+9.2.4 J'ai sécurisé les sessions
+
+Une session, c'est "la preuve que l'utilisateur est connecté".
+J'ai renforcé le cookie de session pour réduire le vol de session.
+
+Ce que j'ai activé :
+- HttpOnly
+- SameSite
+- mode strict
+- durée de session contrôlée
+
+
+9.2.5 J'ai supprimé les logs sensibles
+
+J'ai retiré des traces de debug qui pouvaient contenir des éléments sensibles (ex : infos de connexion).
+Les logs doivent aider au support, pas devenir une fuite de données.
+
+
+9.3 CE QUE J'AI FAIT EN PRIORITÉ P1
+
+9.3.1 J'ai renforcé les droits d'accès (rôles)
+
+Chaque utilisateur n'a pas les mêmes droits.
+Par exemple, un profil simple ne doit pas pouvoir modifier des données de gestion.
+
+Ce que j'ai mis en place :
+- vérification du rôle avant les actions sensibles
+- réponse claire si accès refusé (401 ou 403)
+
+Effet concret :
+"Être connecté" ne suffit plus, il faut aussi "avoir le bon rôle".
+
+
+9.3.2 J'ai ajouté une validation centralisée des données
+
+Tout ce qui vient de l'utilisateur (recherche, identifiants, UUID, etc.) est maintenant vérifié.
+
+Pourquoi c'est important :
+- éviter les entrées absurdes
+- réduire les risques d'attaque par champs mal formés
+- éviter les surcharges avec des textes énormes
+
+En résumé :
+je filtre les données en entrée avant de les utiliser.
+
+
+9.4 CE QUE J'AI FAIT EN PRIORITÉ P2
+
+9.4.1 Protection CSRF
+
+Problème visé :
+Un site externe pourrait essayer de forcer l'utilisateur connecté à faire une action sans son accord.
+
+Solution mise en place :
+- génération d'un token CSRF lié à la session
+- endpoint dédié pour récupérer ce token
+- vérification obligatoire du token sur les requêtes qui modifient des données
+- rotation du token après connexion réussie
+
+Explication simple :
+Le token joue le rôle d'un "badge temporaire".
+Sans ce badge valide, l'action est refusée.
+
+
+9.4.2 Limitation des tentatives de connexion
+
+Problème visé :
+Un robot peut essayer des centaines de mots de passe.
+
+Solution mise en place :
+- max 5 échecs de connexion en 15 minutes (par couple IP + utilisateur)
+- ensuite blocage temporaire avec code HTTP 429
+- remise à zéro après une connexion valide
+
+Explication simple :
+Si quelqu'un tape trop de mauvais mots de passe, le système lui dit "stop, attends".
+
+
+9.4.3 Journalisation des refus de sécurité
+
+J'ai ajouté des traces claires pour les accès refusés :
+- non authentifié
+- rôle insuffisant
+- token CSRF invalide
+
+Objectif :
+garder un historique pour comprendre ce qui s'est passé en cas d'incident.
+
+
+9.5 CE QUE CELA CHANGE POUR LES UTILISATEURS ET POUR L'ÉQUIPE
+
+9.5.1 Côté utilisateur final
+- l'application reste fluide
+- les messages d'erreur sont plus propres
+- moins de risques qu'une action non autorisée passe
+
+9.5.2 Côté administration / maintenance
+- les erreurs sont bien journalisées
+- les refus de sécurité sont traçables
+- le diagnostic est plus simple en cas de problème
+
+9.5.3 Côté sécurité globale
+- meilleure protection des données
+- réduction du risque de compromission de compte
+- défense en plusieurs couches (pas une seule barrière)
+
+
+9.6 VALIDATION DES MESURES
+
+J'ai validé ces changements par des tests automatiques.
+
+9.6.1 Tests existants passés :
+- TEST_SECURITY_P0.ps1
+- TEST_WEBSERVICE_SECURITY.ps1
+
+9.6.2 Tests P2 ajoutés :
+- test/test_security_p2.php
+- résultat : 11/11 tests OK
+
+Ces tests couvrent notamment :
+- cycle de vie du token CSRF
+- blocage des tentatives de brute-force
+- réinitialisation après connexion réussie
+
+
+9.7 LIMITES ACTUELLES ET PISTES D'AMÉLIORATION
+
+9.7.1 Ce qui est déjà bien :
+- le niveau actuel est solide pour un contexte scolaire
+
+9.7.2 Ce qui peut encore être amélioré :
+- stocker le rate limiting dans une couche partagée (ex : Redis) si architecture multi-serveurs
+- renforcer le monitoring (alertes automatiques)
+- généraliser HTTPS sur tous les environnements
+- mettre une politique stricte de rotation/rétention des logs
+
+
+9.8 CONCLUSION PERSONNELLE
+
+Dans ce chapitre, je ne me suis pas contentée de "cocher des cases" de sécurité.
+J'ai cherché à construire une protection pratique, lisible et maintenable.
+
+En bref, j'ai mis en place :
+- prévention (validation, CSRF, headers, secrets hors code)
+- confinement (erreurs masquées côté utilisateur, contrôle par rôle)
+- traçabilité (logs des incidents et refus)
+
+Pour moi, le résultat est une base sérieuse, adaptée au projet, et évolutive pour un niveau production plus exigeant.
+
+
+9.9 MINI GLOSSAIRE DES TERMES TECHNIQUES
+
+- API : interface qui permet à deux applications de communiquer entre elles.
+- Authentification : action de vérifier l'identité d'un utilisateur (ex : login + mot de passe).
+- Autorisation : vérification des droits, c'est-à-dire ce qu'un utilisateur a le droit de faire.
+- Brute-force : attaque qui teste beaucoup de mots de passe automatiquement jusqu'à trouver le bon.
+- Cookie : petit fichier enregistré par le navigateur pour garder certaines informations de session.
+- CSP (Content-Security-Policy) : règle de sécurité qui limite les scripts et contenus que la page peut charger.
+- CSRF : attaque qui tente de faire exécuter une action à un utilisateur connecté sans son accord.
+- Endpoint : adresse précise d'une API (par exemple /api/login).
+- Header HTTP : information ajoutée dans les requêtes/réponses web pour donner des règles ou du contexte.
+- HttpOnly : option d'un cookie qui empêche JavaScript d'y accéder, ce qui réduit le risque de vol.
+- HTTPS : version sécurisée de HTTP, qui chiffre les données échangées entre navigateur et serveur.
+- HSTS : règle qui force le navigateur à utiliser HTTPS pour éviter une connexion non sécurisée.
+- Injection : attaque qui envoie des données malveillantes pour tromper l'application.
+- Log : journal technique qui enregistre les événements et erreurs pour aider au suivi et au debug.
+- Monitoring : surveillance continue du système pour détecter rapidement les anomalies.
+- Rate limiting : mécanisme qui limite le nombre de tentatives ou de requêtes dans un temps donné.
+- Redis : base de données très rapide, souvent utilisée pour stocker des informations temporaires.
+- SameSite : option d'un cookie qui limite son envoi depuis des sites externes.
+- Session : période pendant laquelle un utilisateur reste reconnu comme connecté.
+- Token CSRF : code temporaire de vérification pour prouver qu'une action vient bien du bon utilisateur.
+- UUID : identifiant unique utilisé pour distinguer un élément sans risque de doublon.
+- X-Frame-Options : règle qui empêche d'afficher la page dans un cadre externe (protection anti-piège visuel).

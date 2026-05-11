@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Model\UsersModel;
+use App\Service\ValidationService;
 use Exception;
 
 class UsersController {
@@ -12,12 +13,34 @@ class UsersController {
     }
 
     /**
+     * Vérifie que l'utilisateur a les rôles requis
+     *
+     * @param array $allowedRoles Rôles autorisés
+     * @throws Exception Si non authentifié ou rôle insuffisant
+     */
+    private function requireRole(...$allowedRoles) {
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            throw new Exception('Non authentifié');
+        }
+        
+        $userRole = $_SESSION['role'] ?? null;
+        if (!in_array($userRole, $allowedRoles)) {
+            http_response_code(403);
+            throw new Exception("Accès refusé: rôle insuffisant");
+        }
+    }
+
+    /**
      * API: Récupérer tous les utilisateurs
      */
     public function getAll() {
         header('Content-Type: application/json');
 
         try {
+            // Vérifier l'authentification et les rôles - Seulement Gestionnaire et Administrateur
+            $this->requireRole('Gestionnaire', 'Administrateur');
+            
             $users = $this->usersModel->getAllUsers();
             echo json_encode([
                 'success' => true,
@@ -36,10 +59,24 @@ class UsersController {
         header('Content-Type: application/json');
 
         try {
+            // Vérifier l'authentification et les rôles - Seulement Gestionnaire et Administrateur
+            $this->requireRole('Gestionnaire', 'Administrateur');
+            
             $input = json_decode(file_get_contents('php://input'), true);
 
             if (!$input || !isset($input['username']) || !isset($input['password'])) {
                 echo json_encode(['success' => false, 'message' => 'Données invalides']);
+                return;
+            }
+
+            // Valider les données saisies
+            if (!ValidationService::validateString($input['username'], 3, 50)) {
+                echo json_encode(['success' => false, 'message' => 'Nom d\'utilisateur invalide (3-50 caractères)']);
+                return;
+            }
+
+            if (!ValidationService::validateString($input['password'], 8, 128)) {
+                echo json_encode(['success' => false, 'message' => 'Mot de passe invalide (minimum 8 caractères)']);
                 return;
             }
 
@@ -68,10 +105,18 @@ class UsersController {
         header('Content-Type: application/json');
 
         try {
+            // Vérifier l'authentification et les rôles - Seulement Gestionnaire et Administrateur
+            $this->requireRole('Gestionnaire', 'Administrateur');
+            
             $input = json_decode(file_get_contents('php://input'), true);
 
             if (!$input || !isset($input['id'])) {
                 echo json_encode(['success' => false, 'message' => 'ID requis']);
+                return;
+            }
+
+            if (!ValidationService::validateId($input['id'])) {
+                echo json_encode(['success' => false, 'message' => 'ID invalide']);
                 return;
             }
 
@@ -96,10 +141,18 @@ class UsersController {
         header('Content-Type: application/json');
 
         try {
+            // Vérifier l'authentification et les rôles - Seulement Gestionnaire et Administrateur
+            $this->requireRole('Gestionnaire', 'Administrateur');
+            
             $input = json_decode(file_get_contents('php://input'), true);
 
             if (!$input || !isset($input['id'])) {
                 echo json_encode(['success' => false, 'message' => 'ID requis']);
+                return;
+            }
+
+            if (!ValidationService::validateId($input['id'])) {
+                echo json_encode(['success' => false, 'message' => 'ID invalide']);
                 return;
             }
 

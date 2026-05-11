@@ -480,8 +480,8 @@ class OneRosterSync {
         $classId = $this->ensureClassId((string)$schedule['classe']);
         $teacherId = $this->resolveTeacherIdBySourcedId($schedule['teacher_sourcedId'] ?? null);
         $matiereId = $this->ensureMatiereId((string)$schedule['matiere'], $teacherId);
-        $debutId = $this->ensureCreneauId((string)$schedule['heure_debut']);
-        $finId = $this->ensureCreneauId((string)$schedule['heure_fin']);
+        $debutId = $this->ensureCreneauId((string)$schedule['heure_debut'], 'debut');
+        $finId = $this->ensureCreneauId((string)$schedule['heure_fin'], 'fin');
 
         $stmt = $pdo->prepare(
             "SELECT id, salle" . ($this->hasProfessorColumn() ? ", id_professeur" : "") . "
@@ -642,17 +642,18 @@ class OneRosterSync {
         return (int)$created['id_matiere'];
     }
 
-    private function ensureCreneauId(string $time): int {
-        $row = $this->timeSlotModel->getByTime($time);
+    private function ensureCreneauId(string $time, string $type): int {
+        $row = $this->timeSlotModel->getByTime($time, $type);
         if ($row) {
             return (int)$row['id_creneau'];
         }
 
         $pdo = $this->db->getPdo();
-        $insert = $pdo->prepare("INSERT INTO creneau_horaire (creneau) VALUES (:creneau)");
+        $table = strtolower($type) === 'fin' ? 'creneau_horaire_fin' : 'creneau_horaire_debut';
+        $insert = $pdo->prepare("INSERT INTO {$table} (creneau) VALUES (:creneau)");
         $insert->execute([':creneau' => $time]);
 
-        $created = $this->timeSlotModel->getByTime($time);
+        $created = $this->timeSlotModel->getByTime($time, $type);
         if (!$created) {
             throw new \RuntimeException('Creation du creneau impossible: ' . $time);
         }

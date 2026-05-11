@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Model\MovementsModel;
 use App\Model\ClassesModel;
+use App\Service\ValidationService;
 use Exception;
 
 class AbsenceController {
@@ -60,12 +61,34 @@ class AbsenceController {
     }
 
     /**
+     * Vérifie que l'utilisateur a les rôles requis
+     *
+     * @param array $allowedRoles Rôles autorisés
+     * @throws Exception Si non authentifié ou rôle insuffisant
+     */
+    private function requireRole(...$allowedRoles) {
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            throw new Exception('Non authentifié');
+        }
+        
+        $userRole = $_SESSION['role'] ?? null;
+        if (!in_array($userRole, $allowedRoles)) {
+            http_response_code(403);
+            throw new Exception("Accès refusé: rôle insuffisant");
+        }
+    }
+
+    /**
      * API : Obtenir les absents d'aujourd'hui
      */
     public function getTodayAbsents($params = []) {
         header('Content-Type: application/json');
         
         try {
+            // Vérifier l'authentification et les rôles
+            $this->requireRole('Gestionnaire', 'Surveillant');
+            
             $pdo = (new \App\Core\DataBase())->getPdo();
 
             // Inclure les absences explicites du jour et les étudiants sans aucun passage aujourd'hui.
@@ -153,17 +176,17 @@ class AbsenceController {
             $pdo = (new \App\Core\DataBase())->getPdo();
             
             $stmt = $pdo->prepare("
-                INSERT INTO passages (id_etudiant, date_passage, heure_passage, type_passage, statut, demi_journee)
-                VALUES (:id_etudiant, :date_passage, :heure_passage, :type_passage, :statut, :demi_journee)
+                INSERT INTO passages (id_etudiant, date_passage, heure_passage, type_passage, statut, demi_journee_absence)
+                VALUES (:id_etudiant, :date_passage, :heure_passage, :type_passage, :statut, :demi_journee_absence)
             ");
             
             $stmt->execute([
-                ':id_etudiant'   => $input['id_etudiant'],
-                ':date_passage'  => date('Y-m-d'),
-                ':heure_passage' => date('H:i:s'),
-                ':type_passage'  => 'Journée',
-                ':statut'        => 'Absent',
-                ':demi_journee'  => 2,
+                ':id_etudiant'          => $input['id_etudiant'],
+                ':date_passage'         => date('Y-m-d'),
+                ':heure_passage'        => date('H:i:s'),
+                ':type_passage'         => 'Journée',
+                ':statut'               => 'Absent',
+                ':demi_journee_absence' => 2,
             ]);
             
             echo json_encode([
@@ -198,17 +221,17 @@ class AbsenceController {
             $pdo = (new \App\Core\DataBase())->getPdo();
             
             $stmt = $pdo->prepare("
-                INSERT INTO passages (id_etudiant, date_passage, heure_passage, type_passage, statut, demi_journee)
-                VALUES (:id_etudiant, :date_passage, :heure_passage, :type_passage, :statut, :demi_journee)
+                INSERT INTO passages (id_etudiant, date_passage, heure_passage, type_passage, statut, demi_journee_absence)
+                VALUES (:id_etudiant, :date_passage, :heure_passage, :type_passage, :statut, :demi_journee_absence)
             ");
             
             $stmt->execute([
-                ':id_etudiant'   => $input['id_etudiant'],
-                ':date_passage'  => date('Y-m-d'),
-                ':heure_passage' => date('H:i:s'),
-                ':type_passage'  => 'Journée',
-                ':statut'        => 'Absence justifiée',
-                ':demi_journee'  => 2,
+                ':id_etudiant'          => $input['id_etudiant'],
+                ':date_passage'         => date('Y-m-d'),
+                ':heure_passage'        => date('H:i:s'),
+                ':type_passage'         => 'Journée',
+                ':statut'               => 'Absence justifiée',
+                ':demi_journee_absence' => 2,
             ]);
             
             echo json_encode([

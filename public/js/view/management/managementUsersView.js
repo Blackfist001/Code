@@ -56,10 +56,10 @@ export default class ManagementUsersView {
                 <td>${username}</td>
                 <td>${role}</td>
                 <td>
-                    <button class="btn-edit-user" data-id="${id}" data-username="${username}" data-role="${role}">Modifier</button>
+                    <button class="btn-edit btn-edit-user" data-id="${id}" data-username="${username}" data-role="${role}">Modifier</button>
                     ${isAdmin
                         ? '<button disabled title="L\'utilisateur admin ne peut pas être supprimé" style="opacity:0.4;cursor:not-allowed;">Supprimer</button>'
-                        : `<button class="btn-delete-user" data-id="${id}">Supprimer</button>`
+                        : `<button class="btn-delete btn-delete-user" data-id="${id}">Supprimer</button>`
                     }
                 </td>`;
             tbody.appendChild(row);

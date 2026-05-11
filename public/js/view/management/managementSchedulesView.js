@@ -8,6 +8,8 @@ export default class ManagementSchedulesView {
     constructor(parent) {
         this.parent = parent;
         this._allSchedules = [];
+        this._currentPage = 1;
+        this._pageSize = 20;
     }
 
     /**
@@ -91,10 +93,10 @@ export default class ManagementSchedulesView {
         const finSelect = document.getElementById('sched-fin');
 
         if (debutSelect) {
-            debutSelect.innerHTML = this.parent._renderCreneauOptions('', true);
+            debutSelect.innerHTML = this.parent._renderCreneauDebutOptions('', true);
         }
         if (finSelect) {
-            finSelect.innerHTML = this.parent._renderCreneauOptions('', true);
+            finSelect.innerHTML = this.parent._renderCreneauFinOptions('', true);
         }
     }
 
@@ -120,9 +122,58 @@ export default class ManagementSchedulesView {
     }
 
     /**
-     * Injecte les lignes du tableau pour la liste d'horaires donnée.
+     * Rend la pagination sous le tableau des horaires.
      * @param {ManagementSchedulesController} controller
-     * @param {Array} [schedules=[]] - Horaires à afficher
+     * @param {number} totalItems
+     */
+    _renderPagination(controller, totalItems) {
+        const tbody = document.getElementById('schedules-table-body');
+        const table = tbody ? tbody.closest('table') : null;
+        if (!table || !table.parentNode) return;
+
+        let paginationEl = document.getElementById('schedules-pagination');
+        if (!paginationEl) {
+            paginationEl = document.createElement('div');
+            paginationEl.id = 'schedules-pagination';
+            paginationEl.className = 'list-pagination';
+            table.parentNode.insertBefore(paginationEl, table.nextSibling);
+        }
+
+        const totalPages = Math.ceil(totalItems / this._pageSize);
+        if (totalPages <= 1) {
+            paginationEl.innerHTML = '';
+            return;
+        }
+
+        const prevDisabled = this._currentPage <= 1 ? 'disabled' : '';
+        const nextDisabled = this._currentPage >= totalPages ? 'disabled' : '';
+        paginationEl.innerHTML = `
+            <button type="button" id="sched-page-prev" ${prevDisabled}>Précédent</button>
+            <span>Page ${this._currentPage} / ${totalPages}</span>
+            <button type="button" id="sched-page-next" ${nextDisabled}>Suivant</button>
+        `;
+
+        const filtered = this._getFilteredSchedules();
+
+        document.getElementById('sched-page-prev')?.addEventListener('click', () => {
+            if (this._currentPage > 1) {
+                this._currentPage--;
+                this._renderRows(controller, filtered);
+            }
+        });
+
+        document.getElementById('sched-page-next')?.addEventListener('click', () => {
+            if (this._currentPage < totalPages) {
+                this._currentPage++;
+                this._renderRows(controller, filtered);
+            }
+        });
+    }
+
+    /**
+     * Injecte les lignes du tableau pour la liste d'horaires donnée (avec pagination).
+     * @param {ManagementSchedulesController} controller
+     * @param {Array} [schedules=[]] - Horaires à afficher (liste filtrée complète)
      */
     _renderRows(controller, schedules = []) {
         const tbody = document.getElementById('schedules-table-body');
@@ -132,12 +183,16 @@ export default class ManagementSchedulesView {
 
         if (!schedules.length) {
             tbody.innerHTML = '<tr><td colspan="7">Aucun horaire pour ce filtre</td></tr>';
+            this._renderPagination(controller, 0);
             return;
         }
 
+        const startIndex = (this._currentPage - 1) * this._pageSize;
+        const pageItems = schedules.slice(startIndex, startIndex + this._pageSize);
+
         const jourLabels = { lundi: 'Lundi', mardi: 'Mardi', mercredi: 'Mercredi', jeudi: 'Jeudi', vendredi: 'Vendredi', samedi: 'Samedi' };
 
-        schedules.forEach(s => {
+        pageItems.forEach(s => {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${s.classe || s.nom_classe || '---'}</td>
@@ -147,8 +202,8 @@ export default class ManagementSchedulesView {
                 <td>${(s.heure_fin || '---').substring(0, 5)}</td>
                 <td>${s.salle || '---'}</td>
                 <td>
-                    <button class="btn-edit-schedule" data-id="${s.id}">Modifier</button>
-                    <button class="btn-delete-schedule" data-id="${s.id}">Supprimer</button>
+                    <button class="btn-edit btn-edit-schedule" data-id="${s.id}">Modifier</button>
+                    <button class="btn-delete btn-delete-schedule" data-id="${s.id}">Supprimer</button>
                 </td>`;
             tbody.appendChild(row);
         });
@@ -165,13 +220,17 @@ export default class ManagementSchedulesView {
                 if (await confirmDialog('Supprimer cet horaire ?')) controller.deleteSchedule(btn.dataset.id);
             });
         });
+
+        this._renderPagination(controller, schedules.length);
     }
 
     /**
      * Re-filtre et re-rend les lignes après un changement de filtre.
+     * Remet la pagination à la première page.
      * @param {ManagementSchedulesController} controller
      */
     _applyFilters(controller) {
+        this._currentPage = 1;
         this._renderRows(controller, this._getFilteredSchedules());
     }
 
@@ -206,8 +265,8 @@ export default class ManagementSchedulesView {
                     <option value="vendredi" ${s.jour_semaine === 'vendredi' ? 'selected' : ''}>Vendredi</option>
                     <option value="samedi" ${s.jour_semaine === 'samedi' ? 'selected' : ''}>Samedi</option>
                 </select>
-                <select id="edit-sched-debut">${this.parent._renderCreneauOptions(s.id_creneau_debut || '')}</select>
-                <select id="edit-sched-fin">${this.parent._renderCreneauOptions(s.id_creneau_fin || '')}</select>
+                <select id="edit-sched-debut">${this.parent._renderCreneauDebutOptions(s.id_creneau_debut || '')}</select>
+                <select id="edit-sched-fin">${this.parent._renderCreneauFinOptions(s.id_creneau_fin || '')}</select>
                 <input type="text" id="edit-sched-salle" value="${s.salle || ''}" placeholder="Salle">
                 <div style="display:flex;gap:8px;margin-top:8px;">
                     <button id="modal-btn-save">Enregistrer</button>

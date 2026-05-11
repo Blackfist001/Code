@@ -1,6 +1,8 @@
 <?php
 namespace App\Core;
 
+use App\Service\CsrfService;
+
 /**
  * Routeur frontal de l'application.
  *
@@ -9,6 +11,83 @@ namespace App\Core;
  */
 class Router {
     private $routes;
+
+    private function getClientIp(): string {
+        $headers = [
+            'HTTP_X_FORWARDED_FOR',
+            'HTTP_X_REAL_IP',
+            'REMOTE_ADDR',
+        ];
+
+        foreach ($headers as $header) {
+            $value = $_SERVER[$header] ?? '';
+            if (!is_string($value) || $value === '') {
+                continue;
+            }
+
+            $ip = trim(explode(',', $value)[0]);
+            if ($ip !== '') {
+                return $ip;
+            }
+        }
+
+        return '0.0.0.0';
+    }
+
+    private function logUnauthorizedAccess(string $reason, string $method, string $uri): void {
+        $role = $this->getSessionRole() ?? 'guest';
+        $ip = $this->getClientIp();
+        error_log(sprintf(
+            '[SECURITY] Access denied: reason=%s method=%s uri=%s role=%s ip=%s',
+            $reason,
+            $method,
+            $uri,
+            $role,
+            $ip
+        ));
+    }
+
+    private function getCsrfTokenFromHeaders(): ?string {
+        $token = null;
+
+        if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+            if (is_array($headers)) {
+                $token = $headers['X-CSRF-Token']
+                    ?? $headers['x-csrf-token']
+                    ?? null;
+            }
+        }
+
+        if (!is_string($token) || $token === '') {
+            $serverToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
+            $token = is_string($serverToken) ? $serverToken : null;
+        }
+
+        return $token;
+    }
+
+    private function enforceCsrfProtection(string $method, string $uri): void {
+        $stateChangingMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
+        if (!in_array($method, $stateChangingMethods, true)) {
+            return;
+        }
+
+        if (!str_starts_with($uri, '/api/')) {
+            return;
+        }
+
+        // Endpoints publics exclus du contrôle CSRF.
+        if (in_array($uri, ['/api/login', '/api/csrf-token'], true)) {
+            return;
+        }
+
+        $token = $this->getCsrfTokenFromHeaders();
+        if (!CsrfService::validateToken($token)) {
+            $this->logUnauthorizedAccess('csrf_invalid', $method, $uri);
+            $this->abort(403, 'Token CSRF invalide');
+        }
+    }
 
     /**
      * @param array $routes Tableau de routes indexé par méthode HTTP
@@ -72,6 +151,7 @@ class Router {
 
         $role = $this->getSessionRole();
         if ($role === null) {
+            $this->logUnauthorizedAccess('page_unauthenticated', $method, $uri);
             $this->abort(401);
         }
 
@@ -79,6 +159,7 @@ class Router {
         if ($role === 'Surveillant') {
             $allowed = ['/scan', '/manualEncoding', '/logout'];
             if (!in_array($uri, $allowed, true)) {
+                $this->logUnauthorizedAccess('page_forbidden_surveillant', $method, $uri);
                 $this->abort(403);
             }
             return;
@@ -86,6 +167,7 @@ class Router {
 
         // Le profil Gestionnaire n'a pas acces a la gestion.
         if ($this->isGestionnaireRole($role) && in_array($uri, ['/management', '/gestion'], true)) {
+            $this->logUnauthorizedAccess('page_forbidden_gestionnaire', $method, $uri);
             $this->abort(403);
         }
     }
@@ -106,6 +188,7 @@ class Router {
         // Endpoints API publics (avant session)
         if (
             ($uri === '/api/login' && $method === 'POST') ||
+            ($uri === '/api/csrf-token' && $method === 'GET') ||
             ($uri === '/api/logout' && ($method === 'GET' || $method === 'POST'))
         ) {
             return;
@@ -113,6 +196,7 @@ class Router {
 
         $role = $this->getSessionRole();
         if ($role === null) {
+            $this->logUnauthorizedAccess('api_unauthenticated', $method, $uri);
             $this->abort(401);
         }
 
@@ -137,6 +221,7 @@ class Router {
             }
 
             if (!$isAllowed) {
+                $this->logUnauthorizedAccess('api_forbidden_surveillant', $method, $uri);
                 $this->abort(403);
             }
             return;
@@ -151,6 +236,7 @@ class Router {
                 in_array($uri, ['/api/schedules/add', '/api/schedules/update', '/api/schedules/delete'], true);
 
             if ($isDenied) {
+                $this->logUnauthorizedAccess('api_forbidden_gestionnaire', $method, $uri);
                 $this->abort(403);
             }
         }
@@ -168,6 +254,7 @@ class Router {
 
         $this->enforcePageAccess($method, $uri);
         $this->enforceApiAccess($method, $uri);
+        $this->enforceCsrfProtection($method, $uri);
 
         if (!isset($this->routes[$method])) {
             $this->abort(405);
@@ -207,9 +294,10 @@ class Router {
      * @param int $code Code HTTP (ex : 401, 403, 404, 405)
      * @return never
      */
-    private function abort($code) {
+    private function abort($code, ?string $message = null) {
         http_response_code($code);
-        echo json_encode(['error' => "Erreur $code"]);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => $message ?? "Erreur $code"]);
         exit;
     }
 }

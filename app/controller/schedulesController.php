@@ -51,11 +51,86 @@ class SchedulesController {
         header('Content-Type: application/json');
         try {
             $creneaux = $this->schedulesModel->getAllCreneaux();
+            $debut = is_array($creneaux['debut'] ?? null) ? $creneaux['debut'] : [];
+            $fin = is_array($creneaux['fin'] ?? null) ? $creneaux['fin'] : [];
             echo json_encode([
                 'success' => true,
-                'count' => count($creneaux),
+                'count' => count($debut) + count($fin),
                 'results' => $creneaux
             ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API : Ajouter un créneau dans la table début ou fin.
+     */
+    public function addSlot() {
+        header('Content-Type: application/json');
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+            $type = strtolower(trim((string)($input['type'] ?? '')));
+            $creneau = trim((string)($input['creneau'] ?? ''));
+
+            if (!in_array($type, ['debut', 'fin'], true) || $creneau === '') {
+                echo json_encode(['success' => false, 'message' => 'Type et créneau requis']);
+                return;
+            }
+
+            $success = $this->schedulesModel->addSlot($type, $creneau);
+            echo json_encode($success
+                ? ['success' => true, 'message' => 'Créneau ajouté']
+                : ['success' => false, 'message' => 'Erreur lors de l\'ajout']);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API : Mettre à jour un créneau dans la table début ou fin.
+     */
+    public function updateSlot() {
+        header('Content-Type: application/json');
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+            $id = (int)($input['id'] ?? 0);
+            $type = strtolower(trim((string)($input['type'] ?? '')));
+            $creneau = trim((string)($input['creneau'] ?? ''));
+
+            if ($id <= 0 || !in_array($type, ['debut', 'fin'], true) || $creneau === '') {
+                echo json_encode(['success' => false, 'message' => 'ID, type et créneau requis']);
+                return;
+            }
+
+            $success = $this->schedulesModel->updateSlot($type, $id, $creneau);
+            echo json_encode($success
+                ? ['success' => true, 'message' => 'Créneau modifié']
+                : ['success' => false, 'message' => 'Erreur lors de la modification']);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API : Supprimer un créneau dans la table début ou fin.
+     */
+    public function deleteSlot() {
+        header('Content-Type: application/json');
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+            $id = (int)($input['id'] ?? 0);
+            $type = strtolower(trim((string)($input['type'] ?? '')));
+
+            if ($id <= 0 || !in_array($type, ['debut', 'fin'], true)) {
+                echo json_encode(['success' => false, 'message' => 'ID et type requis']);
+                return;
+            }
+
+            $success = $this->schedulesModel->deleteSlot($type, $id);
+            echo json_encode($success
+                ? ['success' => true, 'message' => 'Créneau supprimé']
+                : ['success' => false, 'message' => 'Erreur lors de la suppression']);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }

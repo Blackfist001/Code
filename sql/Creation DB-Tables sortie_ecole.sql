@@ -38,7 +38,7 @@ CREATE TABLE passages (
     ),
     scan BOOLEAN DEFAULT FALSE,
     manualEncoding BOOLEAN DEFAULT FALSE,
-    demi_journee INT DEFAULT 0,
+    demi_journee_absence INT DEFAULT 0,
     FOREIGN KEY (id_etudiant)
     REFERENCES etudiants(id_etudiant)
 );
@@ -59,8 +59,13 @@ CREATE TABLE matieres (
     matiere VARCHAR(100) NOT NULL UNIQUE
 );
 
-CREATE TABLE creneau_horaire (
-    id_creneau INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE creneau_horaire_debut (
+    id_creneau_debut INT AUTO_INCREMENT PRIMARY KEY,
+    creneau TIME DEFAULT '00:00:00'
+);
+
+CREATE TABLE creneau_horaire_fin (
+    id_creneau_fin INT AUTO_INCREMENT PRIMARY KEY,
     creneau TIME DEFAULT '00:00:00'
 );
 
@@ -73,9 +78,9 @@ CREATE TABLE horaires_cours (
     id_creneau_fin INT NOT NULL,
     salle VARCHAR(20),
     FOREIGN KEY (id_creneau_debut)
-    REFERENCES creneau_horaire(id_creneau),
+    REFERENCES creneau_horaire_debut(id_creneau_debut),
     FOREIGN KEY (id_creneau_fin)
-    REFERENCES creneau_horaire(id_creneau),
+    REFERENCES creneau_horaire_fin(id_creneau_fin),
     FOREIGN KEY (id_matiere)
     REFERENCES matieres(id_matiere)
 );

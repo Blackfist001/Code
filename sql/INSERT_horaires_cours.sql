@@ -149,16 +149,19 @@ FROM tmp_horaires_cours_import t
 LEFT JOIN matieres m ON m.matiere = t.matiere
 WHERE m.id_matiere IS NULL;
 
--- Ajouter les créneaux manquants (debut + fin)
-INSERT INTO creneau_horaire (creneau)
-SELECT c.creneau
-FROM (
-	SELECT DISTINCT heure_debut AS creneau FROM tmp_horaires_cours_import
-	UNION
-	SELECT DISTINCT heure_fin AS creneau FROM tmp_horaires_cours_import
-) c
-LEFT JOIN creneau_horaire ch ON ch.creneau = c.creneau
-WHERE ch.id_creneau IS NULL;
+-- Ajouter les créneaux de début manquants
+INSERT INTO creneau_horaire_debut (creneau)
+SELECT DISTINCT t.heure_debut
+FROM tmp_horaires_cours_import t
+LEFT JOIN creneau_horaire_debut chd ON chd.creneau = t.heure_debut
+WHERE chd.id_creneau_debut IS NULL;
+
+-- Ajouter les créneaux de fin manquants
+INSERT INTO creneau_horaire_fin (creneau)
+SELECT DISTINCT t.heure_fin
+FROM tmp_horaires_cours_import t
+LEFT JOIN creneau_horaire_fin chf ON chf.creneau = t.heure_fin
+WHERE chf.id_creneau_fin IS NULL;
 
 -- Inserer dans la table cible via les IDs de references
 INSERT INTO horaires_cours (id_classe, id_matiere, jour_semaine, id_creneau_debut, id_creneau_fin, salle)
@@ -172,7 +175,7 @@ SELECT
 FROM tmp_horaires_cours_import t
 JOIN classes cl ON cl.classe = t.nom_classe
 JOIN matieres m ON m.matiere = t.matiere
-JOIN creneau_horaire cd ON cd.creneau = t.heure_debut
-JOIN creneau_horaire cf ON cf.creneau = t.heure_fin;
+JOIN creneau_horaire_debut cd ON cd.creneau = t.heure_debut
+JOIN creneau_horaire_fin cf ON cf.creneau = t.heure_fin;
 
 DROP TEMPORARY TABLE IF EXISTS tmp_horaires_cours_import;

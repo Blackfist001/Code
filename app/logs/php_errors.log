@@ -532,3 +532,104 @@ Stack trace:
 [24-Apr-2026 13:58:22 UTC] Login input: {"username":"admin","password":"admin"}
 [24-Apr-2026 13:58:22 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
 [24-Apr-2026 13:58:22 UTC] UsersModel password_verify: true
+[11-May-2026 06:59:57 UTC] AuthController verify called
+[11-May-2026 06:59:57 UTC] Login input: {"username":"edu","password":"edu"}
+[11-May-2026 06:59:57 UTC] UsersModel authenticate: username=edu, user={"id_user":3,"nom":"edu","mot_de_passe":"$2y$10$Px\/TqMu.kdwbgoBsLB8WIu91hnOEbMEhdthwVeoqdeRttkrvSeva6","role":"Surveillant"}
+[11-May-2026 06:59:57 UTC] UsersModel password_verify: true
+[11-May-2026 07:00:09 UTC] Smartschool sync error at login: Serveur Smartschool injoignable (réseau). Synchronisation ignorée.
+[11-May-2026 07:00:34 UTC] AuthController verify called
+[11-May-2026 07:00:34 UTC] Login input: {"username":"gestion","password":"gestion"}
+[11-May-2026 07:00:34 UTC] UsersModel authenticate: username=gestion, user={"id_user":2,"nom":"gestion","mot_de_passe":"$2y$10$5HFwa02tiWIsH6WfJFl\/TeM6eq4nAsIINuo3JrItdhL31exI5h9.W","role":"Gestionnaire"}
+[11-May-2026 07:00:35 UTC] UsersModel password_verify: true
+[11-May-2026 07:19:57 UTC] AuthController verify called
+[11-May-2026 07:19:57 UTC] Login input: {"username":"gestion","password":"gestion"}
+[11-May-2026 07:19:57 UTC] UsersModel authenticate: username=gestion, user={"id_user":2,"nom":"gestion","mot_de_passe":"$2y$10$5HFwa02tiWIsH6WfJFl\/TeM6eq4nAsIINuo3JrItdhL31exI5h9.W","role":"Gestionnaire"}
+[11-May-2026 07:19:57 UTC] UsersModel password_verify: true
+[11-May-2026 07:23:41 UTC] AuthController verify called
+[11-May-2026 07:23:41 UTC] Login input: {"username":"gestion","password":"gestion"}
+[11-May-2026 07:23:41 UTC] UsersModel authenticate: username=gestion, user={"id_user":2,"nom":"gestion","mot_de_passe":"$2y$10$5HFwa02tiWIsH6WfJFl\/TeM6eq4nAsIINuo3JrItdhL31exI5h9.W","role":"Gestionnaire"}
+[11-May-2026 07:23:41 UTC] UsersModel password_verify: true
+[11-May-2026 08:00:54 UTC] AuthController verify called
+[11-May-2026 08:00:54 UTC] Login input: {"username":"gestion","password":"gestion"}
+[11-May-2026 08:00:54 UTC] UsersModel authenticate: username=gestion, user={"id_user":2,"nom":"gestion","mot_de_passe":"$2y$10$5HFwa02tiWIsH6WfJFl\/TeM6eq4nAsIINuo3JrItdhL31exI5h9.W","role":"Gestionnaire"}
+[11-May-2026 08:00:55 UTC] UsersModel password_verify: true
+[11-May-2026 08:01:16 UTC] Smartschool sync error at login: Serveur Smartschool injoignable (réseau). Synchronisation ignorée.
+[11-May-2026 08:08:13 UTC] AuthController verify called
+[11-May-2026 08:08:13 UTC] Login input: {"username":"admin","password":"admin"}
+[11-May-2026 08:08:13 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[11-May-2026 08:08:13 UTC] UsersModel password_verify: true
+[11-May-2026 08:11:45 UTC] AuthController verify called
+[11-May-2026 08:11:45 UTC] Login input: {"username":"gestion","password":"gestion"}
+[11-May-2026 08:11:45 UTC] UsersModel authenticate: username=gestion, user={"id_user":2,"nom":"gestion","mot_de_passe":"$2y$10$5HFwa02tiWIsH6WfJFl\/TeM6eq4nAsIINuo3JrItdhL31exI5h9.W","role":"Gestionnaire"}
+[11-May-2026 08:11:45 UTC] UsersModel password_verify: true
+[11-May-2026 08:18:29 UTC] AuthController verify called
+[11-May-2026 08:18:29 UTC] Login input: {"username":"gestion","password":"gestion"}
+[11-May-2026 08:18:29 UTC] UsersModel authenticate: username=gestion, user={"id_user":2,"nom":"gestion","mot_de_passe":"$2y$10$5HFwa02tiWIsH6WfJFl\/TeM6eq4nAsIINuo3JrItdhL31exI5h9.W","role":"Gestionnaire"}
+[11-May-2026 08:18:30 UTC] UsersModel password_verify: true
+[11-May-2026 08:18:38 UTC] AuthController verify called
+[11-May-2026 08:18:38 UTC] Login input: {"username":"admin","password":"admin"}
+[11-May-2026 08:18:38 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[11-May-2026 08:18:39 UTC] UsersModel password_verify: true
+[11-May-2026 08:27:30 UTC] AuthController verify called
+[11-May-2026 08:27:30 UTC] Login input: {"username":"admin","password":"admin"}
+[11-May-2026 08:27:31 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[11-May-2026 08:27:33 UTC] UsersModel password_verify: true
+[11-May-2026 08:27:45 UTC] Smartschool sync error at login: Serveur Smartschool injoignable (réseau). Synchronisation ignorée.
+[11-May-2026 08:30:35 UTC] AuthController verify called
+[11-May-2026 08:30:35 UTC] Login input: {"username":"admin","password":"admin"}
+[11-May-2026 08:30:35 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[11-May-2026 08:30:35 UTC] UsersModel password_verify: true
+[11-May-2026 09:46:54 UTC] TimeSlotModel::getAll: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'sortie_ecole.creneau_horaire' doesn't exist
+[11-May-2026 09:46:56 UTC] TimeSlotModel::getAllSchedulesWithTimeSlots: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'sortie_ecole.creneau_horaire' doesn't exist
+[11-May-2026 09:46:56 UTC] TimeSlotModel::getAll: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'sortie_ecole.creneau_horaire' doesn't exist
+[11-May-2026 10:10:53 UTC] TimeSlotModel::getAll: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'id_creneau' in 'field list'
+[11-May-2026 10:10:53 UTC] TimeSlotModel::getAll: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'id_creneau' in 'field list'
+[11-May-2026 10:10:53 UTC] TimeSlotModel::getByTime: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'id_creneau' in 'field list'
+[11-May-2026 10:10:53 UTC] TimeSlotModel::getByTime: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'id_creneau' in 'field list'
+[11-May-2026 10:10:53 UTC] TimeSlotModel::getAllSchedulesWithTimeSlots: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'cf.id_creneau' in 'on clause'
+[11-May-2026 10:11:38 UTC] AuthController verify called
+[11-May-2026 10:11:38 UTC] Login input: {"password":"admin","username":"admin"}
+[11-May-2026 10:11:38 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[11-May-2026 10:11:38 UTC] UsersModel password_verify: true
+[11-May-2026 10:11:41 UTC] TimeSlotModel::getAll: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'id_creneau' in 'field list'
+[11-May-2026 10:11:41 UTC] TimeSlotModel::getAll: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'id_creneau' in 'field list'
+[11-May-2026 10:11:41 UTC] TimeSlotModel::getAllSchedulesWithTimeSlots: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'cf.id_creneau' in 'on clause'
+[11-May-2026 10:13:53 UTC] AuthController verify called
+[11-May-2026 10:13:53 UTC] Login input: {"password":"admin","username":"admin"}
+[11-May-2026 10:13:53 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[11-May-2026 10:13:53 UTC] UsersModel password_verify: true
+[11-May-2026 10:14:37 UTC] AuthController verify called
+[11-May-2026 10:14:37 UTC] Login input: {"username":"admin","password":"admin"}
+[11-May-2026 10:14:37 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[11-May-2026 10:14:37 UTC] UsersModel password_verify: true
+[11-May-2026 10:21:13 UTC] addSchedule: SQLSTATE[22001]: String data, right truncated: 1406 Data too long for column 'salle' at row 1
+[11-May-2026 10:22:09 UTC] AuthController verify called
+[11-May-2026 10:22:09 UTC] Login input: {"password":"admin","username":"admin"}
+[11-May-2026 10:22:09 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[11-May-2026 10:22:09 UTC] UsersModel password_verify: true
+[11-May-2026 10:22:40 UTC] AuthController verify called
+[11-May-2026 10:22:40 UTC] Login input: {"password":"admin","username":"admin"}
+[11-May-2026 10:22:40 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[11-May-2026 10:22:40 UTC] UsersModel password_verify: true
+[11-May-2026 10:23:04 UTC] AuthController verify called
+[11-May-2026 10:23:04 UTC] Login input: {"password":"admin","username":"admin"}
+[11-May-2026 10:23:04 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[11-May-2026 10:23:04 UTC] UsersModel password_verify: true
+[11-May-2026 10:50:54 UTC] AuthController verify called
+[11-May-2026 10:50:54 UTC] Login input: {"username":"admin","password":"admin"}
+[11-May-2026 10:50:54 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[11-May-2026 10:50:54 UTC] UsersModel password_verify: true
+[11-May-2026 10:51:03 UTC] Smartschool sync error at login: Smartschool SOAP getClassListJson failed: Could not connect to host
+[11-May-2026 10:52:11 UTC] AuthController verify called
+[11-May-2026 10:52:11 UTC] Login input: {"username":"admin","password":"admin"}
+[11-May-2026 10:52:11 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[11-May-2026 10:52:12 UTC] UsersModel password_verify: true
+[11-May-2026 10:53:26 UTC] AuthController verify called
+[11-May-2026 10:53:26 UTC] Login input: {"username":"admin","password":"admin"}
+[11-May-2026 10:53:26 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[11-May-2026 10:53:26 UTC] UsersModel password_verify: true
+[11-May-2026 10:55:56 UTC] AuthController verify called
+[11-May-2026 10:55:56 UTC] Login input: {"username":"admin","password":"admin"}
+[11-May-2026 10:55:56 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
+[11-May-2026 10:55:56 UTC] UsersModel password_verify: true
+[11-May-2026 13:37:05 UTC] [SECURITY] Access denied: reason=csrf_invalid method=POST uri=/api/logout role=Administrateur ip=::1

@@ -6,6 +6,7 @@ import ManagementStudentsController from "./management/managementStudentsControl
 import ManagementPassagesController from "./management/managementPassagesController.js";
 import ManagementQrCodesController from "./management/managementQrCodesController.js";
 import ManagementSchedulesController from "./management/managementSchedulesController.js";
+import ManagementSlotsController from "./management/managementSlotsController.js";
 import ManagementClassesController from "./management/managementClassesController.js";
 import ManagementMatieresController from "./management/managementMatieresController.js";
 
@@ -23,6 +24,7 @@ export default class ManagementController {
         this.passagesController = new ManagementPassagesController(this, api);
         this.qrCodesController = new ManagementQrCodesController(this, api);
         this.schedulesController = new ManagementSchedulesController(this, api);
+        this.slotsController = new ManagementSlotsController(this, api);
         this.classesController = new ManagementClassesController(this, api);
         this.matieresController = new ManagementMatieresController(this, api);
 
@@ -43,6 +45,9 @@ export default class ManagementController {
 
         ['loadScheduleOptions', 'refreshScheduleOptions', 'loadScheduleSlots', 'loadSchedules', 'addSchedule', 'updateSchedule', 'deleteSchedule']
             .forEach(m => delegate(m, this.schedulesController));
+
+        ['loadSlots', 'addSlot', 'updateSlot', 'deleteSlot']
+            .forEach(m => delegate(m, this.slotsController));
 
         ['loadClasses', 'addClass', 'updateClass', 'deleteClass'].forEach(m => delegate(m, this.classesController));
         ['loadMatieres', 'addMatiere', 'updateMatiere', 'deleteMatiere'].forEach(m => delegate(m, this.matieresController));

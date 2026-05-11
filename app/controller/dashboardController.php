@@ -48,6 +48,24 @@ class DashboardController {
             $refuseCount = $countByStatus('Refusé');
             $absenceJustifieeCount = $countByStatus('Absence justifiée');
             $sortieJustifieeCount = $countByStatus('Sortie justifiée');
+
+            $studentsWithCriticalAbsence = array_values(array_filter($students, function ($student) {
+                return ((int)($student['demi_journee_absence'] ?? 0)) >= 9;
+            }));
+
+            usort($studentsWithCriticalAbsence, function ($a, $b) {
+                return ((int)($b['demi_journee_absence'] ?? 0)) <=> ((int)($a['demi_journee_absence'] ?? 0));
+            });
+
+            $criticalAbsenceStudents = array_map(function ($student) {
+                return [
+                    'id_etudiant' => $student['id_etudiant'] ?? null,
+                    'nom' => $student['nom'] ?? '',
+                    'prenom' => $student['prenom'] ?? '',
+                    'classe' => $student['classe'] ?? '',
+                    'demi_journee_absence' => (int)($student['demi_journee_absence'] ?? 0)
+                ];
+            }, $studentsWithCriticalAbsence);
             
             $stats = [
                 'success' => true,
@@ -62,7 +80,9 @@ class DashboardController {
                 'autorise_count' => $autoriseCount,
                 'refuse_count' => $refuseCount,
                 'absence_justifiee_count' => $absenceJustifieeCount,
-                'sortie_justifiee_count' => $sortieJustifieeCount
+                'sortie_justifiee_count' => $sortieJustifieeCount,
+                'critical_absence_count' => count($criticalAbsenceStudents),
+                'critical_absence_students' => $criticalAbsenceStudents
             ];
             
             echo json_encode($stats);

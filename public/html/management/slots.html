@@ -1,0 +1,40 @@
+<div class="card">
+    <h3>Ajouter un créneau</h3>
+    <p class="slots-help">Choisissez une heure et le type de créneau. Un avertissement apparaît si aucun créneau opposé n'est à 50 minutes.</p>
+    <div class="form-container mgmt-form-inline">
+        <input type="time" id="slot-add-time" class="mgmt-control-auto">
+        <select id="slot-add-type" class="mgmt-control-auto">
+            <option value="debut">Créneau début</option>
+            <option value="fin">Créneau fin</option>
+        </select>
+        <button id="btn-add-slot">Enregistrer</button>
+    </div>
+</div>
+
+<div class="mgmt-slots-grid">
+    <div class="card">
+        <h3>Créneaux début</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Heure</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="slots-debut-body"></tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Créneaux fin</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Heure</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="slots-fin-body"></tbody>
+        </table>
+    </div>
+</div>

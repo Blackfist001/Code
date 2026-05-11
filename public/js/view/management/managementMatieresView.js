@@ -45,8 +45,8 @@ export default class ManagementMatieresView {
             row.innerHTML = `
                 <td>${m.matiere || '---'}</td>
                 <td>
-                    <button class="btn-edit-matiere" data-id="${m.id_matiere}" data-matiere="${m.matiere || ''}">Modifier</button>
-                    <button class="btn-delete-matiere" data-id="${m.id_matiere}">Supprimer</button>
+                    <button class="btn-edit btn-edit-matiere" data-id="${m.id_matiere}" data-matiere="${m.matiere || ''}">Modifier</button>
+                    <button class="btn-delete btn-delete-matiere" data-id="${m.id_matiere}">Supprimer</button>
                 </td>`;
             tbody.appendChild(row);
         });

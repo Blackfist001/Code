@@ -1,4 +1,18 @@
-INSERT INTO creneau_horaire (creneau) VALUES 
+INSERT INTO creneau_horaire_debut (creneau) VALUES 
+('08:15:00'),
+('09:05:00'),
+('09:55:00'),
+('10:10:00'),
+('11:00:00'),
+('11:50:00'),
+('12:40:00'),
+('13:30:00'),
+('14:20:00'),
+('15:10:00'),
+('16:00:00'),
+('16:50:00');
+
+INSERT INTO creneau_horaire_fin (creneau) VALUES 
 ('08:15:00'),
 ('09:05:00'),
 ('09:55:00'),

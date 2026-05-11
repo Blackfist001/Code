@@ -139,6 +139,14 @@ export default class SearchView {
             statutSelect.addEventListener('change', () => this._performSearch());
         }
 
+        const exportCsvBtn = document.getElementById('btn-search-export-csv');
+        if (exportCsvBtn) {
+            exportCsvBtn.addEventListener('click', () => {
+                if (!this.results || this.results.length === 0) return;
+                this._exportCSV();
+            });
+        }
+
         const exportPdfBtn = document.getElementById('btn-search-export-pdf');
         if (exportPdfBtn) {
             exportPdfBtn.addEventListener('click', () => {
@@ -175,6 +183,11 @@ export default class SearchView {
         this.results = Array.isArray(results) ? results : [];
         this.currentPage = 1;
         this._renderResultsPage();
+
+        const exportCsvBtn = document.getElementById('btn-search-export-csv');
+        if (exportCsvBtn) {
+            exportCsvBtn.disabled = this.results.length === 0;
+        }
 
         const exportPdfBtn = document.getElementById('btn-search-export-pdf');
         if (exportPdfBtn) {
@@ -433,5 +446,67 @@ export default class SearchView {
 
         const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
         doc.save(`Recherche_etudiants_${today}.pdf`);
+    }
+
+    /**
+     * Génère et télécharge un CSV de tous les résultats de la recherche courante.
+     */
+    _exportCSV() {
+        if (!this.results || this.results.length === 0) {
+            const msg = document.getElementById('search-message');
+            if (msg) { msg.textContent = 'Aucun résultat à exporter.'; msg.className = 'message message-error'; }
+            return;
+        }
+
+        const headers = ['Date', 'Heure', 'Nom', 'Prénom', 'Classe', 'Demi-journées d\'absences', 'Type', 'Statut', 'Raison'];
+        const rows = [];
+
+        // Directive Excel pour forcer l'utilisation du séparateur ';'
+        rows.push('sep=;');
+
+        // Ajouter les en-têtes
+        rows.push(headers.map(h => `"${h}"`).join(';'));
+
+        // Ajouter les données
+        this.results.forEach(passage => {
+            const row = [
+                passage.date_passage || '---',
+                passage.heure_passage || '---',
+                passage.nom || '---',
+                passage.prenom || '---',
+                passage.classe || '---',
+                String(Number(passage.total_demi_journees) || 0),
+                passage.type_passage || '---',
+                passage.statut || '---',
+                passage.raison || passage.reason || '---'
+            ];
+            rows.push(row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(';'));
+        });
+
+        // Format compatible Excel (locale FR): UTF-16LE + BOM + séparateur ';' + CRLF.
+        const csv = rows.join('\r\n');
+        const utf16LeBytes = new Uint8Array(2 + csv.length * 2);
+        // BOM UTF-16LE
+        utf16LeBytes[0] = 0xFF;
+        utf16LeBytes[1] = 0xFE;
+        for (let i = 0; i < csv.length; i++) {
+            const code = csv.charCodeAt(i);
+            utf16LeBytes[2 + i * 2] = code & 0xFF;
+            utf16LeBytes[2 + i * 2 + 1] = code >> 8;
+        }
+
+        const blob = new Blob([utf16LeBytes], { type: 'text/csv;charset=utf-16le;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `Recherche_etudiants_${today}.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     }
 }

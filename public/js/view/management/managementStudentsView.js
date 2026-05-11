@@ -103,8 +103,8 @@ export default class ManagementStudentsView {
                 <td>${s.autorisation_midi == 1 ? '✓' : '✗'}</td>
                 <td><span class="${demiJourneeClass}">${totalDemiJournees}</span></td>
                 <td>
-                    <button class="btn-edit-student" data-id="${s.id_etudiant}">Modifier</button>
-                    <button class="btn-delete-student" data-id="${s.id_etudiant}">Supprimer</button>
+                    <button class="btn-edit btn-edit-student" data-id="${s.id_etudiant}">Modifier</button>
+                    <button class="btn-delete btn-delete-student" data-id="${s.id_etudiant}">Supprimer</button>
                 </td>`;
             tbody.appendChild(row);
         });

@@ -8,8 +8,23 @@ use Exception;
 class TimeSlotModel {
     private DataBase $db;
 
+    private const TYPE_DEBUT = 'debut';
+    private const TYPE_FIN = 'fin';
+
     public function __construct() {
         $this->db = new DataBase();
+    }
+
+    private function tableForType(string $type): string {
+        return strtolower($type) === self::TYPE_FIN
+            ? 'creneau_horaire_fin'
+            : 'creneau_horaire_debut';
+    }
+
+    private function idColumnForType(string $type): string {
+        return strtolower($type) === self::TYPE_FIN
+            ? 'id_creneau_fin'
+            : 'id_creneau_debut';
     }
 
     private function normalizeTime(string $time): string {
@@ -20,10 +35,12 @@ class TimeSlotModel {
         return $value;
     }
 
-    public function getById(int $id): ?array {
+    public function getById(int $id, string $type = self::TYPE_DEBUT): ?array {
         $pdo = $this->db->getPdo();
         try {
-            $stmt = $pdo->prepare("SELECT id_creneau, creneau FROM creneau_horaire WHERE id_creneau = :id");
+            $table = $this->tableForType($type);
+            $idCol = $this->idColumnForType($type);
+            $stmt = $pdo->prepare("SELECT {$idCol} AS id_creneau, creneau FROM {$table} WHERE {$idCol} = :id");
             $stmt->execute([':id' => $id]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return $result ?: null;
@@ -33,11 +50,13 @@ class TimeSlotModel {
         }
     }
 
-    public function getByTime(string $time): ?array {
+    public function getByTime(string $time, string $type = self::TYPE_DEBUT): ?array {
         $pdo = $this->db->getPdo();
         try {
             $normalized = $this->normalizeTime($time);
-            $stmt = $pdo->prepare("SELECT id_creneau, creneau FROM creneau_horaire WHERE creneau = :creneau");
+            $table = $this->tableForType($type);
+            $idCol = $this->idColumnForType($type);
+            $stmt = $pdo->prepare("SELECT {$idCol} AS id_creneau, creneau FROM {$table} WHERE creneau = :creneau");
             $stmt->execute([':creneau' => $normalized]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return $result ?: null;
@@ -47,28 +66,83 @@ class TimeSlotModel {
         }
     }
 
-    public function resolveId($value): ?int {
+    public function resolveId($value, string $type = self::TYPE_DEBUT): ?int {
         if ($value === null || $value === '') {
             return null;
         }
 
         if (is_numeric($value)) {
-            $row = $this->getById((int)$value);
+            $row = $this->getById((int)$value, $type);
             return $row ? (int)$row['id_creneau'] : null;
         }
 
-        $row = $this->getByTime((string)$value);
+        $row = $this->getByTime((string)$value, $type);
         return $row ? (int)$row['id_creneau'] : null;
     }
 
-    public function getAll(): array {
+    public function getAll(string $type = self::TYPE_DEBUT): array {
         $pdo = $this->db->getPdo();
         try {
-            $stmt = $pdo->query("SELECT id_creneau, creneau FROM creneau_horaire ORDER BY creneau");
+            $table = $this->tableForType($type);
+            $idCol = $this->idColumnForType($type);
+            $stmt = $pdo->query("SELECT {$idCol} AS id_creneau, creneau FROM {$table} ORDER BY creneau");
             return $stmt ? ($stmt->fetchAll(PDO::FETCH_ASSOC) ?: []) : [];
         } catch (Exception $e) {
             error_log('TimeSlotModel::getAll: ' . $e->getMessage());
             return [];
+        }
+    }
+
+    public function getAllGrouped(): array {
+        return [
+            'debut' => $this->getAll(self::TYPE_DEBUT),
+            'fin' => $this->getAll(self::TYPE_FIN),
+        ];
+    }
+
+    public function addSlot(string $type, string $time): bool {
+        $pdo = $this->db->getPdo();
+        $table = $this->tableForType($type);
+        $normalized = $this->normalizeTime($time);
+
+        try {
+            $stmt = $pdo->prepare("INSERT INTO {$table} (creneau) VALUES (:creneau)");
+            $stmt->execute([':creneau' => $normalized]);
+            return $stmt->rowCount() > 0;
+        } catch (Exception $e) {
+            error_log('TimeSlotModel::addSlot: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updateSlot(string $type, int $id, string $time): bool {
+        $pdo = $this->db->getPdo();
+        $table = $this->tableForType($type);
+        $idCol = $this->idColumnForType($type);
+        $normalized = $this->normalizeTime($time);
+
+        try {
+            $stmt = $pdo->prepare("UPDATE {$table} SET creneau = :creneau WHERE {$idCol} = :id");
+            $stmt->execute([':creneau' => $normalized, ':id' => $id]);
+            return $stmt->rowCount() > 0;
+        } catch (Exception $e) {
+            error_log('TimeSlotModel::updateSlot: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function deleteSlot(string $type, int $id): bool {
+        $pdo = $this->db->getPdo();
+        $table = $this->tableForType($type);
+        $idCol = $this->idColumnForType($type);
+
+        try {
+            $stmt = $pdo->prepare("DELETE FROM {$table} WHERE {$idCol} = :id");
+            $stmt->execute([':id' => $id]);
+            return $stmt->rowCount() > 0;
+        } catch (Exception $e) {
+            error_log('TimeSlotModel::deleteSlot: ' . $e->getMessage());
+            return false;
         }
     }
 
@@ -80,8 +154,8 @@ class TimeSlotModel {
                         cd.creneau AS heure_debut, cf.creneau AS heure_fin,
                         m.matiere, hc.salle, hc.jour_semaine
                  FROM horaires_cours hc
-                 LEFT JOIN creneau_horaire cd ON hc.id_creneau_debut = cd.id_creneau
-                 LEFT JOIN creneau_horaire cf ON hc.id_creneau_fin = cf.id_creneau
+                 LEFT JOIN creneau_horaire_debut cd ON hc.id_creneau_debut = cd.id_creneau_debut
+                 LEFT JOIN creneau_horaire_fin cf ON hc.id_creneau_fin = cf.id_creneau_fin
                  LEFT JOIN matieres m ON hc.id_matiere = m.id_matiere
                  WHERE hc.id_classe = :classe_id
                    AND LOWER(hc.jour_semaine) = :jour
@@ -105,8 +179,8 @@ class TimeSlotModel {
             $stmt = $pdo->query(
                 "SELECT hc.*, cd.creneau AS heure_debut, cf.creneau AS heure_fin, m.matiere
                  FROM horaires_cours hc
-                 LEFT JOIN creneau_horaire cd ON hc.id_creneau_debut = cd.id_creneau
-                 LEFT JOIN creneau_horaire cf ON hc.id_creneau_fin = cf.id_creneau
+                 LEFT JOIN creneau_horaire_debut cd ON hc.id_creneau_debut = cd.id_creneau_debut
+                 LEFT JOIN creneau_horaire_fin cf ON hc.id_creneau_fin = cf.id_creneau_fin
                  LEFT JOIN matieres m ON hc.id_matiere = m.id_matiere
                  ORDER BY hc.id_classe, hc.jour_semaine, cd.creneau"
             );

@@ -157,12 +157,9 @@ class UsersModel {
         $stmt = $pdo->prepare("SELECT * FROM utilisateurs WHERE nom = :username");
         $stmt->execute([':username' => $username]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        error_log('UsersModel authenticate: username=' . $username . ', user=' . json_encode($user));
 
         if ($user) {
             $valid = password_verify($password, $user['mot_de_passe']);
-            error_log('UsersModel password_verify: ' . ($valid ? 'true' : 'false'));
 
             if ($valid) {
                 return $user;

@@ -45,8 +45,8 @@ export default class ManagementClassesView {
             row.innerHTML = `
                 <td>${c.classe || '---'}</td>
                 <td>
-                    <button class="btn-edit-class" data-id="${c.id_classe}" data-classe="${c.classe || ''}">Modifier</button>
-                    <button class="btn-delete-class" data-id="${c.id_classe}">Supprimer</button>
+                    <button class="btn-edit btn-edit-class" data-id="${c.id_classe}" data-classe="${c.classe || ''}">Modifier</button>
+                    <button class="btn-delete btn-delete-class" data-id="${c.id_classe}">Supprimer</button>
                 </td>`;
             tbody.appendChild(row);
         });

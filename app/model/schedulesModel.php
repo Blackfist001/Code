@@ -64,8 +64,8 @@ class SchedulesModel {
      * @param mixed $creneauValue ID numérique ou heure (HH:MM)
      * @return int|null null si introuvable
      */
-    private function resolveCreneauId($creneauValue): ?int {
-        return $this->timeSlotModel->resolveId($creneauValue);
+    private function resolveCreneauId($creneauValue, string $type): ?int {
+        return $this->timeSlotModel->resolveId($creneauValue, $type);
     }
 
     /**
@@ -118,7 +118,19 @@ class SchedulesModel {
      * @return array
      */
     public function getAllCreneaux(): array {
-        return $this->timeSlotModel->getAll();
+        return $this->timeSlotModel->getAllGrouped();
+    }
+
+    public function addSlot(string $type, string $creneau): bool {
+        return $this->timeSlotModel->addSlot($type, $creneau);
+    }
+
+    public function updateSlot(string $type, int $id, string $creneau): bool {
+        return $this->timeSlotModel->updateSlot($type, $id, $creneau);
+    }
+
+    public function deleteSlot(string $type, int $id): bool {
+        return $this->timeSlotModel->deleteSlot($type, $id);
     }
 
     /**
@@ -171,8 +183,8 @@ class SchedulesModel {
         $pdo = $this->db->getPdo();
         $classId = $this->resolveClassId($data['id_classe'] ?? ($data['classe'] ?? null));
         $matiereId = $this->resolveMatiereId($data['id_matiere'] ?? ($data['matiere'] ?? null));
-        $creneauDebutId = $this->resolveCreneauId($data['id_creneau_debut'] ?? ($data['heure_debut'] ?? null));
-        $creneauFinId = $this->resolveCreneauId($data['id_creneau_fin'] ?? ($data['heure_fin'] ?? null));
+        $creneauDebutId = $this->resolveCreneauId($data['id_creneau_debut'] ?? ($data['heure_debut'] ?? null), 'debut');
+        $creneauFinId = $this->resolveCreneauId($data['id_creneau_fin'] ?? ($data['heure_fin'] ?? null), 'fin');
         if ($classId === null) {
             throw new \RuntimeException('CLASSE_INTROUVABLE');
         }
@@ -235,7 +247,7 @@ class SchedulesModel {
         }
 
         if (array_key_exists('id_creneau_debut', $data) || array_key_exists('heure_debut', $data)) {
-            $resolvedCreneauDebutId = $this->resolveCreneauId($data['id_creneau_debut'] ?? $data['heure_debut']);
+            $resolvedCreneauDebutId = $this->resolveCreneauId($data['id_creneau_debut'] ?? $data['heure_debut'], 'debut');
             if ($resolvedCreneauDebutId === null) {
                 throw new \RuntimeException('CRENEAU_INTROUVABLE');
             }
@@ -244,7 +256,7 @@ class SchedulesModel {
         }
 
         if (array_key_exists('id_creneau_fin', $data) || array_key_exists('heure_fin', $data)) {
-            $resolvedCreneauFinId = $this->resolveCreneauId($data['id_creneau_fin'] ?? $data['heure_fin']);
+            $resolvedCreneauFinId = $this->resolveCreneauId($data['id_creneau_fin'] ?? $data['heure_fin'], 'fin');
             if ($resolvedCreneauFinId === null) {
                 throw new \RuntimeException('CRENEAU_INTROUVABLE');
             }

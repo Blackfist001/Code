@@ -3,6 +3,7 @@ import ManagementStudentsView from './management/managementStudentsView.js';
 import ManagementPassagesView from './management/managementPassagesView.js';
 import ManagementQrCodesView from './management/managementQrCodesView.js';
 import ManagementSchedulesView from './management/managementSchedulesView.js';
+import ManagementSlotsView from './management/managementSlotsView.js';
 import ManagementClassesView from './management/managementClassesView.js';
 import ManagementMatieresView from './management/managementMatieresView.js';
 
@@ -16,7 +17,8 @@ export default class ManagementView {
         this.controller = controller;
         this.container = document.getElementById('container');
 
-        this._creneaux = [];
+        this._creneauxDebut = [];
+        this._creneauxFin = [];
         this._classes = [];
         this._matieres = [];
 
@@ -25,6 +27,7 @@ export default class ManagementView {
         this.passagesView = new ManagementPassagesView(this);
         this.qrCodesView = new ManagementQrCodesView(this);
         this.schedulesView = new ManagementSchedulesView(this);
+        this.slotsView = new ManagementSlotsView(this);
         this.classesView = new ManagementClassesView(this);
         this.matieresView = new ManagementMatieresView(this);
     }
@@ -39,18 +42,39 @@ export default class ManagementView {
     }
 
     /**
-     * Génère les balises `<option>` HTML pour la liste de créneaux horaires.
+     * Génère les balises `<option>` HTML pour la liste de créneaux de début.
      * @param {number|string} [selectedId=''] - ID du créneau à pré-sélectionner
      * @param {boolean} [includePlaceholder=true] - Inclure un placeholder vide
      * @returns {string} HTML des options
      */
-    _renderCreneauOptions(selectedId = '', includePlaceholder = true) {
+    _renderCreneauDebutOptions(selectedId = '', includePlaceholder = true) {
         const options = [];
         if (includePlaceholder) {
-            options.push('<option value="">-- Créneau --</option>');
+            options.push('<option value="">-- Créneau début --</option>');
         }
 
-        (this._creneaux || []).forEach(c => {
+        (this._creneauxDebut || []).forEach(c => {
+            const id = String(c.id_creneau);
+            const isSelected = String(selectedId || '') === id ? ' selected' : '';
+            options.push(`<option value="${id}"${isSelected}>${this._toHHMM(c.creneau)}</option>`);
+        });
+
+        return options.join('');
+    }
+
+    /**
+     * Génère les balises `<option>` HTML pour la liste de créneaux de fin.
+     * @param {number|string} [selectedId=''] - ID du créneau à pré-sélectionner
+     * @param {boolean} [includePlaceholder=true] - Inclure un placeholder vide
+     * @returns {string} HTML des options
+     */
+    _renderCreneauFinOptions(selectedId = '', includePlaceholder = true) {
+        const options = [];
+        if (includePlaceholder) {
+            options.push('<option value="">-- Créneau fin --</option>');
+        }
+
+        (this._creneauxFin || []).forEach(c => {
             const id = String(c.id_creneau);
             const isSelected = String(selectedId || '') === id ? ' selected' : '';
             options.push(`<option value="${id}"${isSelected}>${this._toHHMM(c.creneau)}</option>`);
@@ -123,12 +147,14 @@ export default class ManagementView {
     }
 
     /**
-     * Stocke la liste des créneaux horaires et met à jour la sous-vue horaires.
-     * @param {Array} [creneaux=[]] - Liste des créneaux
+     * Stocke la liste des créneaux horaires début/fin et met à jour la sous-vue horaires.
+     * @param {{debut?: Array, fin?: Array}} [creneaux={}] - Listes de créneaux
      */
-    setScheduleSlots(creneaux = []) {
-        this._creneaux = Array.isArray(creneaux) ? creneaux : [];
+    setScheduleSlots(creneaux = {}) {
+        this._creneauxDebut = Array.isArray(creneaux?.debut) ? creneaux.debut : [];
+        this._creneauxFin = Array.isArray(creneaux?.fin) ? creneaux.fin : [];
         this.schedulesView.updateSlotOptions();
+        this.displaySlots();
     }
 
     /**
@@ -180,7 +206,7 @@ export default class ManagementView {
      * @param {string} section - Identifiant de section ('passages', 'students', 'users', ...)
      */
     _activateSection(section) {
-        const validSections = ['passages', 'students', 'qrcodes', 'schedules', 'classes', 'matieres', 'users'];
+        const validSections = ['passages', 'students', 'qrcodes', 'schedules', 'slots', 'classes', 'matieres', 'users'];
         const target = validSections.includes(section) ? section : 'passages';
 
         document.querySelectorAll('.gestion-section').forEach(s => {
@@ -194,6 +220,7 @@ export default class ManagementView {
         if (target === 'passages') this.controller.loadPassages();
         if (target === 'qrcodes') this.controller.loadQrCodes();
         if (target === 'schedules') this.controller.loadSchedules();
+        if (target === 'slots') this.controller.loadSlots();
         if (target === 'classes') this.controller.loadClasses();
         if (target === 'matieres') this.controller.loadMatieres();
         if (target === 'users') this.controller.loadUsers();
@@ -208,6 +235,7 @@ export default class ManagementView {
         this.passagesView.bindEvents(this.controller);
         this.qrCodesView.bindEvents(this.controller);
         this.schedulesView.bindEvents(this.controller);
+        this.slotsView.bindEvents(this.controller);
         this.classesView.bindEvents(this.controller);
         this.matieresView.bindEvents(this.controller);
     }
@@ -250,6 +278,13 @@ export default class ManagementView {
      */
     displaySchedules(schedules = []) {
         this.schedulesView.displaySchedules(this.controller, schedules);
+    }
+
+    /**
+     * Délègue l'affichage des créneaux à la sous-vue créneaux.
+     */
+    displaySlots() {
+        this.slotsView.displaySlots(this.controller);
     }
 
     /**

@@ -296,6 +296,84 @@ height:50px;
   max-width: none;
 }
 
+.mgmt-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.mgmt-slots-grid > .card {
+  margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  .mgmt-slots-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.slots-help {
+  margin: 0 0 12px;
+  color: #5a6c7d;
+  font-size: 0.92rem;
+}
+
+.slot-actions-cell {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.slot-actions-cell button {
+  min-width: 88px;
+}
+
+/* Button styles - Unified across all management pages */
+.btn-edit,
+.slot-btn-secondary,
+.btn-edit-schedule,
+.btn-edit-passage,
+.btn-edit-matiere,
+.btn-edit-class,
+.btn-edit-user,
+.btn-edit-student {
+  background: #4f6f8f;
+}
+
+.btn-edit:hover,
+.slot-btn-secondary:hover,
+.btn-edit-schedule:hover,
+.btn-edit-passage:hover,
+.btn-edit-matiere:hover,
+.btn-edit-class:hover,
+.btn-edit-user:hover,
+.btn-edit-student:hover {
+  background: #3f5a74;
+}
+
+.btn-delete,
+.slot-btn-danger,
+.btn-delete-schedule,
+.btn-delete-passage,
+.btn-delete-matiere,
+.btn-delete-class,
+.btn-delete-user,
+.btn-delete-student {
+  background: #c0392b;
+}
+
+.btn-delete:hover,
+.slot-btn-danger:hover,
+.btn-delete-schedule:hover,
+.btn-delete-passage:hover,
+.btn-delete-matiere:hover,
+.btn-delete-class:hover,
+.btn-delete-user:hover,
+.btn-delete-student:hover {
+  background: #992d22;
+}
+
 .mgmt-label-inline {
   margin: 0;
 }
@@ -436,6 +514,139 @@ height:50px;
   background: #fdeeee;
   color: #8a1f1f;
   border: 1px solid #f2c5c5;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 10px;
+}
+
+.stat-item {
+  border: 1px solid #dde5ec;
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: #f8fbff;
+  color: #2c3e50;
+}
+
+.stat-item span {
+  font-weight: 600;
+}
+
+button.stat-item {
+  width: 100%;
+  text-align: left;
+}
+
+.stat-item-alert {
+  background: #fff0f0;
+  border-color: #e8b5b5;
+  color: #9b1c1c;
+}
+
+.stat-item-alert:hover:not(:disabled) {
+  background: #f9dede;
+}
+
+.stat-item-alert:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.dashboard-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 24, 40, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 16px;
+}
+
+.dashboard-modal-overlay.is-open {
+  display: flex;
+}
+
+.dashboard-modal {
+  width: min(960px, 100%);
+  max-height: 88vh;
+  overflow: auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.25);
+}
+
+.dashboard-modal-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #e4e8ee;
+}
+
+.dashboard-modal-header h4 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.dashboard-modal-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dashboard-modal-body {
+  padding: 12px 16px 16px;
+}
+
+.dashboard-critical-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.dashboard-critical-toolbar label {
+  color: #2c3e50;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.dashboard-critical-toolbar select {
+  padding: 6px 8px;
+  border: 1px solid #ccd6e0;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.dashboard-modal-close {
+  background: #7f8c8d;
+}
+
+.dashboard-modal-close:hover {
+  background: #657173;
+}
+
+@media (max-width: 640px) {
+  .dashboard-modal-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dashboard-modal-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .dashboard-modal-actions button {
+    flex: 1;
+    min-width: 120px;
+  }
 }
 
 .list-pagination {

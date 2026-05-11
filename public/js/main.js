@@ -25,25 +25,46 @@ window.onload = function() {
 document.addEventListener('DOMContentLoaded', () => {
     // Délégation d'événements pour la navigation
     document.addEventListener('click', function(event) {
-        // Vérifier si c'est un lien de navigation
-        if (event.target.tagName === 'A') {
-            event.preventDefault();
-            let hrefValue = event.target.getAttribute('href');
-
-            if (!hrefValue) {
-                return;
-            }
-
-            // Normaliser pour logout (avec ou sans slash)
-            if (hrefValue === 'logout' || hrefValue === '/logout') {
-                session.logout();
-                return;
-            }
-
-            // Si chemin absolu, retirer slash
-            let route = hrefValue.startsWith('/') ? hrefValue.slice(1) : hrefValue;
-            window.routeController.navigate(route);
+        // Vérifier si c'est un lien de navigation (ou un élément dans un lien)
+        const link = event.target.closest('a');
+        if (!link) {
+            return;
         }
+
+        const hrefValue = link.getAttribute('href');
+        if (!hrefValue) {
+            return;
+        }
+
+        // Ne pas intercepter les téléchargements/fichiers/blob/urls externes
+        if (
+            link.hasAttribute('download') ||
+            hrefValue.startsWith('blob:') ||
+            hrefValue.startsWith('data:') ||
+            hrefValue.startsWith('mailto:') ||
+            hrefValue.startsWith('tel:') ||
+            hrefValue.startsWith('http://') ||
+            hrefValue.startsWith('https://')
+        ) {
+            return;
+        }
+
+        // Laisser le navigateur gérer les liens ouvrant un nouvel onglet
+        if (link.target === '_blank') {
+            return;
+        }
+
+        event.preventDefault();
+
+        // Normaliser pour logout (avec ou sans slash)
+        if (hrefValue === 'logout' || hrefValue === '/logout') {
+            session.logout();
+            return;
+        }
+
+        // Si chemin absolu, retirer slash
+        const route = hrefValue.startsWith('/') ? hrefValue.slice(1) : hrefValue;
+        window.routeController.navigate(route);
     });
 
     const scanButton = document.getElementById('btn-submit-scan');

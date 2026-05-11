@@ -4,6 +4,7 @@ namespace App\Controller;
 use App\Model\StudentsModel;
 use App\Model\MovementsModel;
 use App\Model\ClassesModel;
+use App\Service\ValidationService;
 use Exception;
 
 class SearchController {
@@ -83,21 +84,37 @@ class SearchController {
     }
 
     /**
+     * Vérifie que l'utilisateur a les rôles requis
+     *
+     * @param array $allowedRoles Rôles autorisés
+     * @throws Exception Si non authentifié ou rôle insuffisant
+     */
+    private function requireRole(...$allowedRoles) {
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            throw new Exception('Non authentifié');
+        }
+        
+        $userRole = $_SESSION['role'] ?? null;
+        if (!in_array($userRole, $allowedRoles)) {
+            http_response_code(403);
+            throw new Exception("Accès refusé: rôle insuffisant (nécessite: " . implode(' ou ', $allowedRoles) . ")");
+        }
+    }
+
+    /**
      * API : Recherche complète (étudiants + passages)
      */
     public function search($params = []) {
         header('Content-Type: application/json');
         
         try {
-            $query = $_GET['q'] ?? '';
+            // Vérifier l'authentification et les rôles
+            $this->requireRole('Gestionnaire', 'Surveillant');
             
-            if (empty($query)) {
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Requête vide'
-                ]);
-                exit;
-            }
+            // Valider et nettoyer la requête
+            $query = $_GET['q'] ?? '';
+            $query = ValidationService::sanitizeSearch($query, 1, 100);
 
             $students = $this->studentsModel->searchStudents($query);
             $movements = $this->movementsModel->searchMovements($query);

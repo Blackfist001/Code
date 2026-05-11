@@ -249,8 +249,8 @@ export default class ManagementPassagesView {
                 <td><span class="status-badge ${sc}">${statut}</span></td>
                 <td><span class="status-badge status-info">${p.raison || p.reason || '---'}</span></td>
                 <td>
-                    <button class="btn-edit-passage" data-id="${p.id_passage}">Modifier</button>
-                    <button class="btn-delete-passage" data-id="${p.id_passage}">Supprimer</button>
+                    <button class="btn-edit btn-edit-passage" data-id="${p.id_passage}">Modifier</button>
+                    <button class="btn-delete btn-delete-passage" data-id="${p.id_passage}">Supprimer</button>
                 </td>`;
             tbody.appendChild(row);
         });

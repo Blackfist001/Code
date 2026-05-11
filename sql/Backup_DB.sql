@@ -320,14 +320,14 @@ CREATE TABLE IF NOT EXISTS `passages` (
   `statut` enum('Autorisé','Refusé','Absence justifiée','Sortie justifiée','Absent','En retard','Présent') DEFAULT NULL,
   `scan` tinyint NOT NULL DEFAULT '0',
   `manualEncoding` tinyint NOT NULL DEFAULT '0',
-  `demi_journee` int DEFAULT '0',
+  `demi_journee_absence` int DEFAULT '0',
   PRIMARY KEY (`id_passage`),
   KEY `id_etudiant` (`id_etudiant`),
   CONSTRAINT `passages_ibfk_1` FOREIGN KEY (`id_etudiant`) REFERENCES `etudiants` (`id_etudiant`)
 ) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Listage des données de la table sortie_ecole.passages : ~7 rows (environ)
-INSERT INTO `passages` (`id_passage`, `id_etudiant`, `date_passage`, `heure_passage`, `type_passage`, `statut`, `scan`, `manualEncoding`, `demi_journee`) VALUES
+INSERT INTO `passages` (`id_passage`, `id_etudiant`, `date_passage`, `heure_passage`, `type_passage`, `statut`, `scan`, `manualEncoding`, `demi_journee_absence`) VALUES
 	(1, 15, '2026-03-30', '14:02:34', 'Sortie midi', 'Refusé', 0, 0, 0),
 	(2, 6, '2026-03-30', '14:05:03', 'Sortie midi', 'Autorisé', 0, 0, 0),
 	(3, 10, '2026-03-30', '14:06:25', 'Entrée matin', 'En retard', 0, 0, 0),
