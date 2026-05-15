@@ -180,6 +180,49 @@ class SchedulesController {
                 'CLASSE_INTROUVABLE'  => "Classe introuvable — vérifiez que la classe sélectionnée existe.",
                 'MATIERE_INTROUVABLE' => "Matière introuvable — vérifiez que la matière sélectionnée existe.",
                 'CRENEAU_INTROUVABLE' => "Créneau horaire introuvable — vérifiez les créneaux sélectionnés.",
+                'LOCAL_INTROUVABLE'   => "Local introuvable — vérifiez le local sélectionné.",
+            ];
+            $msg = $messages[$e->getMessage()] ?? $e->getMessage();
+            echo json_encode(['success' => false, 'message' => $msg]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API : Enregistrer l'ensemble de la grille horaire d'une classe.
+     *
+     * @return void Réponse JSON {success, message, inserted, deleted}
+     */
+    public function saveClassGrid() {
+        header('Content-Type: application/json');
+        try {
+            $input = json_decode(file_get_contents('php://input'), true) ?? [];
+            $hasClasse = !empty($input['id_classe']) || !empty($input['classe']);
+            if (!$hasClasse) {
+                echo json_encode(['success' => false, 'message' => 'Classe requise']);
+                return;
+            }
+
+            if (!isset($input['entries']) || !is_array($input['entries'])) {
+                echo json_encode(['success' => false, 'message' => 'Grille invalide']);
+                return;
+            }
+
+            $result = $this->schedulesModel->saveClassScheduleGrid($input);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Horaire de classe enregistré',
+                'inserted' => $result['inserted'] ?? 0,
+                'deleted' => $result['deleted'] ?? 0,
+            ]);
+        } catch (\RuntimeException $e) {
+            $messages = [
+                'CLASSE_INTROUVABLE'      => 'Classe introuvable.',
+                'MATIERE_INTROUVABLE'     => 'Une matière sélectionnée est introuvable.',
+                'CRENEAU_INTROUVABLE'     => 'Un créneau de début est introuvable.',
+                'CRENEAU_FIN_INTROUVABLE' => 'Aucun créneau de fin trouvé à +50 minutes pour un des créneaux de début.',
+                'JOUR_INVALIDE'           => 'Un jour de la grille est invalide.',
             ];
             $msg = $messages[$e->getMessage()] ?? $e->getMessage();
             echo json_encode(['success' => false, 'message' => $msg]);
@@ -215,6 +258,7 @@ class SchedulesController {
                 'CLASSE_INTROUVABLE'  => "Classe introuvable — vérifiez que la classe sélectionnée existe.",
                 'MATIERE_INTROUVABLE' => "Matière introuvable — vérifiez que la matière sélectionnée existe.",
                 'CRENEAU_INTROUVABLE' => "Créneau horaire introuvable — vérifiez les créneaux sélectionnés.",
+                'LOCAL_INTROUVABLE'   => "Local introuvable — vérifiez le local sélectionné.",
             ];
             $msg = $messages[$e->getMessage()] ?? $e->getMessage();
             echo json_encode(['success' => false, 'message' => $msg]);

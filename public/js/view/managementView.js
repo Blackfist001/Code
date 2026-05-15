@@ -5,7 +5,9 @@ import ManagementQrCodesView from './management/managementQrCodesView.js';
 import ManagementSchedulesView from './management/managementSchedulesView.js';
 import ManagementSlotsView from './management/managementSlotsView.js';
 import ManagementClassesView from './management/managementClassesView.js';
+import ManagementClassroomView from './management/managementClassroomView.js';
 import ManagementMatieresView from './management/managementMatieresView.js';
+import ManagementTeachersView from './management/managementTeachersView.js';
 
 /**
  * Vue principale de la page de gestion.
@@ -20,7 +22,9 @@ export default class ManagementView {
         this._creneauxDebut = [];
         this._creneauxFin = [];
         this._classes = [];
+        this._classrooms = [];
         this._matieres = [];
+        this._teachers = [];
 
         this.usersView = new ManagementUsersView(this);
         this.studentsView = new ManagementStudentsView(this);
@@ -29,7 +33,9 @@ export default class ManagementView {
         this.schedulesView = new ManagementSchedulesView(this);
         this.slotsView = new ManagementSlotsView(this);
         this.classesView = new ManagementClassesView(this);
+        this.classroomView = new ManagementClassroomView(this);
         this.matieresView = new ManagementMatieresView(this);
+        this.teachersView = new ManagementTeachersView(this);
     }
 
     /**
@@ -105,6 +111,27 @@ export default class ManagementView {
     }
 
     /**
+     * Genere les balises `<option>` HTML pour la liste de locaux.
+     * @param {number|string} [selectedId=''] - ID du local a pre-selectionner
+     * @param {boolean} [includePlaceholder=true]
+     * @returns {string} HTML des options
+     */
+    _renderLocalOptions(selectedId = '', includePlaceholder = true) {
+        const options = [];
+        if (includePlaceholder) {
+            options.push('<option value="">-- Local --</option>');
+        }
+
+        (this._classrooms || []).forEach(c => {
+            const id = String(c.id_local);
+            const isSelected = String(selectedId || '') === id ? ' selected' : '';
+            options.push(`<option value="${id}"${isSelected}>${c.local}</option>`);
+        });
+
+        return options.join('');
+    }
+
+    /**
      * Génère les balises `<option>` HTML pour la liste de matières.
      * @param {number|string} [selectedId=''] - ID de la matière à pré-sélectionner
      * @param {boolean} [includePlaceholder=true]
@@ -120,6 +147,28 @@ export default class ManagementView {
             const id = String(m.id_matiere);
             const isSelected = String(selectedId || '') === id ? ' selected' : '';
             options.push(`<option value="${id}"${isSelected}>${m.matiere}</option>`);
+        });
+
+        return options.join('');
+    }
+
+    /**
+     * Génère les balises `<option>` HTML pour la liste des professeurs.
+     * @param {number|string} [selectedId=''] - ID du professeur à pré-sélectionner
+     * @param {boolean} [includePlaceholder=true]
+     * @returns {string} HTML des options
+     */
+    _renderTeacherOptions(selectedId = '', includePlaceholder = true) {
+        const options = [];
+        if (includePlaceholder) {
+            options.push('<option value="">-- Professeur --</option>');
+        }
+
+        (this._teachers || []).forEach(t => {
+            const id = String(t.id_professeur);
+            const isSelected = String(selectedId || '') === id ? ' selected' : '';
+            const label = [t.nom, t.prenom].filter(Boolean).join(' ').trim() || t.username || '---';
+            options.push(`<option value="${id}"${isSelected}>${label}</option>`);
         });
 
         return options.join('');
@@ -144,6 +193,24 @@ export default class ManagementView {
     setScheduleMatieres(matieres = []) {
         this._matieres = Array.isArray(matieres) ? matieres : [];
         this.schedulesView.updateMatiereOptions();
+    }
+
+    /**
+     * Stocke la liste des professeurs et met à jour la sous-vue horaires.
+     * @param {Array} [teachers=[]] - Liste des professeurs
+     */
+    setScheduleTeachers(teachers = []) {
+        this._teachers = Array.isArray(teachers) ? teachers : [];
+        this.schedulesView.updateTeacherOptions();
+    }
+
+    /**
+     * Stocke la liste de locaux et met a jour la sous-vue horaires.
+     * @param {Array} [classrooms=[]] - Liste des locaux
+     */
+    setScheduleClassrooms(classrooms = []) {
+        this._classrooms = Array.isArray(classrooms) ? classrooms : [];
+        this.schedulesView.updateLocalOptions();
     }
 
     /**
@@ -175,7 +242,7 @@ export default class ManagementView {
             const partialPath = section.getAttribute('data-partial');
             if (!partialPath) return;
 
-            const response = await fetch(`html/${partialPath}`);
+            const response = await fetch(`html/${partialPath}`, { cache: 'no-store' });
             if (!response.ok) {
                 throw new Error(`Erreur HTTP ${response.status} sur ${partialPath}`);
             }
@@ -188,7 +255,7 @@ export default class ManagementView {
      * @param {string} [section='passages'] - Section à afficher en premier
      */
     render(section = 'passages') {
-        return fetch('html/management.html')
+        return fetch('html/management.html', { cache: 'no-store' })
             .then(response => response.text())
             .then(data => {
                 this.container.innerHTML = data;
@@ -206,7 +273,7 @@ export default class ManagementView {
      * @param {string} section - Identifiant de section ('passages', 'students', 'users', ...)
      */
     _activateSection(section) {
-        const validSections = ['passages', 'students', 'qrcodes', 'schedules', 'slots', 'classes', 'matieres', 'users'];
+        const validSections = ['passages', 'students', 'qrcodes', 'schedules', 'slots', 'classes', 'classroom', 'matieres', 'teachers', 'users'];
         const target = validSections.includes(section) ? section : 'passages';
 
         document.querySelectorAll('.gestion-section').forEach(s => {
@@ -222,7 +289,9 @@ export default class ManagementView {
         if (target === 'schedules') this.controller.loadSchedules();
         if (target === 'slots') this.controller.loadSlots();
         if (target === 'classes') this.controller.loadClasses();
+        if (target === 'classroom') this.controller.loadClassrooms();
         if (target === 'matieres') this.controller.loadMatieres();
+        if (target === 'teachers') this.controller.loadTeachers();
         if (target === 'users') this.controller.loadUsers();
     }
 
@@ -237,7 +306,9 @@ export default class ManagementView {
         this.schedulesView.bindEvents(this.controller);
         this.slotsView.bindEvents(this.controller);
         this.classesView.bindEvents(this.controller);
+        this.classroomView.bindEvents(this.controller);
         this.matieresView.bindEvents(this.controller);
+        this.teachersView.bindEvents(this.controller);
     }
 
     /**
@@ -296,11 +367,27 @@ export default class ManagementView {
     }
 
     /**
+     * Delègue l'affichage des locaux à la sous-vue locaux.
+     * @param {Array} [classrooms=[]] - Liste des locaux
+     */
+    displayClassrooms(classrooms = []) {
+        this.classroomView.displayClassrooms(this.controller, classrooms);
+    }
+
+    /**
      * Délègue l'affichage des matières à la sous-vue matières.
      * @param {Array} [matieres=[]] - Liste des matières
      */
     displayMatieres(matieres = []) {
         this.matieresView.displayMatieres(this.controller, matieres);
+    }
+
+    /**
+     * Délègue l'affichage des professeurs à la sous-vue professeurs.
+     * @param {Array} [teachers=[]] - Liste des professeurs
+     */
+    displayTeachers(teachers = []) {
+        this.teachersView.displayTeachers(this.controller, teachers);
     }
 
     /**

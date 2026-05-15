@@ -30,6 +30,15 @@ if (!class_exists('DataBase')) {
 				$this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 			} catch (\PDOException $e) {
 				error_log('[SQL] PDO connection error: ' . $e->getMessage());
+
+				$code = (string)$e->getCode();
+				$message = (string)$e->getMessage();
+				if ($code === '2054' || stripos($message, 'auth_gssapi_client') !== false) {
+					error_log('[SQL] Authentication plugin mismatch detected. ' .
+						'Le serveur MySQL demande auth_gssapi_client, non supporte par ce client PDO. ' .
+						'Verifiez DB_USER/DB_PASS charges en production (fichier .env ou variables IIS) et utilisez un utilisateur MySQL avec mysql_native_password (ou un plugin supporte par le driver PHP).');
+				}
+
 				throw $e;
 			}
 		}

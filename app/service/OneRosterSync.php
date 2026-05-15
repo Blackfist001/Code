@@ -69,6 +69,7 @@ namespace App\Service;
 
 use App\Core\DataBase;
 use App\Model\ClassesModel;
+use App\Model\ClassroomModel;
 use App\Model\CourseModel;
 use App\Model\StudentsModel;
 use App\Model\TeachersModel;
@@ -80,6 +81,7 @@ class OneRosterSync {
     private StudentsModel $studentsModel;
     private TeachersModel $teachersModel;
     private ClassesModel $classesModel;
+    private ClassroomModel $classroomModel;
     private CourseModel $courseModel;
     private TimeSlotModel $timeSlotModel;
     private DataBase $db;
@@ -91,6 +93,7 @@ class OneRosterSync {
         $this->studentsModel = new StudentsModel();
         $this->teachersModel = new TeachersModel();
         $this->classesModel = new ClassesModel();
+        $this->classroomModel = new ClassroomModel();
         $this->courseModel = new CourseModel();
         $this->timeSlotModel = new TimeSlotModel();
         $this->db = new DataBase();
@@ -397,10 +400,10 @@ class OneRosterSync {
             'jour_semaine' => $day,
             'heure_debut' => $startTime,
             'heure_fin' => $endTime,
-            'salle' => $this->firstNonEmptyString([
+            'local' => $this->firstNonEmptyString([
                 $row['room'] ?? null,
                 $row['location'] ?? null,
-                $row['salle'] ?? null,
+                $row['local'] ?? null,
             ]),
             'teacher_sourcedId' => $teacherSourcedId,
         ];
@@ -483,8 +486,8 @@ class OneRosterSync {
         $debutId = $this->ensureCreneauId((string)$schedule['heure_debut'], 'debut');
         $finId = $this->ensureCreneauId((string)$schedule['heure_fin'], 'fin');
 
-        $stmt = $pdo->prepare(
-            "SELECT id, salle" . ($this->hasProfessorColumn() ? ", id_professeur" : "") . "
+                $stmt = $pdo->prepare(
+                        "SELECT id, id_local" . ($this->hasProfessorColumn() ? ", id_professeur" : "") . "
              FROM horaires_cours
              WHERE id_classe = :id_classe
                AND id_matiere = :id_matiere
@@ -503,40 +506,40 @@ class OneRosterSync {
         ]);
 
         $existing = $stmt->fetch(PDO::FETCH_ASSOC);
-        $salle = $schedule['salle'] ?? null;
+        $localId = $this->ensureLocalId($schedule['local'] ?? null);
 
         if ($existing) {
-            $currentSalle = $existing['salle'] ?? null;
+            $currentLocalId = $existing['id_local'] ?? null;
             $currentTeacherId = $this->hasProfessorColumn() ? ($existing['id_professeur'] ?? null) : null;
 
-            $isSameSalle = (string)($currentSalle ?? '') === (string)($salle ?? '');
+            $isSameLocal = (string)($currentLocalId ?? '') === (string)($localId ?? '');
             $isSameTeacher = !$this->hasProfessorColumn() || (string)($currentTeacherId ?? '') === (string)($teacherId ?? '');
 
-            if ($isSameSalle && $isSameTeacher) {
+            if ($isSameLocal && $isSameTeacher) {
                 return 'unchanged';
             }
 
             if ($this->hasProfessorColumn()) {
                 $update = $pdo->prepare(
                     "UPDATE horaires_cours
-                     SET salle = :salle, id_professeur = :id_professeur
+                     SET id_local = :id_local, id_professeur = :id_professeur
                      WHERE id = :id"
                 );
 
                 $update->execute([
-                    ':salle' => $salle,
+                    ':id_local' => $localId,
                     ':id_professeur' => $teacherId,
                     ':id' => $existing['id'],
                 ]);
             } else {
                 $update = $pdo->prepare(
                     "UPDATE horaires_cours
-                     SET salle = :salle
+                     SET id_local = :id_local
                      WHERE id = :id"
                 );
 
                 $update->execute([
-                    ':salle' => $salle,
+                    ':id_local' => $localId,
                     ':id' => $existing['id'],
                 ]);
             }
@@ -547,16 +550,16 @@ class OneRosterSync {
         if ($this->hasProfessorColumn()) {
             $insert = $pdo->prepare(
                 "INSERT INTO horaires_cours
-                (jour_semaine, id_creneau_debut, id_creneau_fin, salle, id_matiere, id_classe, id_professeur)
+                (jour_semaine, id_creneau_debut, id_creneau_fin, id_local, id_matiere, id_classe, id_professeur)
                 VALUES
-                (:jour_semaine, :id_creneau_debut, :id_creneau_fin, :salle, :id_matiere, :id_classe, :id_professeur)"
+                (:jour_semaine, :id_creneau_debut, :id_creneau_fin, :id_local, :id_matiere, :id_classe, :id_professeur)"
             );
 
             $insert->execute([
                 ':jour_semaine' => $schedule['jour_semaine'],
                 ':id_creneau_debut' => $debutId,
                 ':id_creneau_fin' => $finId,
-                ':salle' => $salle,
+                ':id_local' => $localId,
                 ':id_matiere' => $matiereId,
                 ':id_classe' => $classId,
                 ':id_professeur' => $teacherId,
@@ -564,16 +567,16 @@ class OneRosterSync {
         } else {
             $insert = $pdo->prepare(
                 "INSERT INTO horaires_cours
-                (jour_semaine, id_creneau_debut, id_creneau_fin, salle, id_matiere, id_classe)
+                (jour_semaine, id_creneau_debut, id_creneau_fin, id_local, id_matiere, id_classe)
                 VALUES
-                (:jour_semaine, :id_creneau_debut, :id_creneau_fin, :salle, :id_matiere, :id_classe)"
+                (:jour_semaine, :id_creneau_debut, :id_creneau_fin, :id_local, :id_matiere, :id_classe)"
             );
 
             $insert->execute([
                 ':jour_semaine' => $schedule['jour_semaine'],
                 ':id_creneau_debut' => $debutId,
                 ':id_creneau_fin' => $finId,
-                ':salle' => $salle,
+                ':id_local' => $localId,
                 ':id_matiere' => $matiereId,
                 ':id_classe' => $classId,
             ]);
@@ -640,6 +643,30 @@ class OneRosterSync {
         }
 
         return (int)$created['id_matiere'];
+    }
+
+    private function ensureLocalId(?string $local): ?int {
+        if ($local === null) {
+            return null;
+        }
+
+        $normalized = trim($local);
+        if ($normalized === '') {
+            return null;
+        }
+
+        $existing = $this->classroomModel->getClassroomByName($normalized);
+        if ($existing) {
+            return (int)$existing['id_local'];
+        }
+
+        $this->classroomModel->addClassroom(['local' => $normalized]);
+        $created = $this->classroomModel->getClassroomByName($normalized);
+        if (!$created) {
+            throw new \RuntimeException('Creation de local impossible: ' . $normalized);
+        }
+
+        return (int)$created['id_local'];
     }
 
     private function ensureCreneauId(string $time, string $type): int {

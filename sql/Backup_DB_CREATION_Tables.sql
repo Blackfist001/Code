@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS `creneau_horaire_debut` (
   `id_creneau_debut` int NOT NULL AUTO_INCREMENT,
   `creneau` time DEFAULT '00:00:00',
   PRIMARY KEY (`id_creneau_debut`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `creneau_horaire_fin` (
   `id_creneau_fin` int NOT NULL AUTO_INCREMENT,
   `creneau` time DEFAULT '00:00:00',
   PRIMARY KEY (`id_creneau_fin`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `etudiants` (
 CREATE TABLE IF NOT EXISTS `horaires_cours` (
   `id` int NOT NULL AUTO_INCREMENT,
   `jour_semaine` varchar(10) NOT NULL,
-  `salle` varchar(20) DEFAULT NULL,
+  `id_local` int DEFAULT NULL,
   `id_matiere` int NOT NULL,
   `id_classe` int NOT NULL,
   `id_creneau_debut` int NOT NULL,
@@ -87,12 +87,23 @@ CREATE TABLE IF NOT EXISTS `horaires_cours` (
   KEY `fk_horaires_creneau_debut` (`id_creneau_debut`),
   KEY `fk_horaires_professeur` (`id_professeur`),
   KEY `id_creneau_fins` (`id_creneau_fin`) USING BTREE,
+  KEY `id_local` (`id_local`),
   CONSTRAINT `fk_horaires_classe` FOREIGN KEY (`id_classe`) REFERENCES `classes` (`id_classe`),
   CONSTRAINT `fk_horaires_creneau_debut` FOREIGN KEY (`id_creneau_debut`) REFERENCES `creneau_horaire_debut` (`id_creneau_debut`),
   CONSTRAINT `fk_horaires_creneau_fin` FOREIGN KEY (`id_creneau_fin`) REFERENCES `creneau_horaire_fin` (`id_creneau_fin`),
+  CONSTRAINT `fk_horaires_local` FOREIGN KEY (`id_local`) REFERENCES `locaux` (`id_local`),
   CONSTRAINT `fk_horaires_matiere` FOREIGN KEY (`id_matiere`) REFERENCES `matieres` (`id_matiere`),
   CONSTRAINT `fk_horaires_professeur` FOREIGN KEY (`id_professeur`) REFERENCES `professeurs` (`id_professeur`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=129 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=139 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table sortie_ecole. locaux
+CREATE TABLE IF NOT EXISTS `locaux` (
+  `id_local` int NOT NULL AUTO_INCREMENT,
+  `local` varchar(10) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id_local`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -298,15 +309,6 @@ CREATE TABLE IF NOT EXISTS `professeurs` (
   PRIMARY KEY (`id_professeur`),
   UNIQUE KEY `uq_professeurs_sourcedId` (`sourcedId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- Les données exportées n'étaient pas sélectionnées.
-
--- Listage de la structure de table sortie_ecole. salles
-CREATE TABLE IF NOT EXISTS `salles` (
-  `id_salle` int NOT NULL AUTO_INCREMENT,
-  `salle` varchar(20) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id_salle`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 

@@ -151,12 +151,15 @@ class TimeSlotModel {
         try {
             $stmt = $pdo->prepare(
                 "SELECT hc.id_classe, hc.id_matiere, hc.id_creneau_debut, hc.id_creneau_fin,
+                                                hc.id_local,
+                                                                                                hc.id_professeur,
                         cd.creneau AS heure_debut, cf.creneau AS heure_fin,
-                        m.matiere, hc.salle, hc.jour_semaine
+                                                m.matiere, l.local, hc.jour_semaine
                  FROM horaires_cours hc
                  LEFT JOIN creneau_horaire_debut cd ON hc.id_creneau_debut = cd.id_creneau_debut
                  LEFT JOIN creneau_horaire_fin cf ON hc.id_creneau_fin = cf.id_creneau_fin
                  LEFT JOIN matieres m ON hc.id_matiere = m.id_matiere
+                                 LEFT JOIN locaux l ON hc.id_local = l.id_local
                  WHERE hc.id_classe = :classe_id
                    AND LOWER(hc.jour_semaine) = :jour
                  ORDER BY cd.creneau"
@@ -177,11 +180,13 @@ class TimeSlotModel {
         $pdo = $this->db->getPdo();
         try {
             $stmt = $pdo->query(
-                "SELECT hc.*, cd.creneau AS heure_debut, cf.creneau AS heure_fin, m.matiere
+                "SELECT hc.*, l.local, cd.creneau AS heure_debut, cf.creneau AS heure_fin, m.matiere, p.nom AS professeur_nom, p.prenom AS professeur_prenom, p.username AS professeur_username
                  FROM horaires_cours hc
                  LEFT JOIN creneau_horaire_debut cd ON hc.id_creneau_debut = cd.id_creneau_debut
                  LEFT JOIN creneau_horaire_fin cf ON hc.id_creneau_fin = cf.id_creneau_fin
                  LEFT JOIN matieres m ON hc.id_matiere = m.id_matiere
+                 LEFT JOIN locaux l ON hc.id_local = l.id_local
+                 LEFT JOIN professeurs p ON hc.id_professeur = p.id_professeur
                  ORDER BY hc.id_classe, hc.jour_semaine, cd.creneau"
             );
             return $stmt ? ($stmt->fetchAll(PDO::FETCH_ASSOC) ?: []) : [];

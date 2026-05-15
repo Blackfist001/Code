@@ -10,6 +10,21 @@ class API {
         this.csrfTokenPromise = null;
     }
 
+    shouldAttachCsrf(endpoint, method) {
+        const normalizedEndpoint = String(endpoint || '').split('?')[0].replace(/^\/+/, '');
+
+        if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+            return false;
+        }
+
+        // Endpoints publics exclus du contrôle CSRF côté backend.
+        if (normalizedEndpoint === 'login' || normalizedEndpoint === 'csrf-token') {
+            return false;
+        }
+
+        return true;
+    }
+
     async ensureCsrfToken() {
         if (this.csrfToken) {
             return this.csrfToken;
@@ -50,28 +65,58 @@ class API {
     async request(endpoint, options = {}) {
         const url = `${this.baseUrl}/${endpoint}`;
         const method = (options.method || 'GET').toUpperCase();
-        const stateChangingMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
+        let requestBody = options.body;
 
         const headers = {
             'Content-Type': 'application/json',
             ...options.headers
         };
 
-        if (stateChangingMethods.includes(method)) {
+        if (this.shouldAttachCsrf(endpoint, method)) {
             const csrfToken = await this.ensureCsrfToken();
             headers['X-CSRF-Token'] = csrfToken;
+
+            // Fallback IIS/FastCGI : envoyer aussi le token dans le body JSON.
+            if (typeof requestBody === 'string' && requestBody.trim() !== '') {
+                try {
+                    const parsedBody = JSON.parse(requestBody);
+                    if (parsedBody && typeof parsedBody === 'object' && !Array.isArray(parsedBody)) {
+                        parsedBody.csrf_token = csrfToken;
+                        requestBody = JSON.stringify(parsedBody);
+                    }
+                } catch (_) {
+                    // Body non JSON: on conserve tel quel.
+                }
+            } else if (!requestBody) {
+                requestBody = JSON.stringify({ csrf_token: csrfToken });
+            }
         }
 
         const fetchOptions = {
             method,
             headers,
-            credentials: 'same-origin'
+            credentials: 'same-origin',
+            ...options,
+            body: requestBody,
+            headers
         };
 
         try {
-            const response = await fetch(url, { ...fetchOptions, ...options });
+            const response = await fetch(url, fetchOptions);
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                let backendMessage = '';
+                try {
+                    const errorData = await response.json();
+                    backendMessage = errorData?.error || errorData?.message || '';
+                } catch (_) {
+                    backendMessage = '';
+                }
+
+                throw new Error(
+                    backendMessage
+                        ? `HTTP ${response.status}: ${backendMessage}`
+                        : `HTTP error! status: ${response.status}`
+                );
             }
             // Si c'est un export CSV, retourner le blob
             if (endpoint.startsWith('export/csv')) {
@@ -298,6 +343,56 @@ class API {
         });
     }
 
+    async getAllClassrooms() {
+        return this.request('classroom');
+    }
+
+    async getAllTeachers() {
+        return this.request('teachers');
+    }
+
+    async addTeacher(data) {
+        return this.request('teachers/add', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    async updateTeacher(id, data) {
+        return this.request('teachers/update', {
+            method: 'POST',
+            body: JSON.stringify({ id, ...data })
+        });
+    }
+
+    async deleteTeacher(id) {
+        return this.request('teachers/delete', {
+            method: 'POST',
+            body: JSON.stringify({ id })
+        });
+    }
+
+    async addClassroom(data) {
+        return this.request('classroom/add', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    async updateClassroom(id, data) {
+        return this.request('classroom/update', {
+            method: 'POST',
+            body: JSON.stringify({ id, ...data })
+        });
+    }
+
+    async deleteClassroom(id) {
+        return this.request('classroom/delete', {
+            method: 'POST',
+            body: JSON.stringify({ id })
+        });
+    }
+
     async getAllMatieres() {
         return this.request('matieres');
     }
@@ -375,14 +470,30 @@ class API {
         });
     }
 
+    async saveClassScheduleGrid(data) {
+        return this.request('schedules/save-class-grid', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
     /**
      * Authentification
      */
     async login(username, password) {
-        return this.request('login', {
+        const response = await this.request('login', {
             method: 'POST',
             body: JSON.stringify({ username, password })
         });
+
+        // Le backend effectue une rotation du token CSRF après login.
+        // Invalider le cache local force un refresh du token pour les prochains POST.
+        if (response?.success) {
+            this.csrfToken = null;
+            this.csrfTokenPromise = null;
+        }
+
+        return response;
     }
 
     /**

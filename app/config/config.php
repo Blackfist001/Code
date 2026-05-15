@@ -12,11 +12,30 @@ if (class_exists(\Dotenv\Dotenv::class)) {
     }
 }
 
-$dbHost = $_ENV['DB_HOST'] ?? 'localhost';
-$dbName = $_ENV['DB_NAME'] ?? 'sortie_ecole';
+$env = static function (string $key, $default = null) {
+    if (array_key_exists($key, $_ENV) && $_ENV[$key] !== '') {
+        return $_ENV[$key];
+    }
+
+    if (array_key_exists($key, $_SERVER) && $_SERVER[$key] !== '') {
+        return $_SERVER[$key];
+    }
+
+    $value = getenv($key);
+    if ($value !== false && $value !== '') {
+        return $value;
+    }
+
+    return $default;
+};
+
+$dbHost = $env('DB_HOST', 'localhost');
+$dbName = $env('DB_NAME', 'sortie_ecole');
+$dbPort = $env('DB_PORT', '3306');
+$dbCharset = $env('DB_CHARSET', 'utf8');
 
 return [
-    'dsn' => 'mysql:host=' . $dbHost . ';dbname=' . $dbName . ';port=3306;charset=utf8',
-    'user' => $_ENV['DB_USER'] ?? 'root',
-    'pass' => $_ENV['DB_PASS'] ?? '',
+    'dsn' => 'mysql:host=' . $dbHost . ';dbname=' . $dbName . ';port=' . $dbPort . ';charset=' . $dbCharset,
+    'user' => $env('DB_USER', 'root'),
+    'pass' => $env('DB_PASS', ''),
 ];

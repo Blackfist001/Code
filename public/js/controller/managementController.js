@@ -8,7 +8,9 @@ import ManagementQrCodesController from "./management/managementQrCodesControlle
 import ManagementSchedulesController from "./management/managementSchedulesController.js";
 import ManagementSlotsController from "./management/managementSlotsController.js";
 import ManagementClassesController from "./management/managementClassesController.js";
+import ManagementClassroomController from "./management/managementClassroomController.js";
 import ManagementMatieresController from "./management/managementMatieresController.js";
+import ManagementTeachersController from "./management/managementTeachersController.js";
 
 /**
  * Contrôleur principal de la page de gestion.
@@ -26,7 +28,9 @@ export default class ManagementController {
         this.schedulesController = new ManagementSchedulesController(this, api);
         this.slotsController = new ManagementSlotsController(this, api);
         this.classesController = new ManagementClassesController(this, api);
+        this.classroomController = new ManagementClassroomController(this, api);
         this.matieresController = new ManagementMatieresController(this, api);
+        this.teachersController = new ManagementTeachersController(this, api);
 
         // Garde les mêmes points d'entrée publics qu'avant pour éviter les régressions.
         const delegate = (methodName, sectionController) => {
@@ -43,14 +47,17 @@ export default class ManagementController {
 
         ['loadQrCodes'].forEach(m => delegate(m, this.qrCodesController));
 
-        ['loadScheduleOptions', 'refreshScheduleOptions', 'loadScheduleSlots', 'loadSchedules', 'addSchedule', 'updateSchedule', 'deleteSchedule']
+        ['loadScheduleOptions', 'refreshScheduleOptions', 'loadScheduleSlots', 'loadSchedules', 'addSchedule', 'updateSchedule', 'deleteSchedule', 'saveClassScheduleGrid']
             .forEach(m => delegate(m, this.schedulesController));
 
         ['loadSlots', 'addSlot', 'updateSlot', 'deleteSlot']
             .forEach(m => delegate(m, this.slotsController));
 
         ['loadClasses', 'addClass', 'updateClass', 'deleteClass'].forEach(m => delegate(m, this.classesController));
+        ['loadClassrooms', 'addClassroom', 'updateClassroom', 'deleteClassroom'].forEach(m => delegate(m, this.classroomController));
         ['loadMatieres', 'addMatiere', 'updateMatiere', 'deleteMatiere'].forEach(m => delegate(m, this.matieresController));
+        ['loadTeachers', 'addTeacher', 'updateTeacher', 'deleteTeacher']
+            .forEach(m => delegate(m, this.teachersController));
     }
 
     /**

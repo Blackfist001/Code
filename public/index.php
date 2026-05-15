@@ -1,13 +1,16 @@
 <?php
+date_default_timezone_set('Europe/Brussels');
+
 header('Content-Type: text/html; charset=utf-8');
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 header('X-XSS-Protection: 1; mode=block');
-header("Permissions-Policy: geolocation=(), microphone=(), camera=(), usb=(), vr=()");
+header("Permissions-Policy: geolocation=(), microphone=(), camera=(self), usb=(), vr=()");
 
 $csp = "default-src 'self'; "
-	. "script-src 'self' 'unsafe-inline' cdn.jsdelivr.net qrserver.com; "
+	. "script-src 'self' 'unsafe-inline' blob: cdn.jsdelivr.net qrserver.com; "
+	. "worker-src 'self' blob:; "
 	. "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net; "
 	. "img-src 'self' data: https:; "
 	. "font-src 'self' cdn.jsdelivr.net; "

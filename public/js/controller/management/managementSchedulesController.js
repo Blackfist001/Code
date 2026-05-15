@@ -13,17 +13,23 @@ export default class ManagementSchedulesController {
      */
     async loadScheduleOptions() {
         try {
-            const [classesResponse, matieresResponse] = await Promise.all([
+            const [classesResponse, matieresResponse, classroomsResponse, teachersResponse] = await Promise.all([
                 this.api.getAllClasses(),
                 this.api.getAllMatieres(),
+                this.api.getAllClassrooms(),
+                this.api.getAllTeachers(),
             ]);
 
             this.parent.view.setScheduleClasses(classesResponse.success ? classesResponse.results : []);
             this.parent.view.setScheduleMatieres(matieresResponse.success ? matieresResponse.results : []);
+            this.parent.view.setScheduleClassrooms(classroomsResponse.success ? classroomsResponse.results : []);
+            this.parent.view.setScheduleTeachers(teachersResponse.success ? teachersResponse.results : []);
         } catch (error) {
             console.error('Erreur loadScheduleOptions:', error);
             this.parent.view.setScheduleClasses([]);
             this.parent.view.setScheduleMatieres([]);
+            this.parent.view.setScheduleClassrooms([]);
+            this.parent.view.setScheduleTeachers([]);
         }
     }
 
@@ -115,6 +121,26 @@ export default class ManagementSchedulesController {
             }
         } catch (error) {
             console.error('Erreur deleteSchedule:', error);
+        }
+    }
+
+    /**
+     * Enregistre toute la grille horaire d'une classe (écrasement des horaires existants de la classe).
+     * @param {{id_classe:number|string, entries:Array}} payload
+     * @returns {Promise<void>}
+     */
+    async saveClassScheduleGrid(payload) {
+        try {
+            const response = await this.api.saveClassScheduleGrid(payload);
+            if (response.success) {
+                await this.loadSchedules();
+                alert(response.message || 'Horaire de classe enregistré');
+            } else {
+                alert(response.message || 'Erreur lors de l\'enregistrement de la grille');
+            }
+        } catch (error) {
+            console.error('Erreur saveClassScheduleGrid:', error);
+            alert('Erreur lors de l\'enregistrement de la grille.');
         }
     }
 }

@@ -8,13 +8,17 @@ use Exception;
 class SchedulesModel {
     private DataBase $db;
     private ClassesModel $classesModel;
+    private ClassroomModel $classroomModel;
     private CourseModel $courseModel;
+    private TeachersModel $teachersModel;
     private TimeSlotModel $timeSlotModel;
 
     public function __construct() {
         $this->db = new DataBase();
         $this->classesModel = new ClassesModel();
+        $this->classroomModel = new ClassroomModel();
         $this->courseModel = new CourseModel();
+        $this->teachersModel = new TeachersModel();
         $this->timeSlotModel = new TimeSlotModel();
     }
 
@@ -84,6 +88,11 @@ class SchedulesModel {
                 $matiere = $this->courseModel->getMatiereById((int)$schedule['id_matiere']);
                 $schedule['matiere'] = $matiere['matiere'] ?? null;
             }
+
+            if (!isset($schedule['professeur']) && isset($schedule['id_professeur'])) {
+                $teacher = $this->teachersModel->getTeacherById((int)$schedule['id_professeur']);
+                $schedule['professeur'] = trim(($teacher['nom'] ?? '') . ' ' . ($teacher['prenom'] ?? '')) ?: ($teacher['username'] ?? null);
+            }
         }
         unset($schedule);
 
@@ -151,6 +160,195 @@ class SchedulesModel {
     }
 
     /**
+     * Resout une valeur (id ou nom) en identifiant de local.
+     *
+     * @param mixed $localValue
+     * @return int|null
+     */
+    private function resolveLocalId($localValue): ?int {
+        if ($localValue === null || $localValue === '') {
+            return null;
+        }
+
+        if (is_numeric($localValue)) {
+            $classroom = $this->classroomModel->getClassroomById((int)$localValue);
+            return $classroom ? (int)$classroom['id_local'] : null;
+        }
+
+        $classroom = $this->classroomModel->getClassroomByName((string)$localValue);
+        return $classroom ? (int)$classroom['id_local'] : null;
+    }
+
+    /**
+     * Résout une valeur (id ou nom affiché) en identifiant de professeur.
+     *
+     * @param mixed $teacherValue
+     * @return int|null
+     */
+    private function resolveTeacherId($teacherValue): ?int {
+        if ($teacherValue === null || $teacherValue === '') {
+            return null;
+        }
+
+        if (is_numeric($teacherValue)) {
+            $teacher = $this->teachersModel->getTeacherById((int)$teacherValue);
+            return $teacher ? (int)$teacher['id_professeur'] : null;
+        }
+
+        $teacherValue = trim((string)$teacherValue);
+        if ($teacherValue === '') {
+            return null;
+        }
+
+        foreach ($this->teachersModel->getAllTeachers() as $teacher) {
+            $fullName = trim(($teacher['nom'] ?? '') . ' ' . ($teacher['prenom'] ?? ''));
+            if ($fullName !== '' && strcasecmp($fullName, $teacherValue) === 0) {
+                return (int)$teacher['id_professeur'];
+            }
+
+            if (!empty($teacher['username']) && strcasecmp((string)$teacher['username'], $teacherValue) === 0) {
+                return (int)$teacher['id_professeur'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Trouve le créneau de fin correspondant à +50 minutes du créneau de début.
+     *
+     * @param int $startSlotId
+     * @return int|null
+     */
+    private function findEndSlotIdPlus50Minutes(int $startSlotId): ?int {
+        $startRow = $this->timeSlotModel->getById($startSlotId, 'debut');
+        $startTime = $startRow['creneau'] ?? null;
+        if (!is_string($startTime) || $startTime === '') {
+            return null;
+        }
+
+        $date = \DateTime::createFromFormat('H:i:s', $startTime)
+            ?: \DateTime::createFromFormat('H:i', $startTime);
+
+        if (!$date) {
+            return null;
+        }
+
+        $endTime = $date->modify('+50 minutes')->format('H:i:s');
+        $endRow = $this->timeSlotModel->getByTime($endTime, 'fin');
+        if (!$endRow) {
+            return null;
+        }
+
+        return (int)($endRow['id_creneau'] ?? 0) ?: null;
+    }
+
+    /**
+     * Remplace l'horaire complet d'une classe à partir d'une grille hebdomadaire.
+     * Chaque cellule contient un couple (jour, créneau début) et éventuellement une matière.
+     * Le créneau de fin est calculé automatiquement à +50 minutes.
+     *
+     * @param array $data
+     * @return array{deleted:int, inserted:int}
+     */
+    public function saveClassScheduleGrid(array $data): array {
+        $pdo = $this->db->getPdo();
+        $classId = $this->resolveClassId($data['id_classe'] ?? ($data['classe'] ?? null));
+        if ($classId === null) {
+            throw new \RuntimeException('CLASSE_INTROUVABLE');
+        }
+
+        $entries = is_array($data['entries'] ?? null) ? $data['entries'] : [];
+        $allowedDays = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+        $prepared = [];
+
+        foreach ($entries as $entry) {
+            if (!is_array($entry)) {
+                continue;
+            }
+
+            $matiereRaw = $entry['id_matiere'] ?? ($entry['matiere'] ?? null);
+            if ($matiereRaw === null || $matiereRaw === '') {
+                // Cellule vide: rien à enregistrer.
+                continue;
+            }
+
+            $matiereId = $this->resolveMatiereId($matiereRaw);
+            if ($matiereId === null) {
+                throw new \RuntimeException('MATIERE_INTROUVABLE');
+            }
+
+            $dayRaw = strtolower(trim((string)($entry['jour_semaine'] ?? '')));
+            $day = $this->convertDayToFrench($dayRaw);
+            if (!in_array($day, $allowedDays, true)) {
+                throw new \RuntimeException('JOUR_INVALIDE');
+            }
+
+            $startId = $this->resolveCreneauId(
+                $entry['id_creneau_debut'] ?? ($entry['heure_debut'] ?? null),
+                'debut'
+            );
+            if ($startId === null) {
+                throw new \RuntimeException('CRENEAU_INTROUVABLE');
+            }
+
+            $endId = $this->findEndSlotIdPlus50Minutes($startId);
+            if ($endId === null) {
+                throw new \RuntimeException('CRENEAU_FIN_INTROUVABLE');
+            }
+
+            $key = $day . '|' . $startId;
+            $prepared[$key] = [
+                'jour_semaine' => $day,
+                'id_creneau_debut' => $startId,
+                'id_creneau_fin' => $endId,
+                'id_matiere' => $matiereId,
+                'id_local' => $this->resolveLocalId($entry['id_local'] ?? ($entry['local'] ?? null)),
+                'id_professeur' => $this->resolveTeacherId($entry['id_professeur'] ?? ($entry['professeur'] ?? null)),
+            ];
+        }
+
+        $deleted = 0;
+        $inserted = 0;
+
+        try {
+            $pdo->beginTransaction();
+
+            $deleteStmt = $pdo->prepare('DELETE FROM horaires_cours WHERE id_classe = :id_classe');
+            $deleteStmt->execute([':id_classe' => $classId]);
+            $deleted = $deleteStmt->rowCount();
+
+            if (!empty($prepared)) {
+                $insertStmt = $pdo->prepare(
+                    "INSERT INTO horaires_cours (id_classe, id_matiere, jour_semaine, id_creneau_debut, id_creneau_fin, id_local, id_professeur)
+                     VALUES (:id_classe, :id_matiere, :jour_semaine, :id_creneau_debut, :id_creneau_fin, :id_local, :id_professeur)"
+                );
+
+                foreach ($prepared as $row) {
+                    $insertStmt->execute([
+                        ':id_classe' => $classId,
+                        ':id_matiere' => $row['id_matiere'],
+                        ':jour_semaine' => $row['jour_semaine'],
+                        ':id_creneau_debut' => $row['id_creneau_debut'],
+                        ':id_creneau_fin' => $row['id_creneau_fin'],
+                        ':id_local' => $row['id_local'],
+                        ':id_professeur' => $row['id_professeur'],
+                    ]);
+                    $inserted++;
+                }
+            }
+
+            $pdo->commit();
+            return ['deleted' => $deleted, 'inserted' => $inserted];
+        } catch (Exception $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $e;
+        }
+    }
+
+    /**
      * Retourne tous les horaires de cours enrichis des noms de classe et de matière.
      *
      * @return array
@@ -173,11 +371,12 @@ class SchedulesModel {
      *
      * @param array $data Champs attendus : id_classe (ou classe), id_matiere (ou matiere),
      *                    jour_semaine, id_creneau_debut (ou heure_debut),
-     *                    id_creneau_fin (ou heure_fin), salle (optionnel)
+    *                    id_creneau_fin (ou heure_fin), id_local (ou local) optionnel
      * @return bool true si la ligne a été insérée
      * @throws \RuntimeException('CLASSE_INTROUVABLE')  si la classe n'existe pas
      * @throws \RuntimeException('MATIERE_INTROUVABLE') si la matière n'existe pas
      * @throws \RuntimeException('CRENEAU_INTROUVABLE') si l'un des créneaux est introuvable
+     * @throws \RuntimeException('LOCAL_INTROUVABLE') si le local fourni n'existe pas
      */
     public function addSchedule(array $data): bool {
         $pdo = $this->db->getPdo();
@@ -185,6 +384,10 @@ class SchedulesModel {
         $matiereId = $this->resolveMatiereId($data['id_matiere'] ?? ($data['matiere'] ?? null));
         $creneauDebutId = $this->resolveCreneauId($data['id_creneau_debut'] ?? ($data['heure_debut'] ?? null), 'debut');
         $creneauFinId = $this->resolveCreneauId($data['id_creneau_fin'] ?? ($data['heure_fin'] ?? null), 'fin');
+        $rawLocal = $data['id_local'] ?? ($data['local'] ?? null);
+        $localId = $this->resolveLocalId($rawLocal);
+        $rawTeacher = $data['id_professeur'] ?? ($data['professeur'] ?? null);
+        $teacherId = $this->resolveTeacherId($rawTeacher);
         if ($classId === null) {
             throw new \RuntimeException('CLASSE_INTROUVABLE');
         }
@@ -194,9 +397,15 @@ class SchedulesModel {
         if ($creneauDebutId === null || $creneauFinId === null) {
             throw new \RuntimeException('CRENEAU_INTROUVABLE');
         }
+        if ($rawLocal !== null && $rawLocal !== '' && $localId === null) {
+            throw new \RuntimeException('LOCAL_INTROUVABLE');
+        }
+        if ($rawTeacher !== null && $rawTeacher !== '' && $teacherId === null) {
+            throw new \RuntimeException('PROFESSEUR_INTROUVABLE');
+        }
         $stmt = $pdo->prepare(
-            "INSERT INTO horaires_cours (id_classe, id_matiere, jour_semaine, id_creneau_debut, id_creneau_fin, salle)
-             VALUES (:id_classe, :id_matiere, :jour_semaine, :id_creneau_debut, :id_creneau_fin, :salle)"
+            "INSERT INTO horaires_cours (id_classe, id_matiere, jour_semaine, id_creneau_debut, id_creneau_fin, id_local, id_professeur)
+             VALUES (:id_classe, :id_matiere, :jour_semaine, :id_creneau_debut, :id_creneau_fin, :id_local, :id_professeur)"
         );
         try {
             $stmt->execute([
@@ -205,7 +414,8 @@ class SchedulesModel {
                 ':jour_semaine' => $data['jour_semaine'] ?? '',
                 ':id_creneau_debut' => $creneauDebutId,
                 ':id_creneau_fin'   => $creneauFinId,
-                ':salle'        => $data['salle']        ?? null,
+                ':id_local'     => $localId,
+                ':id_professeur' => $teacherId,
             ]);
             return $stmt->rowCount() > 0;
         } catch (Exception $e) {
@@ -220,11 +430,12 @@ class SchedulesModel {
      * @param int   $id
      * @param array $data Champs modifiables : id_classe/classe, id_matiere/matiere,
      *                    jour_semaine, id_creneau_debut/heure_debut,
-     *                    id_creneau_fin/heure_fin, salle
+    *                    id_creneau_fin/heure_fin, id_local (ou local), id_professeur (ou professeur)
      * @return bool true si la ligne a été modifiée
      * @throws \RuntimeException('CLASSE_INTROUVABLE')  si la classe n'existe pas
      * @throws \RuntimeException('MATIERE_INTROUVABLE') si la matière n'existe pas
      * @throws \RuntimeException('CRENEAU_INTROUVABLE') si l'un des créneaux est introuvable
+     * @throws \RuntimeException('LOCAL_INTROUVABLE') si le local fourni n'existe pas
      */
     public function updateSchedule(int $id, array $data): bool {
         $pdo = $this->db->getPdo();
@@ -264,9 +475,29 @@ class SchedulesModel {
             unset($data['heure_fin']);
         }
 
+        if (array_key_exists('id_local', $data) || array_key_exists('local', $data)) {
+            $rawLocal = $data['id_local'] ?? $data['local'];
+            $resolvedLocalId = $this->resolveLocalId($rawLocal);
+            if ($rawLocal !== null && $rawLocal !== '' && $resolvedLocalId === null) {
+                throw new \RuntimeException('LOCAL_INTROUVABLE');
+            }
+            $data['id_local'] = $resolvedLocalId;
+            unset($data['local']);
+        }
+
+        if (array_key_exists('id_professeur', $data) || array_key_exists('professeur', $data)) {
+            $rawTeacher = $data['id_professeur'] ?? $data['professeur'];
+            $resolvedTeacherId = $this->resolveTeacherId($rawTeacher);
+            if ($rawTeacher !== null && $rawTeacher !== '' && $resolvedTeacherId === null) {
+                throw new \RuntimeException('PROFESSEUR_INTROUVABLE');
+            }
+            $data['id_professeur'] = $resolvedTeacherId;
+            unset($data['professeur']);
+        }
+
         $setClauses = [];
         $params = [':id' => $id];
-        foreach (['id_classe', 'id_matiere', 'jour_semaine', 'id_creneau_debut', 'id_creneau_fin', 'salle'] as $field) {
+        foreach (['id_classe', 'id_matiere', 'jour_semaine', 'id_creneau_debut', 'id_creneau_fin', 'id_local', 'id_professeur'] as $field) {
             if (array_key_exists($field, $data)) {
                 $setClauses[] = "$field = :$field";
                 $params[":$field"] = $data[$field];

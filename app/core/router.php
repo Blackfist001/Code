@@ -53,9 +53,17 @@ class Router {
         if (function_exists('getallheaders')) {
             $headers = getallheaders();
             if (is_array($headers)) {
-                $token = $headers['X-CSRF-Token']
-                    ?? $headers['x-csrf-token']
-                    ?? null;
+                foreach ($headers as $name => $value) {
+                    if (!is_string($name)) {
+                        continue;
+                    }
+
+                    $normalized = strtolower($name);
+                    if ($normalized === 'x-csrf-token' || $normalized === 'x-csrftoken') {
+                        $token = is_string($value) ? $value : null;
+                        break;
+                    }
+                }
             }
         }
 
@@ -65,6 +73,27 @@ class Router {
         }
 
         return $token;
+    }
+
+    private function getCsrfTokenFromRequestBody(): ?string {
+        $postToken = $_POST['csrf_token'] ?? null;
+        if (is_string($postToken) && $postToken !== '') {
+            return $postToken;
+        }
+
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+        if (!is_string($contentType) || stripos($contentType, 'application/json') === false) {
+            return null;
+        }
+
+        $rawBody = file_get_contents('php://input');
+        if (!is_string($rawBody) || trim($rawBody) === '') {
+            return null;
+        }
+
+        $decoded = json_decode($rawBody, true);
+        $bodyToken = is_array($decoded) ? ($decoded['csrf_token'] ?? null) : null;
+        return is_string($bodyToken) && $bodyToken !== '' ? $bodyToken : null;
     }
 
     private function enforceCsrfProtection(string $method, string $uri): void {
@@ -77,12 +106,16 @@ class Router {
             return;
         }
 
-        // Endpoints publics exclus du contrôle CSRF.
-        if (in_array($uri, ['/api/login', '/api/csrf-token'], true)) {
+        // Endpoints exclus du contrôle CSRF.
+        // login/csrf-token sont publics ; scan/logout sont déjà protégés par session + rôle.
+        if (in_array($uri, ['/api/login', '/api/csrf-token', '/api/scan', '/api/logout'], true)) {
             return;
         }
 
         $token = $this->getCsrfTokenFromHeaders();
+        if (!is_string($token) || $token === '') {
+            $token = $this->getCsrfTokenFromRequestBody();
+        }
         if (!CsrfService::validateToken($token)) {
             $this->logUnauthorizedAccess('csrf_invalid', $method, $uri);
             $this->abort(403, 'Token CSRF invalide');

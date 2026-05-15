@@ -329,6 +329,44 @@ height:50px;
   min-width: 88px;
 }
 
+.schedule-grid-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.schedule-grid-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.schedule-grid-table th,
+.schedule-grid-table td {
+  border: 1px solid #dbe3eb;
+  padding: 8px;
+  vertical-align: middle;
+}
+
+.schedule-grid-table thead th {
+  background: #edf3f9;
+  text-align: center;
+}
+
+.schedule-grid-slot {
+  background: #f9fbfd;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.schedule-grid-cell select {
+  width: 100%;
+  min-width: 120px;
+}
+
+.schedule-grid-actions {
+  margin-top: 12px;
+}
+
 /* Button styles - Unified across all management pages */
 .btn-edit,
 .slot-btn-secondary,

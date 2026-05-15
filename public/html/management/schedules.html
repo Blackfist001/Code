@@ -7,22 +7,35 @@
         <select id="sched-matiere" class="mgmt-control-auto">
             <option value="">-- Matière --</option>
         </select>
-        <select id="sched-jour" class="mgmt-control-auto">
-            <option value="">-- Jour --</option>
-            <option value="lundi">Lundi</option>
-            <option value="mardi">Mardi</option>
-            <option value="mercredi">Mercredi</option>
-            <option value="jeudi">Jeudi</option>
-            <option value="vendredi">Vendredi</option>
-            <option value="samedi">Samedi</option>
-        </select>
+        <div class="schedule-field-group">
+            <label for="sched-jour">Jour :</label>
+            <select id="sched-jour" class="mgmt-control-auto">
+                <option value="">-- Jour --</option>
+                <option value="lundi">Lundi</option>
+                <option value="mardi">Mardi</option>
+                <option value="mercredi">Mercredi</option>
+                <option value="jeudi">Jeudi</option>
+                <option value="vendredi">Vendredi</option>
+            </select>
+        </div>
         <select id="sched-debut" class="mgmt-control-auto">
             <option value="">-- Créneau début --</option>
         </select>
         <select id="sched-fin" class="mgmt-control-auto">
             <option value="">-- Créneau fin --</option>
         </select>
-        <input type="text" id="sched-salle" placeholder="Salle" class="mgmt-control-auto">
+        <div class="schedule-field-group">
+            <label for="sched-local">Local :</label>
+            <select id="sched-local" class="mgmt-control-auto">
+                <option value="">-- Local --</option>
+            </select>
+        </div>
+        <div class="schedule-field-group">
+            <label for="sched-professeur">Professeur :</label>
+            <select id="sched-professeur" class="mgmt-control-auto">
+                <option value="">-- Professeur --</option>
+            </select>
+        </div>
         <button id="btn-add-schedule">Ajouter</button>
     </div>
 </div>
@@ -53,10 +66,29 @@
                 <th>Jour</th>
                 <th>Début</th>
                 <th>Fin</th>
-                <th>Salle</th>
+                <th>Local</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody id="schedules-table-body"></tbody>
     </table>
+</div>
+
+<div class="card">
+    <h3>Grille hebdomadaire par classe</h3>
+    <div class="form-container mgmt-filter-inline">
+        <select id="sched-grid-classe" class="mgmt-control-auto">
+            <option value="">-- Classe --</option>
+        </select>
+    </div>
+
+    <div id="sched-grid-container" class="schedule-grid-wrap">
+        <p class="slots-help">Sélectionnez une classe pour afficher la grille hebdomadaire.</p>
+    </div>
+
+    <div class="schedule-grid-actions">
+        <button id="btn-save-class-schedule" type="button" class="btn-edit">Enregistrer l'horaire de classe</button>
+        <button id="btn-export-class-schedule-csv" type="button" class="btn-edit">Exporter CSV</button>
+        <button id="btn-export-class-schedule-pdf" type="button" class="btn-edit">Exporter PDF</button>
+    </div>
 </div>

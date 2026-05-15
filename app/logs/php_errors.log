@@ -633,3 +633,4 @@ Stack trace:
 [11-May-2026 10:55:56 UTC] UsersModel authenticate: username=admin, user={"id_user":4,"nom":"admin","mot_de_passe":"$2y$10$e4UiiHix2Iaav5FjBC\/67.f.bxppW\/RPYS21EX.3iXibloztr7DcS","role":"Administrateur"}
 [11-May-2026 10:55:56 UTC] UsersModel password_verify: true
 [11-May-2026 13:37:05 UTC] [SECURITY] Access denied: reason=csrf_invalid method=POST uri=/api/logout role=Administrateur ip=::1
+[13-May-2026 18:35:53 UTC] [SECURITY] Access denied: reason=csrf_invalid method=POST uri=/api/scan role=Administrateur ip=::1
