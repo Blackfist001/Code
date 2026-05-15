@@ -1,0 +1,216 @@
+﻿
+
+<!DOCTYPE html>
+<!--
+  ___ __  __   _   ___ _____ ___  ___ _  _  ___   ___  _
+ / __|  \/  | /_\ | _ \_   _/ __|/ __| || |/ _ \ / _ \| |
+ \__ \ |\/| |/ _ \|   / | | \__ \ (__| __ | (_) | (_) | |__
+ |___/_|  |_/_/ \_\_|_\ |_| |___/\___|_||_|\___/ \___/|____|
+
+-->
+<html lang="fr">
+    <head>
+                    <title>Centre Léonard Defrance - Smartschool</title>
+            <meta charset="utf-8">
+            <meta http-equiv="x-ua-compatible" content="ie=edge">
+                            <link rel="icon" href="https://static4.smart-school.net/smsc/svg/favicon/favicon.svg">
+                <link rel="mask-icon" href="https://static6.smart-school.net/smsc/svg/favicon/mask-icon.svg" color="#ff520e">
+                <link rel="apple-touch-icon" href="https://static6.smart-school.net/smsc/img/favicon/apple-touch-icon.png">
+                <link rel="manifest" href="/manifest.json">
+                                            <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Bienvenue sur la plateforme numérique de Centre Léonard Defrance.">
+                    
+                
+        <!-- jQuery & jQueryUI -->
+                    <script type="text/javascript" src="https://static2.smart-school.net/smsc/resources/jquery/3.7.1/jquery.min.rev-8ae976fbb2.js"></script>
+    
+                    <script type="text/javascript" src="https://static4.smart-school.net/smsc/resources/jqueryui/1.14.1/jquery-ui.min.rev-0914f78cc1.js"></script>
+    
+                    <link href="https://static2.smart-school.net/smsc/resources/jqueryui/1.14.1/jquery-ui.min.rev-5a4100b15b.css" rel="stylesheet" />
+    
+
+        
+                        <link href="https://static2.smart-school.net/production/Authentication/login/main-built.rev-eb8869b6ad.css" rel="stylesheet" />
+    
+                <!-- TinyMCE HEAD -->
+                                    <!-- javascriptContent HEAD -->
+            <script type="text/javascript">
+        if(!window.SMSC) window.SMSC = {};
+        if(!window.SMSC.languagehash) window.SMSC.languageHash = {};
+
+                    window.SMSC.languageHash['general_legacy'] = {
+                'nl': { 
+                    'version': '7906ac2a23'
+                },
+                'fr': { 
+                    'version': 'a9b68b33b3' 
+                },
+            };
+                    window.SMSC.languageHash['general_buttons'] = {
+                'nl': { 
+                    'version': '2f27b982f1'
+                },
+                'fr': { 
+                    'version': '73eec72964' 
+                },
+            };
+                    window.SMSC.languageHash['component_period'] = {
+                'nl': { 
+                    'version': 'c9c897fb6c'
+                },
+                'fr': { 
+                    'version': '71b2f60aff' 
+                },
+            };
+                    window.SMSC.languageHash['component_dialog'] = {
+                'nl': { 
+                    'version': 'a5e48b9551'
+                },
+                'fr': { 
+                    'version': 'cd471b6823' 
+                },
+            };
+                    window.SMSC.languageHash['component_router'] = {
+                'nl': { 
+                    'version': '73deaee4ae'
+                },
+                'fr': { 
+                    'version': '79fec6f5fd' 
+                },
+            };
+                    window.SMSC.languageHash['component_sidebar'] = {
+                'nl': { 
+                    'version': '1a304b4b04'
+                },
+                'fr': { 
+                    'version': '71f4cb66ec' 
+                },
+            };
+            </script>
+
+        <!-- javascriptURL HEAD -->
+                        
+                <!-- javascriptContent HEAD -->
+                        
+                    </head>
+    <body class=" modern-ui modern-ui--larger-font">
+        		<div id="smscMain" class="smscMain showLeftNav" tabindex="-1">
+			        <div class="login-app">
+              <div class="login-app__container">
+        <div class="login-app__left">
+            	
+<div class="js-hero-image hero-image">
+    <picture>
+		        <source type="image/jpeg" srcset="https://www.smartschool.be/smsctip/2018_herobg_smartschool_city.jpg">
+			        		<img loading="lazy" data-image="https://www.smartschool.be/smsctip/2018_herobg_smartschool_city.jpg"/>
+					    </picture>
+
+	</div>
+
+
+        </div>
+
+        <div class="login-app__right">
+            <div class="login-app__top">
+                <div class="login-app__platform-indicator"></div>
+                                    <div class="login-app__school-logo" style='background-image: url(/logo)'>
+                      <span class="login-app__school-name">
+                        Centre Léonard Defrance - Liege                      </span>
+                    </div>
+                                <div class="login-app__form">
+                    <form class="form" name="login_form" method="post">
+                    <div>
+                        <div class="float-label"><input type="text" id="login_form__username" name="login_form[_username]" required="required" class="float-label__input" autofocus /><label for="login_form__username" class="required">
+        <span class="">Identifiant</span>
+        </label></div>
+
+                        <div class="login-app__password js-login-app-password">
+                          <div class="float-label"><input type="password" id="login_form__password" name="login_form[_password]" required="required" class="float-label__input"  /><label for="login_form__password" class="required">
+        <span class="">Mot de passe</span>
+        </label></div>
+                          <button type="button" class="form__eye-icon js-form-eye-icon" data-target="#login_form__password" title="Afficher le mot de passe"></button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <a href="/password-recovery"
+                           class="login-app__link login-app__link--password">Mot de passe oublié?</a>
+                    </div>
+                                        <button class="smscButton blue" disabled type="submit">Connexion</button>
+                    <input type="hidden" id="login_form__generationTime" name="login_form[_generationTime]" class="float-label__input"  value="1778852686" /><input type="hidden" id="login_form__token" name="login_form[_token]" class="float-label__input"  value="26d90ae70e885560e.EPeLf3JTEUDar6gf_i38wPwdspEX4l7FTh8ZdurYelc.I5raTwABXHi23e16rGXFrbFY4_wm0RyQPyxsIYGdHT5hpNgaFydfDqPb4Q" /></form>
+                                                                                                                                        </div>
+            </div>
+            <div class="login-app__bottom">
+              <a id="smartschoolAppLinkIos" class="login-app__smartschool-app hidden" href="https://itunes.apple.com/fr/app/smartschool/id440472448?mt=8" target="_blank">
+                  App Smartschool
+              </a>
+              <a id="smartschoolAppLinkAndroid" class="login-app__smartschool-app hidden" href="https://play.google.com/store/apps/details?id=be.smartschool.mobile&amp;hl=fr" target="_blank">
+                  App Smartschool
+              </a>
+              <a id="smartschoolAppLinkWebsite" class="login-app__smartschool-app" href="https://www.smartschool.be/fr/apps/app-smartschool/" target="_blank">
+                  App Smartschool
+              </a>
+              <span class="link-divider">&bull;</span>
+              <a class="login-app__privacy" href="https://www.smartschool.be/fr/se-connecter/" target="_blank">
+                  Aide
+              </a>
+              <span class="link-divider">&bull;</span>
+              <a class="login-app__privacy" href="https://www.smartschool.be/fr/privacy/" target="_blank">
+                  Confidentialité
+              </a>
+            </div>
+        </div>
+      </div>
+    </div>
+        		</div>
+                                    
+        <!-- javascript variables -->
+        <script type="text/javascript">var SMSC = SMSC || {};</script>
+                                            <script type="text/javascript">$.extend(true, SMSC, JSON.parse('\u007B\u0022lang\u0022\u003A\u007B\u0022browsercheck_title\u0022\u003A\u0022D\\u00e9sol\\u00e9,\u0020votre\u0020navigateur\u0020n\u0027est\u0020pas\u0020support\\u00e9\u0022,\u0022browsercheck_info\u0022\u003A\u0022D\\u00e9sol\\u00e9,\u0020vous\u0020travaillez\u0020sur\u0020un\u0020ancien\u0020navigateur\u0020ou\u0020sur\u0020un\u0020navigateur\u0020qui\u0020n\u0027est\u0020pas\u0020support\\u00e9\u0020par\u0020Smartschool.\u0020\u003Cstrong\u003E\u0020Utilisez\u0020toujours\u0020la\u0020version\u0020la\u0020plus\u0020r\\u00e9cente.\u0020\u003Cstrong\u003E\u0022,\u0022browsercheck_browser_chrome\u0022\u003A\u0022Chrome\u0022,\u0022browsercheck_browser_firefox\u0022\u003A\u0022Firefox\u0022,\u0022browsercheck_browser_msedge\u0022\u003A\u0022Microsoft\u0020Edge\u0022,\u0022browsercheck_browser_safari\u0022\u003A\u0022Safari\u0022,\u0022browsercheck_allow_continue\u0022\u003A\u0022Fermer\u0020cette\u0020fen\\u00eatre\u0020et\u0020acc\\u00e9der\u0020\\u00e0\u0020la\u0020page\u0020de\u0020connexion\u0022,\u0022do_google_logout_title\u0022\u003A\u0022Toujours\u0020connect\\u00e9\u0020dans\u0020Google\u0020Workspace\u0022,\u0022do_google_logout_message\u0022\u003A\u0022Vous\u0020vous\u0020\\u00eates\u0020connect\\u00e9\u0020\\u00e0\u0020Smartschool\u0020via\u0020le\u0020lien\u0020avec\u0020Google\u0020Workspace.\u0020Apr\\u00e8s\u0020la\u0020d\\u00e9connexion\u0020dans\u0020Smartschool,\u0020vous\u0020n\u0027\\u00eates\u0020pas\u0020automatiquement\u0020d\\u00e9connect\\u00e9\u0020de\u0020Google\u0020Workspace.\u0020Si\u0020vous\u0020travaillez\u0020sur\u0020un\u0020ordinateur\u0020public\u0020\u0028p.ex.\u0020\\u00e0\u0020l\u0027\\u00e9cole\u0029,\u0020nous\u0020vous\u0020conseillons\u0020de\u0020vous\u0020d\\u00e9connecter\u0020de\u0020Google\u0020Workspace.\u0022,\u0022do_google_logout_ok\u0022\u003A\u0022OK\u0022,\u0022do_office365_logout_title\u0022\u003A\u0022Toujours\u0020connect\\u00e9\u0020dans\u0020Office\u0020365\u0022,\u0022do_office365_logout_message\u0022\u003A\u0022Vous\u0020vous\u0020\\u00eates\u0020connect\\u00e9\u0020\\u00e0\u0020Smartschool\u0020via\u0020le\u0020lien\u0020avec\u0020Office\u0020365.\u0020Apr\\u00e8s\u0020la\u0020d\\u00e9connexion\u0020dans\u0020Smartschool,\u0020vous\u0020n\u0027\\u00eates\u0020\u003Cb\u003Epas\u0020automatiquement\u0020d\\u00e9connect\\u00e9\u0020de\u0020Office\u0020365\u003C\\\/b\u003E.\u0020Si\u0020vous\u0020travaillez\u0020sur\u0020un\u0020ordinateur\u0020public\u0020\u0028p.ex.\u0020\\u00e0\u0020l\u0027\\u00e9cole\u0029,\u0020nous\u0020vous\u0020conseillons\u0020de\u0020vous\u0020d\\u00e9connecter\u0020de\u0020Office\u0020365.\u0022,\u0022do_office365_logout_ok\u0022\u003A\u0022OK\u0022\u007D,\u0022doGoogleLogout\u0022\u003Afalse,\u0022doOffice365Logout\u0022\u003Afalse,\u0022doAcmLogout\u0022\u003Afalse\u007D'));</script>
+
+            <script type="text/javascript">$.extend(true, SMSC, JSON.parse('\u007B\u0022quickSearch\u0022\u003A\u007B\u0022quicksearch.search_placeholder\u0022\u003A\u0022Chercher...\u0022,\u0022quicksearch.search_option_own\u002Dplatform\u002Donly\u0022\u003A\u0022Chercher\u0020uniquement\u0020dans\u0020votre\u0020propre\u0020plateforme\u0022,\u0022quicksearch.search_option_include\u002Ddeleted\u0022\u003A\u0022Afficher\u0020aussi\u0020des\u0020utilisateurs\u0020\u003Cspan\u0020style\u003D\\\u0022color\u003A\u0023E30000\u003B\u0020font\u002Dweight\u003A\u0020bold\u003B\\\u0022\u003Esupprim\\u00e9s\u003C\\\/span\u003E\u0022,\u0022quicksearch.default_deleted_string\u0022\u003A\u0022Supprim\\u00e9\u0022,\u0022quicksearch.search_not_found\u0022\u003A\u0022Nous\u0020n\u0027avons\u0020pas\u0020pu\u0020trouver\u0020__SEARCHSTRING__.\u0020\u003Cbr\\\/\u003EEssayez\u0020un\u0020autre\u0020terme\u0020de\u0020recherche.\u0022,\u0022quicksearch.search_subtitle_suggestions\u0022\u003A\u0022Suggestions\u0022,\u0022quicksearch.currentUser\u0022\u003A\u0022Utilisateur\u0020connect\\u00e9\u0022,\u0022quicksearch.me\u0022\u003A\u0022Moi\u002Dm\\u00eame\u0022,\u0022quicksearch.all_students\u0022\u003A\u0022Tous\u0020les\u0020\\u00e9l\\u00e8ves\u0022,\u0022planner.user_role.1\u0022\u003A\u0022Tous\u0020les\u0020\\u00e9l\\u00e8ves\u0022,\u0022quicksearch.unassigned\u0022\u003A\u0022Personne\u0022,\u0022quicksearch.search_subtitle_favourites\u0022\u003A\u0022Favoris\u0022,\u0022quicksearch.mark_as_favourite\u0022\u003A\u0022Ajouter\u0020aux\u0020favoris\u0022,\u0022quicksearch.discard_as_favourite\u0022\u003A\u0022Supprimer\u0020des\u0020favoris\u0022,\u0022quicksearch.co_account_type_\u002D1\u0022\u003A\u0022Comptes\u0020principaux\u0022,\u0022quicksearch.co_account_type_\u002D2\u0022\u003A\u0022Tous\u0020les\u0020comptes\u0020secondaires\u0022,\u0022property.co\u002Daccount\u002Dtype.main\u0022\u003A\u0022Comptes\u0020principaux\u0022,\u0022bubble_coaccountfilter_title\u0022\u003A\u0022S\\u00e9lectionner\u0020des\u0020types\u0020de\u0020comptes\u0020sp\\u00e9cifiques\u0020pour\u0020ce\u0020groupe\\\/cette\u0020classe\u0022,\u0022bubble_coaccountfilter_tokeninput_emptystate\u0022\u003A\u0022Chercher\u0020des\u0020types\u0020de\u0020compte\u0022,\u0022bubble_coaccountfilter_quickfilter_title\u0022\u003A\u0022Filtres\u0020rapides\u0022,\u0022quicksearch_clear_selection\u0022\u003A\u0022Supprimer\u0020la\u0020s\\u00e9lection\u0022,\u0022\u0025quick\u002Dsearch.co\u002Daccount\u002Dfilter.main\u002Daccounts\u0025\u0022\u003A\u0022Comptes\u0020principaux\u0022,\u0022\u0025quick\u002Dsearch.co\u002Daccount\u002Dfilter.all\u002Dco\u002Daccounts\u0025\u0022\u003A\u0022Tous\u0020les\u0020comptes\u0020secondaires\u0022,\u0022\u0025quick\u002Dsearch.co\u002Daccount\u002Dfilter.non\u002Dprofessional\u002Dco\u002Daccounts\u0025\u0022\u003A\u0022Famille\u0022\u007D,\u0022vars\u0022\u003A\u007B\u0022locale\u0022\u003A\u0022fr\u0022,\u0022userPictureDomain\u0022\u003A\u0022https\u003A\\\/\\\/userpicture20.smartschool.be\u0022\u007D\u007D'));</script>
+
+            <script type="text/javascript">$.extend(true, SMSC, JSON.parse('\u005B\u005D'));</script>
+
+
+          
+        <!-- javascriptContent Body  -->
+                                
+                        <!-- Javascript_Body_Urls -->
+                        
+                <!-- Javascript_requirejs_Urls -->
+                        
+        		<!-- Javascript_legacy_stealjs_Urls -->
+                        
+                
+        <!-- Javascript_symfony -->
+                                    <script type="text/javascript" src="https://static4.smart-school.net/production/Authentication/login/main-built.rev-641c662300.js"></script>
+    
+                        
+                
+        <!-- Sentry -->
+        
+<script>
+    window.sentryOnLoad = function() {
+        Sentry.init({"sampleRate":0.1,"tracesSampleRate":0.005,"replaysSessionSampleRate":0.001,"replaysOnErrorSampleRate":0.05,"enableLogs":true,"environment":"production",
+            dsn: "https://c0928d9ce2f22be3fcdd4f3f91b70db3@sentry.smartbit.be/26",
+            integrations: [
+                Sentry.browserTracingIntegration(),
+                Sentry.replayIntegration({
+                    workerUrl: "https://static2.smart-school.net/smsc/resources/sentry/worker.min.rev-1c7a873781.js",
+                    block: ["[style*=userpicture]"]
+                })
+            ]
+        }
+        );
+
+        Sentry.setContext("device", {
+            screen_width_pixels: window.screen.width,
+            screen_height_pixels: window.screen.height
+        });
+    };
+</script>
+ <script src="/smsc/resources/sentry/sdk/10.40.0/bundle.tracing.replay.logs.metrics.min.js" onload="window.sentryOnLoad()"></script>
+    </body>
+</html>
+

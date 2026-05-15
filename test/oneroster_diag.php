@@ -144,56 +144,61 @@ function getToken(array $config, int $retries, ?string $host, ?string $forceIp):
     ];
 }
 
-function testCandidates(string $baseUrl, string $token, array $candidates, ?string $host, ?string $forceIp): array {
+function testCandidates(string $baseUrl, string $token, array $candidates, int $retries, ?string $host, ?string $forceIp): array {
     $tries = [];
 
-    foreach ($candidates as $candidate) {
-        $url = rtrim($baseUrl, '/') . '/' . ltrim($candidate, '/');
-        $result = curlRequest(
-            $url,
-            [
-                CURLOPT_HTTPHEADER => [
-                    'Authorization: Bearer ' . $token,
-                    'Accept: application/json',
+    for ($attempt = 1; $attempt <= $retries; $attempt++) {
+        foreach ($candidates as $candidate) {
+            $url = rtrim($baseUrl, '/') . '/' . ltrim($candidate, '/');
+            $result = curlRequest(
+                $url,
+                [
+                    CURLOPT_HTTPHEADER => [
+                        'Authorization: Bearer ' . $token,
+                        'Accept: application/json',
+                    ],
                 ],
-            ],
-            $host,
-            $forceIp
-        );
+                $host,
+                $forceIp
+            );
 
-        $entry = [
-            'endpoint' => $candidate,
-            'status_code' => $result['status_code'],
-            'duration_ms' => $result['duration_ms'],
-            'curl_errno' => $result['curl_errno'],
-            'curl_error' => $result['curl_error'],
-        ];
-
-        $json = json_decode($result['body'], true);
-        if ($result['status_code'] >= 200 && $result['status_code'] < 300 && is_array($json)) {
-            return [
-                'endpoint_utilise' => $candidate,
+            $entry = [
+                'attempt' => $attempt,
+                'endpoint' => $candidate,
                 'status_code' => $result['status_code'],
                 'duration_ms' => $result['duration_ms'],
                 'curl_errno' => $result['curl_errno'],
                 'curl_error' => $result['curl_error'],
-                'tries' => $tries,
-                'payload' => $json,
             ];
-        }
 
-        $snippet = trim(substr($result['body'], 0, 180));
-        if ($snippet !== '') {
-            $entry['response_snippet'] = $snippet;
-        }
+            $json = json_decode($result['body'], true);
+            if ($result['status_code'] >= 200 && $result['status_code'] < 300 && is_array($json)) {
+                return [
+                    'endpoint_utilise' => $candidate,
+                    'attempt_utilise' => $attempt,
+                    'status_code' => $result['status_code'],
+                    'duration_ms' => $result['duration_ms'],
+                    'curl_errno' => $result['curl_errno'],
+                    'curl_error' => $result['curl_error'],
+                    'tries' => $tries,
+                    'payload' => $json,
+                ];
+            }
 
-        $tries[] = $entry;
+            $snippet = trim(substr($result['body'], 0, 180));
+            if ($snippet !== '') {
+                $entry['response_snippet'] = $snippet;
+            }
+
+            $tries[] = $entry;
+        }
     }
 
     $last = end($tries);
 
     return [
         'endpoint_utilise' => $last['endpoint'] ?? end($candidates),
+        'attempt_utilise' => $last['attempt'] ?? null,
         'status_code' => $last['status_code'] ?? 0,
         'duration_ms' => $last['duration_ms'] ?? 0,
         'curl_errno' => $last['curl_errno'] ?? 0,
@@ -228,13 +233,19 @@ if ($tokenResult['success'] !== true || empty($tokenResult['token'])) {
     exit(2);
 }
 
-$students = testCandidates($baseUrl, (string)$tokenResult['token'], ['/students'], $host, $forceIp);
-$teachers = testCandidates($baseUrl, (string)$tokenResult['token'], ['/teachers', '/users?role=teacher', '/users?role=staff'], $host, $forceIp);
-$schedules = testCandidates($baseUrl, (string)$tokenResult['token'], ['/classschedules', '/classSchedules', '/schedules', '/classeschedules'], $host, $forceIp);
+$students = testCandidates($baseUrl, (string)$tokenResult['token'], ['/students'], $retries, $host, $forceIp);
+$teachers = testCandidates($baseUrl, (string)$tokenResult['token'], ['/teachers', '/users?role=teacher', '/users?role=staff'], $retries, $host, $forceIp);
+$schedules = testCandidates($baseUrl, (string)$tokenResult['token'], ['/classschedules', '/classSchedules', '/schedules', '/classeschedules'], $retries, $host, $forceIp);
+$courses = testCandidates($baseUrl, (string)$tokenResult['token'], ['/courses'], $retries, $host, $forceIp);
+$classes = testCandidates($baseUrl, (string)$tokenResult['token'], ['/classes'], $retries, $host, $forceIp);
+$enrollments = testCandidates($baseUrl, (string)$tokenResult['token'], ['/enrollments'], $retries, $host, $forceIp);
+$academicSessions = testCandidates($baseUrl, (string)$tokenResult['token'], ['/academicSessions'], $retries, $host, $forceIp);
+$orgs = testCandidates($baseUrl, (string)$tokenResult['token'], ['/orgs'], $retries, $host, $forceIp);
 
 $output['endpoints'] = [
     'students' => [
         'endpoint_utilise' => $students['endpoint_utilise'],
+        'attempt_utilise' => $students['attempt_utilise'],
         'status_code' => $students['status_code'],
         'duration_ms' => $students['duration_ms'],
         'curl_errno' => $students['curl_errno'],
@@ -243,6 +254,7 @@ $output['endpoints'] = [
     ],
     'teachers' => [
         'endpoint_utilise' => $teachers['endpoint_utilise'],
+        'attempt_utilise' => $teachers['attempt_utilise'],
         'status_code' => $teachers['status_code'],
         'duration_ms' => $teachers['duration_ms'],
         'curl_errno' => $teachers['curl_errno'],
@@ -251,17 +263,70 @@ $output['endpoints'] = [
     ],
     'schedules' => [
         'endpoint_utilise' => $schedules['endpoint_utilise'],
+        'attempt_utilise' => $schedules['attempt_utilise'],
         'status_code' => $schedules['status_code'],
         'duration_ms' => $schedules['duration_ms'],
         'curl_errno' => $schedules['curl_errno'],
         'curl_error' => $schedules['curl_error'],
         'tries' => $schedules['tries'],
     ],
+    'additional' => [
+        'courses' => [
+            'endpoint_utilise' => $courses['endpoint_utilise'],
+            'attempt_utilise' => $courses['attempt_utilise'],
+            'status_code' => $courses['status_code'],
+            'duration_ms' => $courses['duration_ms'],
+            'curl_errno' => $courses['curl_errno'],
+            'curl_error' => $courses['curl_error'],
+            'tries' => $courses['tries'],
+        ],
+        'classes' => [
+            'endpoint_utilise' => $classes['endpoint_utilise'],
+            'attempt_utilise' => $classes['attempt_utilise'],
+            'status_code' => $classes['status_code'],
+            'duration_ms' => $classes['duration_ms'],
+            'curl_errno' => $classes['curl_errno'],
+            'curl_error' => $classes['curl_error'],
+            'tries' => $classes['tries'],
+        ],
+        'enrollments' => [
+            'endpoint_utilise' => $enrollments['endpoint_utilise'],
+            'attempt_utilise' => $enrollments['attempt_utilise'],
+            'status_code' => $enrollments['status_code'],
+            'duration_ms' => $enrollments['duration_ms'],
+            'curl_errno' => $enrollments['curl_errno'],
+            'curl_error' => $enrollments['curl_error'],
+            'tries' => $enrollments['tries'],
+        ],
+        'academicSessions' => [
+            'endpoint_utilise' => $academicSessions['endpoint_utilise'],
+            'attempt_utilise' => $academicSessions['attempt_utilise'],
+            'status_code' => $academicSessions['status_code'],
+            'duration_ms' => $academicSessions['duration_ms'],
+            'curl_errno' => $academicSessions['curl_errno'],
+            'curl_error' => $academicSessions['curl_error'],
+            'tries' => $academicSessions['tries'],
+        ],
+        'orgs' => [
+            'endpoint_utilise' => $orgs['endpoint_utilise'],
+            'attempt_utilise' => $orgs['attempt_utilise'],
+            'status_code' => $orgs['status_code'],
+            'duration_ms' => $orgs['duration_ms'],
+            'curl_errno' => $orgs['curl_errno'],
+            'curl_error' => $orgs['curl_error'],
+            'tries' => $orgs['tries'],
+        ],
+    ],
 ];
 
 $studentList = is_array($students['payload']) ? extractList($students['payload'], ['students', 'users', 'results', 'items']) : [];
 $teacherList = is_array($teachers['payload']) ? extractList($teachers['payload'], ['teachers', 'users', 'results', 'items']) : [];
 $scheduleList = is_array($schedules['payload']) ? extractList($schedules['payload'], ['classSchedules', 'schedules', 'results', 'items']) : [];
+$courseList = is_array($courses['payload']) ? extractList($courses['payload'], ['courses', 'results', 'items']) : [];
+$classList = is_array($classes['payload']) ? extractList($classes['payload'], ['classes', 'results', 'items']) : [];
+$enrollmentList = is_array($enrollments['payload']) ? extractList($enrollments['payload'], ['enrollments', 'results', 'items']) : [];
+$academicSessionList = is_array($academicSessions['payload']) ? extractList($academicSessions['payload'], ['academicSessions', 'results', 'items']) : [];
+$orgList = is_array($orgs['payload']) ? extractList($orgs['payload'], ['orgs', 'results', 'items']) : [];
 
 $output['data'] = [
     'students' => [
@@ -278,6 +343,38 @@ $output['data'] = [
         'count' => count($scheduleList),
         'payload_keys' => is_array($schedules['payload']) ? array_keys($schedules['payload']) : [],
         'sample' => array_slice($scheduleList, 0, 2),
+    ],
+    'additional' => [
+        'courses' => [
+            'count' => count($courseList),
+            'payload_keys' => is_array($courses['payload']) ? array_keys($courses['payload']) : [],
+            'sample_keys' => !empty($courseList) && is_array($courseList[0]) ? array_keys($courseList[0]) : [],
+            'sample' => array_slice($courseList, 0, 2),
+        ],
+        'classes' => [
+            'count' => count($classList),
+            'payload_keys' => is_array($classes['payload']) ? array_keys($classes['payload']) : [],
+            'sample_keys' => !empty($classList) && is_array($classList[0]) ? array_keys($classList[0]) : [],
+            'sample' => array_slice($classList, 0, 2),
+        ],
+        'enrollments' => [
+            'count' => count($enrollmentList),
+            'payload_keys' => is_array($enrollments['payload']) ? array_keys($enrollments['payload']) : [],
+            'sample_keys' => !empty($enrollmentList) && is_array($enrollmentList[0]) ? array_keys($enrollmentList[0]) : [],
+            'sample' => array_slice($enrollmentList, 0, 2),
+        ],
+        'academicSessions' => [
+            'count' => count($academicSessionList),
+            'payload_keys' => is_array($academicSessions['payload']) ? array_keys($academicSessions['payload']) : [],
+            'sample_keys' => !empty($academicSessionList) && is_array($academicSessionList[0]) ? array_keys($academicSessionList[0]) : [],
+            'sample' => array_slice($academicSessionList, 0, 2),
+        ],
+        'orgs' => [
+            'count' => count($orgList),
+            'payload_keys' => is_array($orgs['payload']) ? array_keys($orgs['payload']) : [],
+            'sample_keys' => !empty($orgList) && is_array($orgList[0]) ? array_keys($orgList[0]) : [],
+            'sample' => array_slice($orgList, 0, 2),
+        ],
     ],
 ];
 
