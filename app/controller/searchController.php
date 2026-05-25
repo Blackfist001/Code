@@ -152,9 +152,11 @@ class SearchController {
             $dateFrom = $_GET['date_from'] ?? '';
             $dateTo = $_GET['date_to'] ?? '';
             
-            $query = "SELECT DISTINCT e.*, p.date_passage, p.type_passage, p.statut 
+            $query = "SELECT DISTINCT e.*, p.date_passage, tp.label AS type_passage, sp.label AS statut 
                       FROM etudiants e 
                       LEFT JOIN passages p ON e.id_etudiant = p.id_etudiant
+                      LEFT JOIN types_passage tp ON tp.id_type_passage = p.id_type_passage
+                      LEFT JOIN statuts_passage sp ON sp.id_statut_passage = p.id_statut_passage
                       WHERE 1=1";
             
             $params = [];

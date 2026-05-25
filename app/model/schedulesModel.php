@@ -243,6 +243,14 @@ class SchedulesModel {
         return (int)($endRow['id_creneau'] ?? 0) ?: null;
     }
 
+    private function getScheduleRowById(int $id): ?array {
+        $pdo = $this->db->getPdo();
+        $stmt = $pdo->prepare('SELECT * FROM horaires_cours WHERE id = :id LIMIT 1');
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
     /**
      * Remplace l'horaire complet d'une classe à partir d'une grille hebdomadaire.
      * Chaque cellule contient un couple (jour, créneau début) et éventuellement une matière.
@@ -311,6 +319,10 @@ class SchedulesModel {
         $deleted = 0;
         $inserted = 0;
 
+        $oldStmt = $pdo->prepare('SELECT * FROM horaires_cours WHERE id_classe = :id_classe ORDER BY jour_semaine, id_creneau_debut');
+        $oldStmt->execute([':id_classe' => $classId]);
+        $oldRows = $oldStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
         try {
             $pdo->beginTransaction();
 
@@ -339,6 +351,18 @@ class SchedulesModel {
             }
 
             $pdo->commit();
+            \App\Service\AuditService::logDbChange(
+                'update',
+                'horaires_cours',
+                $oldRows,
+                array_values($prepared),
+                [
+                    'mode' => 'grid_replace',
+                    'id_classe' => $classId,
+                    'deleted' => $deleted,
+                    'inserted' => $inserted,
+                ]
+            );
             return ['deleted' => $deleted, 'inserted' => $inserted];
         } catch (Exception $e) {
             if ($pdo->inTransaction()) {
@@ -417,6 +441,11 @@ class SchedulesModel {
                 ':id_local'     => $localId,
                 ':id_professeur' => $teacherId,
             ]);
+            if ($stmt->rowCount() > 0) {
+                $newId = (int)$pdo->lastInsertId();
+                $new = $newId > 0 ? $this->getScheduleRowById($newId) : null;
+                \App\Service\AuditService::logDbChange('insert', 'horaires_cours', null, $new ?: $data);
+            }
             return $stmt->rowCount() > 0;
         } catch (Exception $e) {
             error_log('addSchedule: ' . $e->getMessage());
@@ -439,6 +468,10 @@ class SchedulesModel {
      */
     public function updateSchedule(int $id, array $data): bool {
         $pdo = $this->db->getPdo();
+        $old = $this->getScheduleRowById($id);
+        if (!$old) {
+            return false;
+        }
         if (array_key_exists('id_classe', $data) || array_key_exists('classe', $data)) {
             $resolvedClassId = $this->resolveClassId($data['id_classe'] ?? $data['classe']);
             if ($resolvedClassId === null) {
@@ -508,13 +541,21 @@ class SchedulesModel {
             "UPDATE horaires_cours SET " . implode(', ', $setClauses) . " WHERE id = :id"
         );
         $stmt->execute($params);
+        if ($stmt->rowCount() > 0) {
+            $new = $this->getScheduleRowById($id);
+            \App\Service\AuditService::logDbChange('update', 'horaires_cours', $old, $new);
+        }
         return $stmt->rowCount() > 0;
     }
 
     public function deleteSchedule(int $id): bool {
         $pdo = $this->db->getPdo();
+        $old = $this->getScheduleRowById($id);
         $stmt = $pdo->prepare("DELETE FROM horaires_cours WHERE id = :id");
         $stmt->execute([':id' => $id]);
+        if ($stmt->rowCount() > 0) {
+            \App\Service\AuditService::logDbChange('delete', 'horaires_cours', $old, null);
+        }
         return $stmt->rowCount() > 0;
     }
 }

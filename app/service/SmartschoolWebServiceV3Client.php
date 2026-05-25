@@ -10,9 +10,11 @@ class SmartschoolWebServiceV3Client {
     private ?SoapClient $soap = null;
     private ?string $soapInitError = null;
     private string $wsdl = 'https://centreleonarddefrance.smartschool.be/Webservices/V3?wsdl';
+    private int $soapTimeoutSeconds;
 
-    public function __construct(?SoapClient $soapClient = null) {
+    public function __construct(?SoapClient $soapClient = null, int $soapTimeoutSeconds = 8) {
         $this->config = require __DIR__ . '/../config/webService.php';
+        $this->soapTimeoutSeconds = max(2, $soapTimeoutSeconds);
 
         if ($soapClient !== null) {
             $this->soap = $soapClient;
@@ -114,7 +116,7 @@ class SmartschoolWebServiceV3Client {
     }
 
     private function createSoapClient(): SoapClient {
-        $timeout = 8;
+        $timeout = $this->soapTimeoutSeconds;
 
         $streamContext = stream_context_create([
             'ssl' => [

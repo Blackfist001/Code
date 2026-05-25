@@ -1,6 +1,8 @@
 import ManagementUsersView from './management/managementUsersView.js';
 import ManagementStudentsView from './management/managementStudentsView.js';
 import ManagementPassagesView from './management/managementPassagesView.js';
+import ManagementSettingsView from './management/managementSettingsView.js';
+import ManagementPassageTypesView from './management/managementPassageTypesView.js';
 import ManagementQrCodesView from './management/managementQrCodesView.js';
 import ManagementSchedulesView from './management/managementSchedulesView.js';
 import ManagementSlotsView from './management/managementSlotsView.js';
@@ -8,6 +10,7 @@ import ManagementClassesView from './management/managementClassesView.js';
 import ManagementClassroomView from './management/managementClassroomView.js';
 import ManagementMatieresView from './management/managementMatieresView.js';
 import ManagementTeachersView from './management/managementTeachersView.js';
+import ManagementAuditsView from './management/managementAuditsView.js';
 
 /**
  * Vue principale de la page de gestion.
@@ -29,6 +32,8 @@ export default class ManagementView {
         this.usersView = new ManagementUsersView(this);
         this.studentsView = new ManagementStudentsView(this);
         this.passagesView = new ManagementPassagesView(this);
+        this.settingsView = new ManagementSettingsView(this);
+        this.passageTypesView = new ManagementPassageTypesView(this);
         this.qrCodesView = new ManagementQrCodesView(this);
         this.schedulesView = new ManagementSchedulesView(this);
         this.slotsView = new ManagementSlotsView(this);
@@ -36,6 +41,7 @@ export default class ManagementView {
         this.classroomView = new ManagementClassroomView(this);
         this.matieresView = new ManagementMatieresView(this);
         this.teachersView = new ManagementTeachersView(this);
+        this.auditsView = new ManagementAuditsView(this);
     }
 
     /**
@@ -273,7 +279,7 @@ export default class ManagementView {
      * @param {string} section - Identifiant de section ('passages', 'students', 'users', ...)
      */
     _activateSection(section) {
-        const validSections = ['passages', 'students', 'qrcodes', 'schedules', 'slots', 'classes', 'classroom', 'matieres', 'teachers', 'users'];
+        const validSections = ['passages', 'settings', 'type', 'students', 'qrcodes', 'schedules', 'slots', 'classes', 'classroom', 'matieres', 'teachers', 'audits', 'users'];
         const target = validSections.includes(section) ? section : 'passages';
 
         document.querySelectorAll('.gestion-section').forEach(s => {
@@ -285,6 +291,8 @@ export default class ManagementView {
 
         if (target === 'students') this.controller.loadStudents();
         if (target === 'passages') this.controller.loadPassages();
+        if (target === 'settings') this.controller.loadSettings();
+        if (target === 'type') this.controller.loadPassageMetadata();
         if (target === 'qrcodes') this.controller.loadQrCodes();
         if (target === 'schedules') this.controller.loadSchedules();
         if (target === 'slots') this.controller.loadSlots();
@@ -292,7 +300,21 @@ export default class ManagementView {
         if (target === 'classroom') this.controller.loadClassrooms();
         if (target === 'matieres') this.controller.loadMatieres();
         if (target === 'teachers') this.controller.loadTeachers();
+        if (target === 'audits') this.controller.loadAudits();
         if (target === 'users') this.controller.loadUsers();
+    }
+
+    /**
+     * Retourne l'identifiant de la section de gestion visible.
+     * Exemples: 'passages', 'qrcodes', 'schedules'.
+     *
+     * @returns {string}
+     */
+    getActiveSection() {
+        const active = Array.from(document.querySelectorAll('.gestion-section'))
+            .find((el) => el.style.display !== 'none');
+        if (!active?.id) return '';
+        return String(active.id).replace(/^section-/, '');
     }
 
     /**
@@ -302,6 +324,8 @@ export default class ManagementView {
         this.usersView.bindEvents(this.controller);
         this.studentsView.bindEvents(this.controller);
         this.passagesView.bindEvents(this.controller);
+        this.settingsView.bindEvents(this.controller);
+        this.passageTypesView.bindEvents(this.controller);
         this.qrCodesView.bindEvents(this.controller);
         this.schedulesView.bindEvents(this.controller);
         this.slotsView.bindEvents(this.controller);
@@ -309,6 +333,7 @@ export default class ManagementView {
         this.classroomView.bindEvents(this.controller);
         this.matieresView.bindEvents(this.controller);
         this.teachersView.bindEvents(this.controller);
+        this.auditsView.bindEvents(this.controller);
     }
 
     /**
@@ -317,6 +342,15 @@ export default class ManagementView {
      */
     displayUsers(users = []) {
         this.usersView.displayUsers(this.controller, users);
+    }
+
+    /**
+     * Délègue l'affichage des audits (connexions + changements DB).
+     * @param {Array} [logins=[]]
+     * @param {Array} [dbChanges=[]]
+     */
+    displayAudits(logins = [], dbChanges = []) {
+        this.auditsView.displayAudits(logins, dbChanges);
     }
 
     /**
@@ -333,6 +367,14 @@ export default class ManagementView {
      */
     displayPassages(passages = []) {
         this.passagesView.displayPassages(this.controller, passages);
+    }
+
+    displaySettings(settings = {}, backups = [], slots = { debut: [], fin: [] }) {
+        this.settingsView.displaySettings(settings, backups, slots);
+    }
+
+    displayPassageMetadata(payload = {}) {
+        this.passageTypesView.displayPassageMetadata(this.controller, payload);
     }
 
     /**

@@ -8,6 +8,7 @@ use PDOException;
 class MovementsModel {
     private DataBase $db;
     private ClassesModel $classesModel;
+    private array $passageLookupCache = [];
 
     public function __construct() {
         $this->db = new DataBase();
@@ -96,6 +97,180 @@ class MovementsModel {
         return array_values(array_filter(array_map('trim', $rawValues), static fn($v) => $v !== ''));
     }
 
+    private function hasColumn(string $table, string $column): bool {
+        $pdo = $this->db->getPdo();
+        $stmt = $pdo->prepare(
+            'SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table AND COLUMN_NAME = :column'
+        );
+        $stmt->execute([
+            ':table' => $table,
+            ':column' => $column,
+        ]);
+
+        return ((int)$stmt->fetchColumn()) > 0;
+    }
+
+    private function getPassageLookupConfig(string $kind): array {
+        $map = [
+            'types' => [
+                'table' => 'types_passage',
+                'id' => 'id_type_passage',
+                'fallback' => [
+                    'Aucun',
+                    'Entrée matin',
+                    'Sortie midi',
+                    'Rentrée midi',
+                    'Entrée après-midi',
+                    'Sortie autorisée',
+                    'Journée',
+                ],
+            ],
+            'statuses' => [
+                'table' => 'statuts_passage',
+                'id' => 'id_statut_passage',
+                'fallback' => [
+                    'Autorisé',
+                    'Refusé',
+                    'Absence justifiée',
+                    'Sortie justifiée',
+                    'Absent',
+                    'En retard',
+                    'Présent',
+                ],
+            ],
+            'reasons' => [
+                'table' => 'raisons_passage',
+                'id' => 'id_raison_passage',
+                'fallback' => ['Certificat médical', 'Autorisation  des parents', 'Autre'],
+            ],
+        ];
+
+        return $map[$kind] ?? ['table' => '', 'fallback' => []];
+    }
+
+    private function getPassageLookupRows(string $kind): array {
+        if (isset($this->passageLookupCache[$kind])) {
+            return $this->passageLookupCache[$kind];
+        }
+
+        $config = $this->getPassageLookupConfig($kind);
+        $rows = [];
+
+        try {
+            $pdo = $this->db->getPdo();
+            $idColumn = (string)($config['id'] ?? 'id');
+            $stmt = $pdo->query(sprintf(
+                'SELECT %1$s AS id, code, legacy_value, label FROM %2$s ORDER BY sort_order ASC, label ASC',
+                $idColumn,
+                $config['table']
+            ));
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        } catch (\Throwable $e) {
+            $rows = [];
+        }
+
+        if (!$rows) {
+            $rows = array_map(static fn($label) => [
+                'id' => null,
+                'code' => null,
+                'legacy_value' => $label,
+                'label' => $label,
+            ], $config['fallback']);
+        }
+
+        $this->passageLookupCache[$kind] = $rows;
+        return $rows;
+    }
+
+    private function normalizePassageLookupLabel(string $kind, string $value, string $fallback): string {
+        $needle = trim($value);
+        if ($needle === '') {
+            return $fallback;
+        }
+
+        foreach ($this->getPassageLookupRows($kind) as $row) {
+            $candidates = [
+                trim((string)($row['label'] ?? '')),
+                trim((string)($row['legacy_value'] ?? '')),
+                trim((string)($row['code'] ?? '')),
+            ];
+
+            if (in_array($needle, $candidates, true)) {
+                return trim((string)($row['label'] ?? $fallback)) ?: $fallback;
+            }
+        }
+
+        return $fallback;
+    }
+
+    private function resolveRequiredPassageLookupLabel(string $kind, ?string $value, string $fieldLabel): string {
+        $needle = trim((string)($value ?? ''));
+        if ($needle === '') {
+            throw new \RuntimeException(sprintf('Le champ "%s" est obligatoire.', $fieldLabel));
+        }
+
+        foreach ($this->getPassageLookupRows($kind) as $row) {
+            $candidates = [
+                trim((string)($row['label'] ?? '')),
+                trim((string)($row['legacy_value'] ?? '')),
+                trim((string)($row['code'] ?? '')),
+            ];
+
+            if (in_array($needle, $candidates, true)) {
+                $label = trim((string)($row['label'] ?? ''));
+                if ($label !== '') {
+                    return $label;
+                }
+            }
+        }
+
+        throw new \RuntimeException(sprintf('Valeur invalide pour "%s".', $fieldLabel));
+    }
+
+    private function normalizeOptionalPassageLookupLabel(string $kind, ?string $value): ?string {
+        $needle = trim((string)($value ?? ''));
+        if ($needle === '') {
+            return null;
+        }
+
+        foreach ($this->getPassageLookupRows($kind) as $row) {
+            $candidates = [
+                trim((string)($row['label'] ?? '')),
+                trim((string)($row['legacy_value'] ?? '')),
+                trim((string)($row['code'] ?? '')),
+            ];
+
+            if (in_array($needle, $candidates, true)) {
+                $label = trim((string)($row['label'] ?? ''));
+                return $label !== '' ? $label : null;
+            }
+        }
+
+        return null;
+    }
+
+    private function getPassageLookupLabels(string $kind): array {
+        return array_values(array_filter(array_map(static fn($row) => trim((string)($row['label'] ?? '')), $this->getPassageLookupRows($kind))));
+    }
+
+    private function getPassageLookupIdByLabel(string $kind, string $label): ?int {
+        $needle = trim($label);
+        if ($needle === '') {
+            return null;
+        }
+
+        foreach ($this->getPassageLookupRows($kind) as $row) {
+            if (trim((string)($row['label'] ?? '')) !== $needle) {
+                continue;
+            }
+
+            $id = $row['id'] ?? null;
+            return is_numeric($id) ? (int)$id : null;
+        }
+
+        return null;
+    }
+
     /**
      * Normalise le type_passage en s'assurant qu'il fait partie des valeurs ENUM attendues.
      * Valeur par défaut : 'Entrée matin'.
@@ -104,17 +279,7 @@ class MovementsModel {
      * @return string Valeur normalisée
      */
     private function normalizeTypePassage(string $typePassage): string {
-        $allowed = [
-            'Aucun',
-            'Entrée matin',
-            'Sortie midi',
-            'Rentrée midi',
-            'Entrée après-midi',
-            'Sortie autorisée',
-            'Journée',
-        ];
-
-        return in_array($typePassage, $allowed, true) ? $typePassage : 'Entrée matin';
+        return $this->resolveRequiredPassageLookupLabel('types', $typePassage, 'type_passage');
     }
 
     /**
@@ -125,17 +290,7 @@ class MovementsModel {
      * @return string Valeur normalisée
      */
     private function normalizeStatut(string $statut): string {
-        $allowed = [
-            'Autorisé',
-            'Refusé',
-            'Absence justifiée',
-            'Sortie justifiée',
-            'Absent',
-            'En retard',
-            'Présent',
-        ];
-
-        return in_array($statut, $allowed, true) ? $statut : 'Autorisé';
+        return $this->resolveRequiredPassageLookupLabel('statuses', $statut, 'statut');
     }
 
     /**
@@ -146,17 +301,7 @@ class MovementsModel {
      * @return string|null Valeur normalisée ou null
      */
     private function normalizeReason(?string $reason): ?string {
-        $value = trim((string)($reason ?? ''));
-        if ($value === '') {
-            return null;
-        }
-
-        $allowed = $this->getEnumValues('passages', 'raison');
-        if (empty($allowed)) {
-            return null;
-        }
-
-        return in_array($value, $allowed, true) ? $value : null;
+        return $this->normalizeOptionalPassageLookupLabel('reasons', $reason);
     }
 
     /**
@@ -165,7 +310,7 @@ class MovementsModel {
      * @return string[]
      */
     public function getReasonOptions(): array {
-        return $this->getEnumValues('passages', 'raison');
+        return $this->getPassageLookupLabels('reasons');
     }
 
     /**
@@ -177,36 +322,199 @@ class MovementsModel {
      */
     public function addMovement($movementData) {
         $pdo = $this->db->getPdo();
-        $dbTypePassage = $this->normalizeTypePassage((string)($movementData['type_passage'] ?? 'Entrée matin'));
-        $hasReasonColumn = !empty($this->getEnumValues('passages', 'raison'));
-        $sql = $hasReasonColumn
-            ? "INSERT INTO passages (id_etudiant, date_passage, heure_passage, type_passage, statut, raison, `scan`, `manualEncoding`)
-               VALUES (:id_etudiant, :date_passage, :heure_passage, :type_passage, :statut, :raison, :scan, :manualEncoding)"
-            : "INSERT INTO passages (id_etudiant, date_passage, heure_passage, type_passage, statut, `scan`, `manualEncoding`)
-               VALUES (:id_etudiant, :date_passage, :heure_passage, :type_passage, :statut, :scan, :manualEncoding)";
+        $dbTypePassage = $this->normalizeTypePassage((string)($movementData['type_passage'] ?? ''));
+        $dbStatut = $this->normalizeStatut((string)($movementData['statut'] ?? ''));
+        $targetDate = $movementData['date_passage'] ?? date('Y-m-d');
+        $isScanAuto = !empty($movementData['scan']) && !(!empty($movementData['manualEncoding']) || !empty($movementData['manual']));
+
+        // Premier scan du jour: considérer l'école ouverte et pré-marquer
+        // les élèves sans passage en Journée/Absent (auto).
+        if ($isScanAuto) {
+            $this->initializeDailyAutoAbsences($targetDate);
+        }
+
+        // Si l'étudiant est finalement présent/en retard sur une entrée,
+        // retirer l'absence auto "Journée" précédemment persistée.
+        if (
+            in_array($dbTypePassage, ['Entrée matin', 'Entrée après-midi'], true)
+            && in_array($dbStatut, ['Présent', 'En retard'], true)
+        ) {
+            $this->deleteAutoAbsenceForDay((int)$movementData['id_etudiant'], $targetDate);
+        }
+
+        // Règle métier: un même étudiant ne peut pas avoir deux passages
+        // du même type sur une même journée.
+        if ($dbTypePassage !== 'Aucun' && $this->hasMovementTypeOnDate(
+            (int)$movementData['id_etudiant'],
+            $dbTypePassage,
+            $targetDate
+        )) {
+            throw new \RuntimeException(sprintf(
+                'Le passage "%s" est déjà enregistré pour cet étudiant aujourd\'hui.',
+                $dbTypePassage
+            ));
+        }
+
+        $typeId = $this->getPassageLookupIdByLabel('types', $dbTypePassage);
+        $statutId = $this->getPassageLookupIdByLabel('statuses', $dbStatut);
+        $raisonLabel = $this->normalizeReason($movementData['raison'] ?? null);
+        $raisonId = $raisonLabel ? $this->getPassageLookupIdByLabel('reasons', $raisonLabel) : null;
+
+        if ($typeId === null || $statutId === null) {
+            throw new \RuntimeException('Configuration des métadonnées de passage invalide.');
+        }
+
+        $sql = "INSERT INTO passages (id_etudiant, date_passage, heure_passage, id_type_passage, id_statut_passage, id_raison_passage, `scan`, `manualEncoding`)
+               VALUES (:id_etudiant, :date_passage, :heure_passage, :id_type_passage, :id_statut_passage, :id_raison_passage, :scan, :manualEncoding)";
         $stmt = $pdo->prepare($sql);
         try {
             $params = [
                 ':id_etudiant'  => $movementData['id_etudiant'],
-                ':type_passage' => $dbTypePassage,
-                ':statut'       => $this->normalizeStatut((string)($movementData['statut'] ?? 'Autorisé')),
-                ':date_passage' => $movementData['date_passage'] ?? date('Y-m-d'),
+                ':id_type_passage' => $typeId,
+                ':id_statut_passage' => $statutId,
+                ':id_raison_passage' => $raisonId,
+                ':date_passage' => $targetDate,
                 ':heure_passage'=> $movementData['heure_passage'] ?? date('H:i:s'),
                 ':scan'         => isset($movementData['scan'])   ? (int)(bool)$movementData['scan']   : 0,
                 ':manualEncoding' => isset($movementData['manualEncoding'])
                     ? (int)(bool)$movementData['manualEncoding']
                     : (isset($movementData['manual']) ? (int)(bool)$movementData['manual'] : 0),
             ];
-            if ($hasReasonColumn) {
-                $params[':raison'] = $this->normalizeReason($movementData['raison'] ?? null);
-            }
 
             $stmt->execute($params);
+            if ($stmt->rowCount() > 0) {
+                if (!$isScanAuto) {
+                    \App\Service\AuditService::logDbChange('insert', 'passages', null, $movementData);
+                }
+            }
         } catch (PDOException $e) {
             error_log('Error adding movement: ' . $e->getMessage());
             throw $e;
         }
         return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * Supprime une absence auto persistée pour la journée en cours (si présente).
+     */
+    private function deleteAutoAbsenceForDay(int $studentId, string $datePassage): void {
+        $pdo = $this->db->getPdo();
+        $typeJourneeId = $this->getPassageLookupIdByLabel('types', 'Journée');
+        $statutAbsentId = $this->getPassageLookupIdByLabel('statuses', 'Absent');
+        if ($typeJourneeId === null || $statutAbsentId === null) {
+            return;
+        }
+
+        $stmt = $pdo->prepare(
+            "DELETE FROM passages
+             WHERE id_etudiant = :id_etudiant
+               AND date_passage = :date_passage
+               AND id_type_passage = :id_type_passage
+               AND id_statut_passage = :id_statut_passage
+               AND scan = 0
+               AND manualEncoding = 0"
+        );
+        $stmt->execute([
+            ':id_etudiant' => $studentId,
+            ':date_passage' => $datePassage,
+            ':id_type_passage' => $typeJourneeId,
+            ':id_statut_passage' => $statutAbsentId,
+        ]);
+    }
+
+    /**
+     * Pré-crée les absences automatiques "Journée/Absent" pour les élèves
+     * qui n'ont encore aucun passage à la date donnée.
+     */
+    private function initializeDailyAutoAbsences(string $datePassage): void {
+        $pdo = $this->db->getPdo();
+        $typeJourneeId = $this->getPassageLookupIdByLabel('types', 'Journée');
+        $statutAbsentId = $this->getPassageLookupIdByLabel('statuses', 'Absent');
+        if ($typeJourneeId === null || $statutAbsentId === null) {
+            return;
+        }
+
+        $alreadyInitializedStmt = $pdo->prepare(
+            "SELECT 1
+             FROM passages
+             WHERE date_passage = :date_passage
+               AND id_type_passage = :id_type_passage
+               AND id_statut_passage = :id_statut_passage
+               AND scan = 0
+               AND manualEncoding = 0
+             LIMIT 1"
+        );
+        $alreadyInitializedStmt->execute([
+            ':date_passage' => $datePassage,
+            ':id_type_passage' => $typeJourneeId,
+            ':id_statut_passage' => $statutAbsentId,
+        ]);
+        if ($alreadyInitializedStmt->fetchColumn()) {
+            return;
+        }
+
+        $insertStmt = $pdo->prepare(
+            "INSERT INTO passages (
+                id_etudiant,
+                date_passage,
+                heure_passage,
+                id_type_passage,
+                id_statut_passage,
+                id_raison_passage,
+                `scan`,
+                `manualEncoding`
+            )
+            SELECT
+                e.id_etudiant,
+                :date_passage,
+                '00:00:00',
+                :id_type_passage,
+                :id_statut_passage,
+                NULL,
+                0,
+                0
+            FROM etudiants e
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM passages p
+                WHERE p.id_etudiant = e.id_etudiant
+                  AND p.date_passage = :date_passage_check
+            )"
+        );
+
+        $insertStmt->execute([
+            ':date_passage' => $datePassage,
+            ':date_passage_check' => $datePassage,
+            ':id_type_passage' => $typeJourneeId,
+            ':id_statut_passage' => $statutAbsentId,
+        ]);
+    }
+
+    /**
+     * Vérifie l'existence d'un passage pour un étudiant, un type et une date.
+     */
+    private function hasMovementTypeOnDate(int $studentId, string $typePassage, string $datePassage): bool {
+        $pdo = $this->db->getPdo();
+        $typeId = $this->getPassageLookupIdByLabel('types', $typePassage);
+        if ($typeId === null) {
+            return false;
+        }
+
+        $stmt = $pdo->prepare(
+            "SELECT 1
+             FROM passages
+             WHERE id_etudiant = :id_etudiant
+               AND id_type_passage = :id_type_passage
+               AND date_passage = :date_passage
+             LIMIT 1"
+        );
+        $stmt->execute([
+            ':id_etudiant' => $studentId,
+            ':id_type_passage' => $typeId,
+            ':date_passage' => $datePassage,
+        ]);
+
+        return (bool)$stmt->fetchColumn();
     }
 
     /**
@@ -220,31 +528,53 @@ class MovementsModel {
         $pdo = $this->db->getPdo();
         $setClauses = [];
         $params = [':id' => $movementId];
-        
+        $stmtOld = $pdo->prepare("SELECT * FROM passages WHERE id_passage = :id");
+        $stmtOld->execute([':id' => $movementId]);
+        $old = $stmtOld->fetch(PDO::FETCH_ASSOC);
+
         if (isset($movementData['id_etudiant'])) {
             $setClauses[] = "id_etudiant = :id_etudiant";
             $params[':id_etudiant'] = $movementData['id_etudiant'];
         }
         if (isset($movementData['type_passage'])) {
-            $setClauses[] = "type_passage = :type_passage";
-            $params[':type_passage'] = $this->normalizeTypePassage((string)$movementData['type_passage']);
+            $setClauses[] = "id_type_passage = :id_type_passage";
+            $params[':id_type_passage'] = $this->getPassageLookupIdByLabel(
+                'types',
+                $this->normalizeTypePassage((string)$movementData['type_passage'])
+            );
         }
         if (isset($movementData['statut'])) {
-            $setClauses[] = "statut = :statut";
-            $params[':statut'] = $this->normalizeStatut((string)$movementData['statut']);
+            $setClauses[] = "id_statut_passage = :id_statut_passage";
+            $params[':id_statut_passage'] = $this->getPassageLookupIdByLabel(
+                'statuses',
+                $this->normalizeStatut((string)$movementData['statut'])
+            );
         }
-        if (array_key_exists('raison', $movementData) && !empty($this->getEnumValues('passages', 'raison'))) {
-            $setClauses[] = "raison = :raison";
-            $params[':raison'] = $this->normalizeReason($movementData['raison']);
+        if (array_key_exists('raison', $movementData)) {
+            $setClauses[] = "id_raison_passage = :id_raison_passage";
+            $reasonLabel = $this->normalizeReason($movementData['raison']);
+            $params[':id_raison_passage'] = $reasonLabel
+                ? $this->getPassageLookupIdByLabel('reasons', $reasonLabel)
+                : null;
         }
-        
+
+        foreach ([':id_type_passage', ':id_statut_passage'] as $requiredParam) {
+            if (array_key_exists($requiredParam, $params) && $params[$requiredParam] === null) {
+                throw new \RuntimeException('Valeur de métadonnée invalide pour la mise à jour du passage.');
+            }
+        }
         if (empty($setClauses)) {
             return;
         }
-        
         $sql = "UPDATE passages SET " . implode(', ', $setClauses) . " WHERE id_passage = :id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
+        if ($stmt->rowCount() > 0) {
+            $stmtNew = $pdo->prepare("SELECT * FROM passages WHERE id_passage = :id");
+            $stmtNew->execute([':id' => $movementId]);
+            $new = $stmtNew->fetch(PDO::FETCH_ASSOC);
+            \App\Service\AuditService::logDbChange('update', 'passages', $old, $new);
+        }
     }
 
     /**
@@ -256,8 +586,12 @@ class MovementsModel {
     public function searchMovements($query) {
         $pdo = $this->db->getPdo();
         // Chercher par nom d'étudiant ou ID
-        $stmt = $pdo->prepare("SELECT p.* FROM passages p 
-            JOIN etudiants e ON p.id_etudiant = e.id_etudiant 
+        $stmt = $pdo->prepare("SELECT p.*, tp.label AS type_passage, sp.label AS statut, rp.label AS raison
+            FROM passages p 
+            JOIN etudiants e ON p.id_etudiant = e.id_etudiant
+            LEFT JOIN types_passage tp ON tp.id_type_passage = p.id_type_passage
+            LEFT JOIN statuts_passage sp ON sp.id_statut_passage = p.id_statut_passage
+            LEFT JOIN raisons_passage rp ON rp.id_raison_passage = p.id_raison_passage
             WHERE e.nom LIKE :query OR e.prenom LIKE :query OR p.id_etudiant LIKE :query 
             LIMIT 50");
         $stmt->execute([':query' => "%$query%"]);
@@ -273,9 +607,13 @@ class MovementsModel {
     public function getMovementByStudentId($studentId) {
         $pdo = $this->db->getPdo();
         $stmt = $pdo->prepare(
-            "SELECT * FROM passages
+                        "SELECT p.*, tp.label AS type_passage, sp.label AS statut, rp.label AS raison
+                         FROM passages p
+                         LEFT JOIN types_passage tp ON tp.id_type_passage = p.id_type_passage
+                         LEFT JOIN statuts_passage sp ON sp.id_statut_passage = p.id_statut_passage
+                         LEFT JOIN raisons_passage rp ON rp.id_raison_passage = p.id_raison_passage
              WHERE id_etudiant = :id_etudiant
-               AND type_passage != 'Aucun'
+                             AND COALESCE(tp.label, '') != 'Aucun'
              ORDER BY date_passage DESC, heure_passage DESC"
         );
         $stmt->execute([':id_etudiant' => $studentId]);
@@ -290,10 +628,13 @@ class MovementsModel {
     public function getAllMovements() {
         $pdo = $this->db->getPdo();
         $stmt = $pdo->query(
-            "SELECT p.*, e.nom, e.prenom, e.classe
+              "SELECT p.*, tp.label AS type_passage, sp.label AS statut, rp.label AS raison, e.nom, e.prenom, e.classe
              FROM passages p
              LEFT JOIN etudiants e ON p.id_etudiant = e.id_etudiant
-             WHERE p.type_passage != 'Aucun'
+               LEFT JOIN types_passage tp ON tp.id_type_passage = p.id_type_passage
+               LEFT JOIN statuts_passage sp ON sp.id_statut_passage = p.id_statut_passage
+               LEFT JOIN raisons_passage rp ON rp.id_raison_passage = p.id_raison_passage
+               WHERE COALESCE(tp.label, '') != 'Aucun'
              ORDER BY p.date_passage DESC, p.heure_passage DESC"
         );
         $movements = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -309,11 +650,14 @@ class MovementsModel {
     public function getMovementsByDate($date) {
         $pdo = $this->db->getPdo();
         $stmt = $pdo->prepare(
-            "SELECT p.*, e.nom, e.prenom, e.classe
+                        "SELECT p.*, tp.label AS type_passage, sp.label AS statut, rp.label AS raison, e.nom, e.prenom, e.classe
              FROM passages p
              LEFT JOIN etudiants e ON p.id_etudiant = e.id_etudiant
+                         LEFT JOIN types_passage tp ON tp.id_type_passage = p.id_type_passage
+                         LEFT JOIN statuts_passage sp ON sp.id_statut_passage = p.id_statut_passage
+                         LEFT JOIN raisons_passage rp ON rp.id_raison_passage = p.id_raison_passage
              WHERE p.date_passage = :date
-               AND p.type_passage != 'Aucun'
+                             AND COALESCE(tp.label, '') != 'Aucun'
              ORDER BY p.heure_passage DESC"
         );
         $stmt->execute([':date' => $date]);
@@ -328,8 +672,10 @@ class MovementsModel {
     public function getTodayPassageTypes($studentId): array {
         $pdo = $this->db->getPdo();
         $stmt = $pdo->prepare(
-            "SELECT type_passage FROM passages
-             WHERE id_etudiant = :id AND date_passage = CURDATE()
+              "SELECT tp.label AS type_passage
+               FROM passages p
+               LEFT JOIN types_passage tp ON tp.id_type_passage = p.id_type_passage
+               WHERE p.id_etudiant = :id AND p.date_passage = CURDATE()
              ORDER BY heure_passage ASC"
         );
         $stmt->execute([':id' => $studentId]);
@@ -346,11 +692,14 @@ class MovementsModel {
     public function getMovementsBetweenDates($dateFrom, $dateTo) {
         $pdo = $this->db->getPdo();
         $stmt = $pdo->prepare(
-            "SELECT p.*, e.nom, e.prenom, e.classe
+                        "SELECT p.*, tp.label AS type_passage, sp.label AS statut, rp.label AS raison, e.nom, e.prenom, e.classe
              FROM passages p
              LEFT JOIN etudiants e ON p.id_etudiant = e.id_etudiant
+                         LEFT JOIN types_passage tp ON tp.id_type_passage = p.id_type_passage
+                         LEFT JOIN statuts_passage sp ON sp.id_statut_passage = p.id_statut_passage
+                         LEFT JOIN raisons_passage rp ON rp.id_raison_passage = p.id_raison_passage
              WHERE p.date_passage BETWEEN :date_from AND :date_to
-               AND p.type_passage != 'Aucun'
+                             AND COALESCE(tp.label, '') != 'Aucun'
              ORDER BY p.date_passage DESC, p.heure_passage DESC"
         );
         $stmt->execute([':date_from' => $dateFrom, ':date_to' => $dateTo]);
@@ -366,8 +715,14 @@ class MovementsModel {
      */
     public function deleteMovement($id) {
         $pdo = $this->db->getPdo();
+        $stmtOld = $pdo->prepare("SELECT * FROM passages WHERE id_passage = :id");
+        $stmtOld->execute([':id' => $id]);
+        $old = $stmtOld->fetch(PDO::FETCH_ASSOC);
         $stmt = $pdo->prepare("DELETE FROM passages WHERE id_passage = :id");
         $stmt->execute([':id' => $id]);
+        if ($stmt->rowCount() > 0) {
+            \App\Service\AuditService::logDbChange('delete', 'passages', $old, null);
+        }
         return $stmt->rowCount() > 0;
     }
 
@@ -377,7 +732,7 @@ class MovementsModel {
     public function searchMovementsByStudent(array $filters): array {
         $pdo = $this->db->getPdo();
 
-        $where = ["p.type_passage != 'Aucun'"];
+        $where = ["COALESCE(tp.label, '') != 'Aucun'"];
         $params = [];
 
         if (!empty($filters['nom'])) {
@@ -397,7 +752,7 @@ class MovementsModel {
             $params[':classe_id'] = $classId;
         }
         if (!empty($filters['statut'])) {
-            $where[] = "p.statut = :statut";
+            $where[] = "sp.label = :statut";
             $params[':statut'] = $filters['statut'];
         }
         if (!empty($filters['date'])) {
@@ -417,11 +772,15 @@ class MovementsModel {
         }
 
         $sql = "SELECT p.id_passage, p.date_passage, p.heure_passage,
-                   p.type_passage, p.statut, p.raison,
+               p.id_type_passage, p.id_statut_passage, p.id_raison_passage,
+               tp.label AS type_passage, sp.label AS statut, rp.label AS raison,
                        COALESCE(e.demi_journee_absence, 0) AS total_demi_journees,
                        e.nom, e.prenom, e.classe
                 FROM passages p
                 JOIN etudiants e ON p.id_etudiant = e.id_etudiant
+            LEFT JOIN types_passage tp ON tp.id_type_passage = p.id_type_passage
+            LEFT JOIN statuts_passage sp ON sp.id_statut_passage = p.id_statut_passage
+            LEFT JOIN raisons_passage rp ON rp.id_raison_passage = p.id_raison_passage
                 WHERE " . implode(' AND ', $where) . "
                 ORDER BY p.date_passage DESC, p.heure_passage DESC";
 

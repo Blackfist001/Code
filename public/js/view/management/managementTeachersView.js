@@ -89,12 +89,20 @@ export default class ManagementTeachersView {
     showEditTeacherModal(controller, teacherId, currentNom, currentPrenom, currentEmail, currentUsername) {
         this.parent._showModal(`
             <h3>Modifier le professeur</h3>
-            <div class="form-container">
-                <input type="text" id="edit-teacher-nom" value="${currentNom || ''}" placeholder="Nom">
-                <input type="text" id="edit-teacher-prenom" value="${currentPrenom || ''}" placeholder="Prénom">
-                <input type="email" id="edit-teacher-email" value="${currentEmail || ''}" placeholder="Email">
-                <input type="text" id="edit-teacher-username" value="${currentUsername || ''}" placeholder="Username">
-                <div style="display:flex;gap:8px;margin-top:8px;">
+            <div class="form-container modal-form-grid">
+                <label for="edit-teacher-nom">Nom</label>
+                <input type="text" id="edit-teacher-nom" value="${currentNom || ''}">
+
+                <label for="edit-teacher-prenom">Prénom</label>
+                <input type="text" id="edit-teacher-prenom" value="${currentPrenom || ''}">
+
+                <label for="edit-teacher-email">Email</label>
+                <input type="email" id="edit-teacher-email" value="${currentEmail || ''}">
+
+                <label for="edit-teacher-username">Username</label>
+                <input type="text" id="edit-teacher-username" value="${currentUsername || ''}">
+
+                <div class="modal-row-full modal-form-actions">
                     <button id="modal-btn-save">Enregistrer</button>
                     <button id="modal-btn-cancel">Annuler</button>
                 </div>

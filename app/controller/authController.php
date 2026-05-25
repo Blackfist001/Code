@@ -3,8 +3,10 @@ namespace App\Controller;
 
 use App\Model\UsersModel;
 use App\Service\CsrfService;
+use App\Service\AuditService;
 use App\Service\RateLimiterService;
 use App\Service\SmartschoolSync;
+use App\Service\SmartschoolWebServiceV3Client;
 use App\Service\ValidationService;
 use Exception;
 
@@ -137,6 +139,9 @@ class AuthController {
                 // Rotation du token CSRF après élévation de privilège.
                 CsrfService::rotateToken();
 
+                // Audit de connexion réussie.
+                AuditService::logLogin((string)($user['nom'] ?? $username), $ip);
+
                 $syncResult = [
                     'executed' => false,
                     'success' => false,
@@ -145,13 +150,21 @@ class AuthController {
                 ];
 
                 try {
-                    $this->smartschoolSync ??= new SmartschoolSync();
-                    $stats = $this->smartschoolSync->syncAll(false);
+                    $syncMaxSeconds = 10;
+                    $this->smartschoolSync ??= new SmartschoolSync(new SmartschoolWebServiceV3Client(null, 3));
+                    if (method_exists($this->smartschoolSync, 'syncForLogin')) {
+                        $stats = call_user_func([$this->smartschoolSync, 'syncForLogin'], false, $syncMaxSeconds);
+                    } else {
+                        $stats = $this->smartschoolSync->syncAll(false);
+                    }
+                    $timedOut = (bool)($stats['_meta']['timed_out'] ?? false);
                     $syncResult = [
                         'executed' => true,
                         'success' => true,
                         'stats' => $stats,
-                        'message' => 'Synchronisation Smartschool SOAP V3 terminee'
+                        'message' => $timedOut
+                            ? 'Synchronisation Smartschool partielle (limite de 10s atteinte)'
+                            : 'Synchronisation Smartschool SOAP V3 terminee'
                     ];
                 } catch (Exception $syncError) {
                     error_log('Smartschool sync error at login: ' . $syncError->getMessage());

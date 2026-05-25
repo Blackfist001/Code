@@ -1,0 +1,73 @@
+<div class="card management-settings-card">
+    <h3>Paramètres de comportement</h3>
+    <p class="settings-card-intro">
+        Modifie ici les règles globales utilisées par le projet (scan, retards, fenêtres de midi).
+    </p>
+
+    <div class="form-container modal-form-grid settings-form-grid">
+        <label for="settings-course-duration-min">Durée d'un cours (minutes)</label>
+        <input type="number" id="settings-course-duration-min" min="1" max="240" step="1">
+
+        <label for="settings-late-tolerance-min">Battement retard (minutes)</label>
+        <input type="number" id="settings-late-tolerance-min" min="0" max="120" step="1">
+
+        <label for="settings-morning-break-duration-min">Récréation du matin (minutes)</label>
+        <input type="number" id="settings-morning-break-duration-min" min="0" max="120" step="1">
+
+        <label for="settings-morning-break-time">Heure de récréation</label>
+        <select id="settings-morning-break-time">
+            <option value="">-- Choisir un créneau --</option>
+        </select>
+
+        <label for="settings-midi1-start">Midi 1 - Début</label>
+        <select id="settings-midi1-start">
+            <option value="">-- Choisir un créneau --</option>
+        </select>
+
+        <label for="settings-midi1-end">Midi 1 - Fin</label>
+        <select id="settings-midi1-end">
+            <option value="">-- Choisir un créneau --</option>
+        </select>
+
+        <label for="settings-midi2-start">Midi 2 - Début</label>
+        <select id="settings-midi2-start">
+            <option value="">-- Choisir un créneau --</option>
+        </select>
+
+        <label for="settings-midi2-end">Midi 2 - Fin</label>
+        <select id="settings-midi2-end">
+            <option value="">-- Choisir un créneau --</option>
+        </select>
+
+        <label for="settings-midi1-years">Midi 1 - Années</label>
+        <input type="text" id="settings-midi1-years" placeholder="1,2">
+
+        <label for="settings-midi2-years">Midi 2 - Années</label>
+        <input type="text" id="settings-midi2-years" placeholder="3,4,5,6,7,8">
+
+        <label for="settings-morning-entry-end">Entrée matin jusqu'à</label>
+        <input type="time" id="settings-morning-entry-end" readonly>
+
+        <label for="settings-afternoon-entry-start">Entrée après-midi à partir de</label>
+        <input type="time" id="settings-afternoon-entry-start" readonly>
+
+        <div class="modal-row-full modal-form-actions">
+            <button id="btn-settings-save" type="button">Enregistrer</button>
+            <button id="btn-settings-reload" type="button">Recharger</button>
+        </div>
+    </div>
+</div>
+
+<div class="card management-settings-card">
+    <h3>Historique des sauvegardes</h3>
+    <p class="settings-card-intro">
+        Choisis une sauvegarde datée pour comparer les valeurs puis confirmer la restauration dans le modal.
+    </p>
+
+    <div class="form-container modal-form-grid settings-form-grid">
+        <label for="settings-backup-select">Sauvegardes disponibles</label>
+        <select id="settings-backup-select">
+            <option value="">-- Aucune sauvegarde --</option>
+        </select>
+    </div>
+</div>

@@ -14,6 +14,102 @@ Les documents de synthese ont ete mis a jour pour refleter :
 
 ## 📚 DOCUMENTS GÉNÉRÉS
 
+### A. Documents TXT (partage terrain)
+
+### A1. **[CAHIER_TECHNIQUE_REPRISE.txt](CAHIER_TECHNIQUE_REPRISE.txt)** 🧭
+**Type:** Dossier complet de reprise technique (TXT)
+**Contenu:**
+- cartographie fonctionnelle (parcours utilisateur et flux)
+- structure projet et conventions
+- inventaire configs/reglages/secrets
+- explication services et API
+- plan de passation pour nouvelle equipe
+
+**À Lire Pour:** partage/lecture rapide en format texte brut
+
+---
+
+### A2. **[MODE_EMPLOI_UTILISATEUR.txt](MODE_EMPLOI_UTILISATEUR.txt)** 👥
+**Type:** Guide utilisateur vulgarise (TXT)
+**Contenu:**
+- mode d emploi pas a pas pour utilisateur non forme
+- parcours par role
+- depannage simple et cas pratiques
+
+**À Lire Pour:** diffusion terrain sans mise en forme Markdown
+
+---
+
+### A3. **[FICHE_POSTE_SURVEILLANTS.txt](FICHE_POSTE_SURVEILLANTS.txt)** 🧾
+**Type:** Fiche terrain 1 page (TXT)
+**Contenu:**
+- procedure courte du poste surveillant
+- scanner + encodage manuel + depannage express
+
+**À Lire Pour:** impression et affichage au poste de surveillance
+
+---
+
+### A4. **[FICHE_POSTE_GESTIONNAIRE.txt](FICHE_POSTE_GESTIONNAIRE.txt)** 📌
+**Type:** Fiche terrain 1 page (TXT)
+**Contenu:**
+- routine quotidienne gestionnaire
+- controle absents/recherche/historique
+- exports et depannage rapide
+
+**À Lire Pour:** prise de poste gestionnaire immediate
+
+---
+
+### A5. **[FICHE_POSTE_ADMINISTRATEUR.txt](FICHE_POSTE_ADMINISTRATEUR.txt)** 🛡️
+**Type:** Fiche terrain 1 page (TXT)
+**Contenu:**
+- pilotage admin (audits, parametres, referentiels)
+- gestion comptes/roles
+- securisation et bonnes pratiques de fin de poste
+
+**À Lire Pour:** operations administrateur quotidiennes
+
+---
+
+### B. Documents Markdown (version detaillee)
+
+### B1. **[FICHE_POSTE_SURVEILLANTS.md](FICHE_POSTE_SURVEILLANTS.md)** 🧾
+**Type:** Fiche terrain 1 page
+**Contenu:**
+- procedure ultra-courte pour le poste surveillant
+- scanner + encodage manuel + depannage express
+- checklist debut/fin de poste
+
+**À Lire Pour:** utilisation immediate sans formation technique
+
+---
+
+### B2. **[MODE_EMPLOI_UTILISATEUR.md](MODE_EMPLOI_UTILISATEUR.md)** 👥
+**Type:** Guide utilisateur vulgarisé
+**Contenu:**
+- mode d emploi pas a pas pour utilisateur non forme
+- parcours par role (Surveillant, Gestionnaire, Administrateur)
+- utilisation des ecrans principaux
+- depannage simple et cas pratiques
+
+**À Lire Pour:** Former rapidement les utilisateurs terrain
+
+---
+
+### B3. **[CAHIER_TECHNIQUE_REPRISE.md](CAHIER_TECHNIQUE_REPRISE.md)** 🧭
+**Type:** Dossier complet de reprise technique
+**Contenu:**
+- cartographie fonctionnelle (parcours utilisateur et flux)
+- structure projet et conventions
+- inventaire configs/reglages/secrets
+- explication services et API
+- plan de passation pour nouvelle equipe
+
+**À Lire Pour:** Onboarding technique rapide d'une equipe de reprise
+
+---
+
 ### 1. **[RAPPORT_ANALYSE_BUGS.md](RAPPORT_ANALYSE_BUGS.md)** 📋
 **Type:** Analyse détaillée complète  
 **Longueur:** ~400 lignes  

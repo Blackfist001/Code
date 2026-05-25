@@ -19,6 +19,42 @@
 CREATE DATABASE IF NOT EXISTS `sortie_ecole` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `sortie_ecole`;
 
+-- Listage de la structure de table sortie_ecole. audit_db_changes
+CREATE TABLE IF NOT EXISTS `audit_db_changes` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user` varchar(100) NOT NULL,
+  `ip` varchar(45) NOT NULL DEFAULT '0.0.0.0',
+  `action` varchar(32) NOT NULL,
+  `entity` varchar(128) NOT NULL,
+  `old_data` json DEFAULT NULL,
+  `new_data` json DEFAULT NULL,
+  `meta` json DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_audit_db_changes_created_at` (`created_at`),
+  KEY `idx_audit_db_changes_entity_action_created_at` (`entity`,`action`,`created_at`),
+  KEY `idx_audit_db_changes_user_created_at` (`user`,`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Listage des données de la table sortie_ecole.audit_db_changes : ~1 rows (environ)
+INSERT INTO `audit_db_changes` (`id`, `user`, `ip`, `action`, `entity`, `old_data`, `new_data`, `meta`, `created_at`) VALUES
+	(1, 'audit_tester', '0.0.0.0', 'probe', 'audit_probe', NULL, '{"id": "audit_probe_20260520_115404"}', NULL, '2026-05-20 11:54:04');
+
+-- Listage de la structure de table sortie_ecole. audit_logins
+CREATE TABLE IF NOT EXISTS `audit_logins` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user` varchar(100) NOT NULL,
+  `ip` varchar(45) NOT NULL DEFAULT '0.0.0.0',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_audit_logins_created_at` (`created_at`),
+  KEY `idx_audit_logins_user_created_at` (`user`,`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Listage des données de la table sortie_ecole.audit_logins : ~1 rows (environ)
+INSERT INTO `audit_logins` (`id`, `user`, `ip`, `created_at`) VALUES
+	(1, 'audit_tester', '127.0.0.1', '2026-05-20 11:54:04');
+
 -- Listage de la structure de table sortie_ecole. classes
 CREATE TABLE IF NOT EXISTS `classes` (
   `id_classe` int NOT NULL AUTO_INCREMENT,
@@ -120,7 +156,7 @@ CREATE TABLE IF NOT EXISTS `etudiants` (
 
 -- Listage des données de la table sortie_ecole.etudiants : ~24 rows (environ)
 INSERT INTO `etudiants` (`id_etudiant`, `sourcedId`, `internnummer`, `stamboeknummer`, `referenceIdentifier`, `gebruikersnaam`, `geslacht`, `emailadres`, `nom`, `prenom`, `classe`, `photo`, `date_naissance`, `autorisation_midi`, `demi_journee_absence`) VALUES
-	(2, '1002', NULL, NULL, NULL, NULL, NULL, NULL, 'Martin', 'Emma', 1, 'photo2.jpg', NULL, 0, 0),
+	(2, '1002', NULL, NULL, NULL, NULL, NULL, NULL, 'Martin', 'Emma', 1, 'photo2.jpg', NULL, 0, 1),
 	(3, '1003', NULL, NULL, NULL, NULL, NULL, NULL, 'Bernard', 'Hugo', 5, 'photo3.jpg', NULL, 1, 0),
 	(4, '1004', NULL, NULL, NULL, NULL, NULL, NULL, 'Petit', 'Léa', 7, 'photo4.jpg', NULL, 1, 0),
 	(5, '1005', NULL, NULL, NULL, NULL, NULL, NULL, 'Robert', 'Nathan', 4, 'photo5.jpg', NULL, 0, 0),
@@ -139,8 +175,8 @@ INSERT INTO `etudiants` (`id_etudiant`, `sourcedId`, `internnummer`, `stamboeknu
 	(18, '1018', NULL, NULL, NULL, NULL, NULL, NULL, 'Fournier', 'Lina', 4, 'photo18.jpg', NULL, 1, 0),
 	(19, '1019', NULL, NULL, NULL, NULL, NULL, NULL, 'Morel', 'Ethan', 5, 'photo19.jpg', NULL, 1, 0),
 	(20, '1020', NULL, NULL, NULL, NULL, NULL, NULL, 'Girard', 'Zoé', 6, 'photo20.jpg', NULL, 0, 0),
-	(27, '52260fb7-ab9f-5bb9-88c5-646604dc45f2', '111', '202601', '7725_6_0', 'E1', 'm', NULL, 'Eleve1', 'Elève1', 3, NULL, '2007-01-01', 0, 11),
-	(28, '8adbb0f1-421b-5d13-b9c3-ede3d513f0b2', '222', '202602', '7725_8_0', 'E2', 'm', NULL, 'Elève2', 'Elève2', 3, NULL, '2010-04-01', 0, 0),
+	(27, '52260fb7-ab9f-5bb9-88c5-646604dc45f2', '111', '202601', '7725_6_0', 'E1', 'm', NULL, 'Eleve1', 'Elève1', 3, NULL, '2007-01-01', 1, 11),
+	(28, '8adbb0f1-421b-5d13-b9c3-ede3d513f0b2', '222', '202602', '7725_8_0', 'E2', 'm', NULL, 'Elève2', 'Elève2', 3, NULL, '2010-04-01', 1, 0),
 	(29, '5db8c2fe-687f-550f-bfbf-2e3ee2c04e66', '333', '202603', '7725_16_0', 'E3', 'm', NULL, 'Elève3', 'Elève3', 3, NULL, '2013-02-28', 0, 0);
 
 -- Listage de la structure de table sortie_ecole. horaires_cours
@@ -148,9 +184,9 @@ CREATE TABLE IF NOT EXISTS `horaires_cours` (
   `id` int NOT NULL AUTO_INCREMENT,
   `jour_semaine` varchar(10) NOT NULL,
   `id_local` int DEFAULT NULL,
-  `id_matiere` int NOT NULL,
-  `id_classe` int NOT NULL,
-  `id_creneau_debut` int NOT NULL,
+  `id_matiere` int DEFAULT NULL,
+  `id_classe` int DEFAULT NULL,
+  `id_creneau_debut` int DEFAULT NULL,
   `id_creneau_fin` int DEFAULT NULL,
   `id_professeur` int DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -166,9 +202,9 @@ CREATE TABLE IF NOT EXISTS `horaires_cours` (
   CONSTRAINT `fk_horaires_local` FOREIGN KEY (`id_local`) REFERENCES `locaux` (`id_local`),
   CONSTRAINT `fk_horaires_matiere` FOREIGN KEY (`id_matiere`) REFERENCES `matieres` (`id_matiere`),
   CONSTRAINT `fk_horaires_professeur` FOREIGN KEY (`id_professeur`) REFERENCES `professeurs` (`id_professeur`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=139 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=235 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Listage des données de la table sortie_ecole.horaires_cours : ~125 rows (environ)
+-- Listage des données de la table sortie_ecole.horaires_cours : ~121 rows (environ)
 INSERT INTO `horaires_cours` (`id`, `jour_semaine`, `id_local`, `id_matiere`, `id_classe`, `id_creneau_debut`, `id_creneau_fin`, `id_professeur`) VALUES
 	(1, 'Lundi', NULL, 1, 1, 1, 1, NULL),
 	(2, 'Lundi', NULL, 1, 1, 2, 2, NULL),
@@ -185,56 +221,6 @@ INSERT INTO `horaires_cours` (`id`, `jour_semaine`, `id_local`, `id_matiere`, `i
 	(13, 'Mardi', NULL, 5, 1, 4, 4, NULL),
 	(14, 'Mardi', NULL, 5, 1, 5, 5, NULL),
 	(15, 'Mardi', NULL, 5, 1, 6, 6, NULL),
-	(16, 'lundi', NULL, 16, 3, 1, 1, NULL),
-	(17, 'lundi', NULL, 16, 3, 2, 2, NULL),
-	(19, 'lundi', NULL, 1, 3, 3, 3, NULL),
-	(20, 'lundi', NULL, 1, 3, 4, 4, NULL),
-	(21, 'lundi', NULL, 2, 3, 5, 5, NULL),
-	(22, 'lundi', NULL, 2, 3, 6, 6, NULL),
-	(23, 'lundi', NULL, 3, 3, 7, 7, NULL),
-	(24, 'lundi', NULL, 3, 3, 8, 8, NULL),
-	(25, 'lundi', NULL, 4, 3, 9, 9, NULL),
-	(26, 'lundi', NULL, 4, 3, 10, 10, NULL),
-	(27, 'mardi', NULL, 4, 3, 1, 1, NULL),
-	(28, 'mardi', NULL, 4, 3, 2, 2, NULL),
-	(30, 'mardi', NULL, 4, 3, 3, 3, NULL),
-	(31, 'mardi', NULL, 5, 3, 4, 4, NULL),
-	(32, 'mardi', NULL, 5, 3, 5, 5, NULL),
-	(33, 'mardi', NULL, 5, 3, 6, 6, NULL),
-	(34, 'mardi', NULL, 5, 3, 7, 7, NULL),
-	(35, 'mardi', NULL, 6, 3, 8, 8, NULL),
-	(36, 'mardi', NULL, 6, 3, 9, 9, NULL),
-	(37, 'mardi', NULL, 6, 3, 10, 10, NULL),
-	(38, 'mercredi', NULL, 6, 3, 1, 1, NULL),
-	(39, 'mercredi', NULL, 3, 3, 2, 2, NULL),
-	(41, 'mercredi', NULL, 16, 3, 3, 3, NULL),
-	(42, 'mercredi', NULL, 16, 3, 4, 4, NULL),
-	(43, 'mercredi', NULL, 16, 3, 5, 5, NULL),
-	(44, 'mercredi', NULL, 16, 3, 6, 6, NULL),
-	(45, 'mercredi', NULL, 16, 3, 7, 7, NULL),
-	(46, 'mercredi', NULL, 16, 3, 8, 8, NULL),
-	(47, 'mercredi', NULL, 16, 3, 9, 9, NULL),
-	(48, 'mercredi', NULL, 16, 3, 10, 10, NULL),
-	(49, 'jeudi', NULL, 16, 3, 1, 1, NULL),
-	(50, 'jeudi', NULL, 16, 3, 2, 2, NULL),
-	(52, 'jeudi', NULL, 16, 3, 3, 3, NULL),
-	(53, 'jeudi', NULL, 16, 3, 4, 4, NULL),
-	(54, 'jeudi', NULL, 16, 3, 5, 5, NULL),
-	(55, 'jeudi', NULL, 16, 3, 6, 6, NULL),
-	(56, 'jeudi', NULL, 16, 3, 7, 7, NULL),
-	(57, 'jeudi', NULL, 16, 3, 8, 8, NULL),
-	(58, 'jeudi', NULL, 16, 3, 9, 9, NULL),
-	(59, 'jeudi', NULL, 16, 3, 10, 10, NULL),
-	(60, 'vendredi', NULL, 16, 3, 1, 1, NULL),
-	(61, 'vendredi', NULL, 16, 3, 2, 2, NULL),
-	(63, 'vendredi', NULL, 16, 3, 3, 3, NULL),
-	(64, 'vendredi', NULL, 16, 3, 4, 4, NULL),
-	(65, 'vendredi', NULL, 16, 3, 5, 5, NULL),
-	(66, 'vendredi', NULL, 16, 3, 6, 6, NULL),
-	(67, 'vendredi', NULL, 16, 3, 7, 7, NULL),
-	(68, 'vendredi', NULL, 16, 3, 8, 8, NULL),
-	(69, 'vendredi', NULL, 16, 3, 9, 9, NULL),
-	(70, 'vendredi', NULL, 16, 3, 10, 10, NULL),
 	(71, 'lundi', NULL, 1, 5, 1, 1, NULL),
 	(72, 'lundi', NULL, 1, 5, 2, 2, NULL),
 	(74, 'lundi', NULL, 2, 5, 3, 3, NULL),
@@ -294,7 +280,53 @@ INSERT INTO `horaires_cours` (`id`, `jour_semaine`, `id_local`, `id_matiere`, `i
 	(135, 'mardi', NULL, 31, 26, 3, 3, NULL),
 	(136, 'lundi', NULL, 19, 26, 4, 4, NULL),
 	(137, 'mercredi', NULL, 35, 26, 4, 4, NULL),
-	(138, 'jeudi', NULL, 32, 26, 6, 6, NULL);
+	(138, 'jeudi', NULL, 32, 26, 6, 6, NULL),
+	(189, 'lundi', NULL, 16, 3, 1, 1, NULL),
+	(190, 'mardi', NULL, 4, 3, 1, 1, NULL),
+	(191, 'mercredi', NULL, 6, 3, 1, 1, NULL),
+	(192, 'jeudi', NULL, 16, 3, 1, 1, NULL),
+	(193, 'vendredi', NULL, 16, 3, 1, 1, NULL),
+	(194, 'lundi', NULL, 16, 3, 2, 2, NULL),
+	(195, 'mardi', NULL, 4, 3, 2, 2, NULL),
+	(196, 'mercredi', NULL, 3, 3, 2, 2, NULL),
+	(197, 'jeudi', NULL, 16, 3, 2, 2, NULL),
+	(198, 'vendredi', NULL, 16, 3, 2, 2, NULL),
+	(199, 'lundi', NULL, 1, 3, 3, 3, NULL),
+	(200, 'mardi', NULL, 4, 3, 3, 3, NULL),
+	(201, 'mercredi', NULL, 16, 3, 3, 3, NULL),
+	(202, 'jeudi', NULL, 16, 3, 3, 3, NULL),
+	(203, 'vendredi', NULL, 16, 3, 3, 3, NULL),
+	(204, 'lundi', NULL, 1, 3, 4, 4, NULL),
+	(205, 'mardi', NULL, 5, 3, 4, 4, NULL),
+	(206, 'mercredi', NULL, 16, 3, 4, 4, NULL),
+	(207, 'jeudi', NULL, 16, 3, 4, 4, NULL),
+	(208, 'vendredi', NULL, 16, 3, 4, 4, NULL),
+	(209, 'lundi', NULL, 2, 3, 5, 5, NULL),
+	(210, 'mardi', NULL, 5, 3, 5, 5, NULL),
+	(211, 'mercredi', NULL, 16, 3, 5, 5, NULL),
+	(212, 'jeudi', NULL, 16, 3, 5, 5, NULL),
+	(213, 'vendredi', NULL, 16, 3, 5, 5, NULL),
+	(214, 'lundi', NULL, 2, 3, 6, 6, NULL),
+	(215, 'mardi', NULL, 5, 3, 6, 6, NULL),
+	(216, 'mercredi', NULL, 16, 3, 6, 6, NULL),
+	(217, 'jeudi', NULL, 16, 3, 6, 6, NULL),
+	(218, 'vendredi', NULL, 16, 3, 6, 6, NULL),
+	(219, 'lundi', NULL, 17, 3, 7, 7, NULL),
+	(220, 'mardi', NULL, 17, 3, 7, 7, NULL),
+	(221, 'jeudi', NULL, 17, 3, 7, 7, NULL),
+	(222, 'vendredi', NULL, 17, 3, 7, 7, NULL),
+	(223, 'lundi', 1, 3, 3, 8, 8, 3),
+	(224, 'mardi', NULL, 6, 3, 8, 8, NULL),
+	(225, 'jeudi', NULL, 16, 3, 8, 8, NULL),
+	(226, 'vendredi', NULL, 16, 3, 8, 8, NULL),
+	(227, 'lundi', NULL, 4, 3, 9, 9, NULL),
+	(228, 'mardi', NULL, 6, 3, 9, 9, NULL),
+	(229, 'jeudi', NULL, 16, 3, 9, 9, NULL),
+	(230, 'vendredi', NULL, 16, 3, 9, 9, NULL),
+	(231, 'lundi', NULL, 4, 3, 10, 10, NULL),
+	(232, 'mardi', NULL, 6, 3, 10, 10, NULL),
+	(233, 'jeudi', NULL, 16, 3, 10, 10, NULL),
+	(234, 'vendredi', NULL, 16, 3, 10, 10, NULL);
 
 -- Listage de la structure de table sortie_ecole. locaux
 CREATE TABLE IF NOT EXISTS `locaux` (
@@ -522,7 +554,8 @@ INSERT INTO `matieres_professeurs` (`id_matiere`, `id_professeur`) VALUES
 	(39, 10),
 	(30, 11),
 	(32, 12),
-	(23, 13);
+	(23, 13),
+	(38, 14);
 
 -- Listage de la structure de table sortie_ecole. passages
 CREATE TABLE IF NOT EXISTS `passages` (
@@ -530,80 +563,88 @@ CREATE TABLE IF NOT EXISTS `passages` (
   `id_etudiant` int DEFAULT NULL,
   `date_passage` date DEFAULT NULL,
   `heure_passage` time DEFAULT NULL,
-  `type_passage` enum('Aucun','Entrée matin','Sortie midi','Rentrée midi','Entrée après-midi','Sortie autorisée','Journée') DEFAULT NULL,
-  `statut` enum('Autorisé','Refusé','Absence justifiée','Sortie justifiée','Absent','En retard','Présent') DEFAULT NULL,
-  `raison` enum('Certificat médical','Autorisation  des parents','Autre') DEFAULT NULL,
+  `id_type_passage` int DEFAULT NULL,
+  `id_statut_passage` int DEFAULT NULL,
+  `id_raison_passage` int DEFAULT NULL,
   `scan` tinyint NOT NULL DEFAULT '0',
   `manualEncoding` tinyint NOT NULL DEFAULT '0',
   `demi_journee_absence` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id_passage`),
   KEY `id_etudiant` (`id_etudiant`),
+  KEY `fk_passages_type_idx` (`id_type_passage`),
+  KEY `fk_passages_statut_idx` (`id_statut_passage`),
+  KEY `fk_passages_raison_idx` (`id_raison_passage`),
+  CONSTRAINT `fk_passages_raison` FOREIGN KEY (`id_raison_passage`) REFERENCES `raisons_passage` (`id_raison_passage`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_passages_statut` FOREIGN KEY (`id_statut_passage`) REFERENCES `statuts_passage` (`id_statut_passage`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_passages_type` FOREIGN KEY (`id_type_passage`) REFERENCES `types_passage` (`id_type_passage`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `passages_ibfk_1` FOREIGN KEY (`id_etudiant`) REFERENCES `etudiants` (`id_etudiant`)
-) ENGINE=InnoDB AUTO_INCREMENT=293 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=300 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Listage des données de la table sortie_ecole.passages : ~62 rows (environ)
-INSERT INTO `passages` (`id_passage`, `id_etudiant`, `date_passage`, `heure_passage`, `type_passage`, `statut`, `raison`, `scan`, `manualEncoding`, `demi_journee_absence`) VALUES
-	(1, 15, '2026-03-30', '14:02:34', 'Sortie midi', 'Refusé', NULL, 0, 0, 0),
-	(2, 6, '2026-03-30', '14:05:03', 'Sortie midi', 'Autorisé', NULL, 0, 0, 0),
-	(3, 10, '2026-03-30', '14:06:25', 'Entrée matin', 'En retard', NULL, 0, 0, 0),
-	(4, 2, '2026-04-03', '08:12:21', 'Entrée matin', 'Présent', NULL, 0, 0, 0),
-	(5, 4, '2026-04-03', '08:11:20', 'Entrée matin', 'Présent', NULL, 0, 0, 0),
-	(6, 4, '2026-04-03', '08:07:27', 'Entrée matin', 'Présent', NULL, 0, 0, 0),
-	(7, 4, '2026-04-03', '08:05:22', 'Entrée matin', 'Présent', NULL, 0, 0, 0),
-	(8, 11, '2026-04-09', '08:30:00', 'Entrée matin', 'En retard', NULL, 0, 1, 0),
-	(9, 2, '2026-04-09', '08:13:00', 'Entrée matin', 'Présent', NULL, 0, 1, 0),
-	(10, 10, '2026-04-09', '11:02:57', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(11, 3, '2026-04-09', '11:12:10', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(12, 19, '2026-04-09', '11:14:34', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(13, 11, '2026-04-09', '11:15:36', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(14, 19, '2026-04-09', '11:15:48', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(15, 19, '2026-04-09', '11:22:17', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(16, 6, '2026-04-09', '10:10:00', 'Journée', 'Absent', NULL, 0, 0, 1),
-	(17, 7, '2026-04-09', '10:10:00', 'Journée', 'Absent', NULL, 0, 0, 1),
-	(18, 8, '2026-04-09', '10:10:00', 'Journée', 'Absent', NULL, 0, 0, 1),
-	(19, 2, '2026-04-09', '13:32:32', 'Entrée matin', 'Présent', NULL, 1, 0, 0),
-	(20, 19, '2026-04-09', '13:42:46', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(21, 12, '2026-04-01', '08:10:00', 'Entrée matin', 'Présent', NULL, 0, 1, 0),
-	(22, 6, '2026-04-09', '13:30:00', 'Entrée matin', 'Présent', NULL, 0, 1, 0),
-	(23, 6, '2026-04-09', '13:35:00', 'Entrée après-midi', 'Présent', NULL, 0, 1, 0),
-	(24, 6, '2026-04-10', '10:10:00', 'Journée', 'Absent', NULL, 0, 0, 1),
-	(25, 7, '2026-04-10', '10:10:00', 'Journée', 'Absent', NULL, 0, 0, 1),
-	(26, 8, '2026-04-10', '10:10:00', 'Journée', 'Absent', NULL, 0, 0, 1),
-	(27, 3, '2026-04-10', '10:10:00', 'Journée', 'Absent', NULL, 0, 0, 1),
-	(28, 19, '2026-04-10', '10:10:00', 'Journée', 'Absent', NULL, 0, 0, 1),
-	(31, 3, '2026-04-10', '08:15:06', 'Journée', 'Absent', NULL, 0, 0, 0),
-	(32, 19, '2026-04-10', '09:05:36', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(33, 3, '2026-04-10', '12:32:36', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(126, 19, '2026-04-23', '10:01:36', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(127, 18, '2026-04-23', '10:02:02', 'Entrée matin', 'Présent', NULL, 1, 0, 0),
-	(128, 17, '2026-04-23', '10:02:20', 'Entrée matin', 'Présent', NULL, 1, 0, 0),
-	(139, 2, '2026-04-23', '12:49:00', 'Journée', 'Présent', NULL, 0, 1, 0),
-	(142, 4, '2026-04-23', '11:00:59', 'Entrée matin', 'Présent', NULL, 1, 0, 0),
-	(143, 6, '2026-04-23', '11:01:51', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(144, 2, '2026-04-23', '11:02:03', 'Entrée matin', 'Présent', NULL, 1, 0, 0),
-	(146, 7, '2026-04-23', '11:09:00', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(148, 4, '2026-04-23', '11:09:51', 'Entrée matin', 'Présent', NULL, 1, 0, 0),
-	(149, 3, '2026-04-23', '11:10:32', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(151, 4, '2026-04-23', '11:16:21', 'Entrée matin', 'Présent', NULL, 1, 0, 0),
-	(152, 4, '2026-04-23', '11:19:02', 'Entrée matin', 'Présent', NULL, 1, 0, 0),
-	(153, 4, '2026-04-23', '11:19:23', 'Entrée matin', 'Présent', NULL, 1, 0, 0),
-	(155, 4, '2026-04-23', '11:21:32', 'Entrée matin', 'Présent', NULL, 1, 0, 0),
-	(156, 4, '2026-04-23', '11:21:49', 'Entrée matin', 'Présent', NULL, 1, 0, 0),
-	(158, 4, '2026-04-23', '11:26:33', 'Entrée matin', 'Présent', NULL, 1, 0, 0),
-	(160, 4, '2026-04-23', '11:31:28', 'Entrée matin', 'Présent', NULL, 1, 0, 0),
-	(161, 6, '2026-04-23', '11:31:46', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(162, 4, '2026-04-23', '11:33:38', 'Entrée matin', 'Présent', NULL, 1, 0, 0),
-	(163, 6, '2026-04-23', '11:33:46', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(165, 4, '2026-04-23', '11:35:20', 'Entrée matin', 'Présent', NULL, 1, 0, 0),
-	(166, 6, '2026-04-23', '11:35:28', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(167, 4, '2026-04-23', '11:35:43', 'Entrée matin', 'Présent', NULL, 1, 0, 0),
-	(168, 6, '2026-04-23', '11:35:52', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(169, 4, '2026-04-23', '11:37:03', 'Entrée matin', 'Présent', NULL, 1, 0, 0),
-	(170, 2, '2026-04-23', '13:37:00', 'Entrée matin', 'Présent', NULL, 0, 1, 0),
-	(179, 14, '2026-04-23', '13:56:00', 'Sortie autorisée', 'Autorisé', NULL, 0, 1, 0),
-	(181, 11, '2026-04-23', '14:19:00', 'Journée', 'Absence justifiée', 'Autorisation  des parents', 0, 1, 0),
-	(254, 27, '2026-04-24', '12:20:42', 'Entrée matin', 'En retard', NULL, 1, 0, 0),
-	(270, 27, '2026-04-24', '13:35:17', 'Entrée matin', 'En retard', NULL, 1, 0, 0);
+-- Listage des données de la table sortie_ecole.passages : ~61 rows (environ)
+INSERT INTO `passages` (`id_passage`, `id_etudiant`, `date_passage`, `heure_passage`, `id_type_passage`, `id_statut_passage`, `id_raison_passage`, `scan`, `manualEncoding`, `demi_journee_absence`) VALUES
+	(1, 15, '2026-03-30', '14:02:34', 3, 2, NULL, 0, 0, 0),
+	(2, 6, '2026-03-30', '14:05:03', 3, 1, NULL, 0, 0, 0),
+	(3, 10, '2026-03-30', '14:06:25', 2, 6, NULL, 0, 0, 0),
+	(4, 2, '2026-04-03', '08:12:21', 2, 7, NULL, 0, 0, 0),
+	(5, 4, '2026-04-03', '08:11:20', 2, 7, NULL, 0, 0, 0),
+	(6, 4, '2026-04-03', '08:07:27', 2, 7, NULL, 0, 0, 0),
+	(7, 4, '2026-04-03', '08:05:22', 2, 7, NULL, 0, 0, 0),
+	(8, 11, '2026-04-09', '08:30:00', 2, 6, NULL, 0, 1, 0),
+	(9, 2, '2026-04-09', '08:13:00', 2, 7, NULL, 0, 1, 0),
+	(10, 10, '2026-04-09', '11:02:57', 2, 6, NULL, 1, 0, 0),
+	(11, 3, '2026-04-09', '11:12:10', 2, 6, NULL, 1, 0, 0),
+	(12, 19, '2026-04-09', '11:14:34', 2, 6, NULL, 1, 0, 0),
+	(13, 11, '2026-04-09', '11:15:36', 2, 6, NULL, 1, 0, 0),
+	(14, 19, '2026-04-09', '11:15:48', 2, 6, NULL, 1, 0, 0),
+	(15, 19, '2026-04-09', '11:22:17', 2, 6, NULL, 1, 0, 0),
+	(16, 6, '2026-04-09', '10:10:00', 7, 5, NULL, 0, 0, 1),
+	(17, 7, '2026-04-09', '10:10:00', 7, 5, NULL, 0, 0, 1),
+	(18, 8, '2026-04-09', '10:10:00', 7, 5, NULL, 0, 0, 1),
+	(19, 2, '2026-04-09', '13:32:32', 2, 7, NULL, 1, 0, 0),
+	(20, 19, '2026-04-09', '13:42:46', 2, 6, NULL, 1, 0, 0),
+	(21, 12, '2026-04-01', '08:10:00', 2, 7, NULL, 0, 1, 0),
+	(22, 6, '2026-04-09', '13:30:00', 2, 7, NULL, 0, 1, 0),
+	(23, 6, '2026-04-09', '13:35:00', 5, 7, NULL, 0, 1, 0),
+	(24, 6, '2026-04-10', '10:10:00', 7, 5, NULL, 0, 0, 1),
+	(25, 7, '2026-04-10', '10:10:00', 7, 5, NULL, 0, 0, 1),
+	(26, 8, '2026-04-10', '10:10:00', 7, 5, NULL, 0, 0, 1),
+	(27, 3, '2026-04-10', '10:10:00', 7, 5, NULL, 0, 0, 1),
+	(28, 19, '2026-04-10', '10:10:00', 7, 5, NULL, 0, 0, 1),
+	(31, 3, '2026-04-10', '08:15:06', 7, 5, NULL, 0, 0, 0),
+	(32, 19, '2026-04-10', '09:05:36', 2, 6, NULL, 1, 0, 0),
+	(33, 3, '2026-04-10', '12:32:36', 2, 6, NULL, 1, 0, 0),
+	(126, 19, '2026-04-23', '10:01:36', 2, 6, NULL, 1, 0, 0),
+	(127, 18, '2026-04-23', '10:02:02', 2, 7, NULL, 1, 0, 0),
+	(128, 17, '2026-04-23', '10:02:20', 2, 7, NULL, 1, 0, 0),
+	(139, 2, '2026-04-23', '12:49:00', 7, 7, NULL, 0, 1, 0),
+	(142, 4, '2026-04-23', '11:00:59', 2, 7, NULL, 1, 0, 0),
+	(143, 6, '2026-04-23', '11:01:51', 2, 6, NULL, 1, 0, 0),
+	(144, 2, '2026-04-23', '11:02:03', 2, 7, NULL, 1, 0, 0),
+	(146, 7, '2026-04-23', '11:09:00', 2, 6, NULL, 1, 0, 0),
+	(148, 4, '2026-04-23', '11:09:51', 2, 7, NULL, 1, 0, 0),
+	(149, 3, '2026-04-23', '11:10:32', 2, 6, NULL, 1, 0, 0),
+	(151, 4, '2026-04-23', '11:16:21', 2, 7, NULL, 1, 0, 0),
+	(153, 4, '2026-04-23', '11:19:23', 2, 7, NULL, 1, 0, 0),
+	(155, 4, '2026-04-23', '11:21:32', 2, 7, NULL, 1, 0, 0),
+	(156, 4, '2026-04-23', '11:21:49', 2, 7, NULL, 1, 0, 0),
+	(158, 4, '2026-04-23', '11:26:33', 2, 7, NULL, 1, 0, 0),
+	(160, 4, '2026-04-23', '11:31:28', 2, 7, NULL, 1, 0, 0),
+	(161, 6, '2026-04-23', '11:31:46', 2, 6, NULL, 1, 0, 0),
+	(162, 4, '2026-04-23', '11:33:38', 2, 7, NULL, 1, 0, 0),
+	(163, 6, '2026-04-23', '11:33:46', 2, 6, NULL, 1, 0, 0),
+	(165, 4, '2026-04-23', '11:35:20', 2, 7, NULL, 1, 0, 0),
+	(166, 6, '2026-04-23', '11:35:28', 2, 6, NULL, 1, 0, 0),
+	(167, 4, '2026-04-23', '11:35:43', 2, 7, NULL, 1, 0, 0),
+	(168, 6, '2026-04-23', '11:35:52', 2, 6, NULL, 1, 0, 0),
+	(169, 4, '2026-04-23', '11:37:03', 2, 7, NULL, 1, 0, 0),
+	(170, 2, '2026-04-23', '13:37:00', 2, 7, NULL, 0, 1, 0),
+	(181, 11, '2026-04-23', '14:19:00', 7, 3, 1, 0, 1, 0),
+	(254, 27, '2026-04-24', '12:20:42', 2, 6, NULL, 1, 0, 0),
+	(270, 27, '2026-04-24', '13:35:17', 2, 6, NULL, 1, 0, 0),
+	(293, 27, '2026-05-18', '10:36:00', 2, 6, NULL, 1, 0, 0),
+	(297, 11, '2026-05-18', '12:52:00', 7, 3, 1, 0, 1, 0),
+	(298, 9, '2026-05-18', '12:53:00', 2, 7, NULL, 0, 1, 0),
+	(299, 28, '2026-05-18', '13:36:20', 2, 6, NULL, 1, 0, 0);
 
 -- Listage de la structure de table sortie_ecole. professeurs
 CREATE TABLE IF NOT EXISTS `professeurs` (
@@ -619,7 +660,7 @@ CREATE TABLE IF NOT EXISTS `professeurs` (
   `enabled_user` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id_professeur`),
   UNIQUE KEY `uq_professeurs_sourcedId` (`sourcedId`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Listage des données de la table sortie_ecole.professeurs : ~13 rows (environ)
 INSERT INTO `professeurs` (`id_professeur`, `sourcedId`, `internnummer`, `stamboeknummer`, `referenceIdentifier`, `nom`, `prenom`, `email`, `username`, `enabled_user`) VALUES
@@ -635,7 +676,73 @@ INSERT INTO `professeurs` (`id_professeur`, `sourcedId`, `internnummer`, `stambo
 	(10, '22ab650b-dbe2-5076-8ccc-b7e0fb0ffe80', '13131313', 'PR', '7725_44_0', 'Prof-Religion', 'Test', NULL, 'PR', 1),
 	(11, '6613c490-0146-5f6c-9932-c4602fa4c25b', '14141414', 'PC', '7725_46_0', 'Prof-Confection', 'Test', NULL, 'PC', 1),
 	(12, 'a73cc814-7b10-5a35-b020-dfcb81c4c83f', '15151515', 'PART', '7725_48_0', 'Prof-Art', 'Test', NULL, 'PART', 1),
-	(13, '59bad507-f122-5852-be6b-1a6b43b18c9b', '16161616', 'PCCX', '7725_50_0', 'Prof-CCX', 'Test', NULL, 'PCCX', 1);
+	(13, '59bad507-f122-5852-be6b-1a6b43b18c9b', '16161616', 'PCCX', '7725_50_0', 'Prof-CCX', 'Test', NULL, 'PCCX', 1),
+	(14, '3def2fc7-2d56-53e0-82d4-575bec0cbc94', '7777', 'PNL', '7725_34_0', 'Prof-Néerlandais', 'Test', NULL, 'PNL', 1);
+
+-- Listage de la structure de table sortie_ecole. raisons_passage
+CREATE TABLE IF NOT EXISTS `raisons_passage` (
+  `id_raison_passage` int NOT NULL AUTO_INCREMENT,
+  `code` varchar(64) NOT NULL,
+  `legacy_value` varchar(100) DEFAULT NULL,
+  `label` varchar(100) NOT NULL,
+  `is_system` tinyint(1) NOT NULL DEFAULT '1',
+  `sort_order` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id_raison_passage`),
+  UNIQUE KEY `uq_raisons_passage_code` (`code`),
+  UNIQUE KEY `uq_raisons_passage_legacy_value` (`legacy_value`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Listage des données de la table sortie_ecole.raisons_passage : ~3 rows (environ)
+INSERT INTO `raisons_passage` (`id_raison_passage`, `code`, `legacy_value`, `label`, `is_system`, `sort_order`) VALUES
+	(1, 'certificat_medical', 'Certificat médical', 'Certificat médical', 1, 10),
+	(2, 'autorisation_parents', 'Autorisation  des parents', 'Autorisation  des parents', 1, 20),
+	(3, 'autre', 'Autre', 'Autre', 1, 30);
+
+-- Listage de la structure de table sortie_ecole. statuts_passage
+CREATE TABLE IF NOT EXISTS `statuts_passage` (
+  `id_statut_passage` int NOT NULL AUTO_INCREMENT,
+  `code` varchar(64) NOT NULL,
+  `legacy_value` varchar(100) DEFAULT NULL,
+  `label` varchar(100) NOT NULL,
+  `is_system` tinyint(1) NOT NULL DEFAULT '1',
+  `sort_order` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id_statut_passage`),
+  UNIQUE KEY `uq_statuts_passage_code` (`code`),
+  UNIQUE KEY `uq_statuts_passage_legacy_value` (`legacy_value`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Listage des données de la table sortie_ecole.statuts_passage : ~7 rows (environ)
+INSERT INTO `statuts_passage` (`id_statut_passage`, `code`, `legacy_value`, `label`, `is_system`, `sort_order`) VALUES
+	(1, 'autorise', 'Autorisé', 'Autorisé', 1, 10),
+	(2, 'refuse', 'Refusé', 'Refusé', 1, 20),
+	(3, 'absence_justifiee', 'Absence justifiée', 'Absence justifiée', 1, 30),
+	(4, 'sortie_justifiee', 'Sortie justifiée', 'Sortie justifiée', 1, 40),
+	(5, 'absent', 'Absent', 'Absent', 1, 50),
+	(6, 'en_retard', 'En retard', 'En retard', 1, 60),
+	(7, 'present', 'Présent', 'Présent', 1, 70);
+
+-- Listage de la structure de table sortie_ecole. types_passage
+CREATE TABLE IF NOT EXISTS `types_passage` (
+  `id_type_passage` int NOT NULL AUTO_INCREMENT,
+  `code` varchar(64) NOT NULL,
+  `legacy_value` varchar(100) DEFAULT NULL,
+  `label` varchar(100) NOT NULL,
+  `is_system` tinyint(1) NOT NULL DEFAULT '1',
+  `sort_order` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id_type_passage`),
+  UNIQUE KEY `uq_types_passage_code` (`code`),
+  UNIQUE KEY `uq_types_passage_legacy_value` (`legacy_value`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Listage des données de la table sortie_ecole.types_passage : ~7 rows (environ)
+INSERT INTO `types_passage` (`id_type_passage`, `code`, `legacy_value`, `label`, `is_system`, `sort_order`) VALUES
+	(1, 'aucun', 'Aucun', 'Aucun', 1, 10),
+	(2, 'entree_matin', 'Entrée matin', 'Entrée matin', 1, 20),
+	(3, 'sortie_midi', 'Sortie midi', 'Sortie midi', 1, 30),
+	(4, 'rentree_midi', 'Rentrée midi', 'Rentrée midi', 1, 40),
+	(5, 'entree_apres_midi', 'Entrée après-midi', 'Entrée après-midi', 1, 50),
+	(6, 'sortie_autorisee', 'Sortie autorisée', 'Sortie autorisée', 1, 60),
+	(7, 'journee', 'Journée', 'Journée', 1, 70);
 
 -- Listage de la structure de table sortie_ecole. utilisateurs
 CREATE TABLE IF NOT EXISTS `utilisateurs` (

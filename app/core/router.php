@@ -266,7 +266,8 @@ class Router {
                 str_starts_with($uri, '/api/users') ||
                 in_array($uri, ['/api/students/add', '/api/students/update', '/api/students/delete'], true) ||
                 in_array($uri, ['/api/movements/update', '/api/movements/delete'], true) ||
-                in_array($uri, ['/api/schedules/add', '/api/schedules/update', '/api/schedules/delete'], true);
+                in_array($uri, ['/api/schedules/add', '/api/schedules/update', '/api/schedules/delete'], true) ||
+                in_array($uri, ['/api/settings', '/api/settings/backups', '/api/settings/update', '/api/audits/logins', '/api/audits/db-changes'], true);
 
             if ($isDenied) {
                 $this->logUnauthorizedAccess('api_forbidden_gestionnaire', $method, $uri);

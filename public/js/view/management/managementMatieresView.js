@@ -71,9 +71,10 @@ export default class ManagementMatieresView {
     showEditMatiereModal(controller, matiereId, currentMatiere) {
         this.parent._showModal(`
             <h3>Modifier la matière</h3>
-            <div class="form-container">
-                <input type="text" id="edit-matiere-name" value="${currentMatiere || ''}" placeholder="Matière">
-                <div style="display:flex;gap:8px;margin-top:8px;">
+            <div class="form-container modal-form-grid">
+                <label for="edit-matiere-name">Matière</label>
+                <input type="text" id="edit-matiere-name" value="${currentMatiere || ''}">
+                <div class="modal-row-full modal-form-actions">
                     <button id="modal-btn-save">Enregistrer</button>
                     <button id="modal-btn-cancel">Annuler</button>
                 </div>

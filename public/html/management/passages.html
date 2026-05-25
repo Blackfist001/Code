@@ -12,13 +12,16 @@
         </select>
         <input type="hidden" id="passage-id-student">
         <select id="passage-type" class="mgmt-control-auto">
-            <option value="Entrée matin">Entrée matin</option>
-            <option value="Sortie midi">Sortie midi</option>
-            <option value="Rentrée midi">Rentrée midi</option>
-            <option value="Entrée après-midi">Entrée après-midi</option>
-            <option value="Sortie autorisée">Sortie autorisée</option>
-            <option value="Journée">Journée</option>
+            <option value="">-- Type --</option>
         </select>
+        <div id="passage-statut-wrapper" style="display:block;">
+            <select id="passage-statut" class="mgmt-control-auto"></select>
+        </div>
+        <div id="passage-reason-wrapper" style="display:none;">
+            <select id="passage-raison" class="mgmt-control-auto">
+                <option value="">-- Raison --</option>
+            </select>
+        </div>
         <input type="date" id="passage-date" class="mgmt-control-auto">
         <input type="time" id="passage-time" class="mgmt-control-auto">
         <button id="btn-add-passage" disabled>Ajouter</button>

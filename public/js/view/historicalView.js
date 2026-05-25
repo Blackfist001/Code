@@ -39,9 +39,14 @@ export default class HistoricalView {
      * @param {'info'|'warning'|'error'} [type='info'] - Type de message
      */
     showMessage(message = '', type = 'info') {
+        if (!message) return;
+        if (window.AppNotifier && typeof window.AppNotifier.notify === 'function') {
+            window.AppNotifier.notify(message, type);
+            return;
+        }
+
         const box = document.getElementById('historical-message');
         if (!box) return;
-
         box.textContent = message;
         box.className = `message message-${type}`;
     }

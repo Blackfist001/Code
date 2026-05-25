@@ -20,6 +20,14 @@ export default class ManagementSchedulesView {
         ];
     }
 
+    _notify(message, type = 'info') {
+        if (message && window.AppNotifier && typeof window.AppNotifier.notify === 'function') {
+            window.AppNotifier.notify(message, type);
+            return;
+        }
+        alert(message);
+    }
+
     _toHHMM(value) {
         return String(value || '').substring(0, 5);
     }
@@ -42,7 +50,7 @@ export default class ManagementSchedulesView {
                     id_professeur: document.getElementById('sched-professeur').value,
                 };
                 if (!data.id_classe || !data.id_matiere || !data.jour_semaine || !data.id_creneau_debut || !data.id_creneau_fin) {
-                    alert('Veuillez remplir tous les champs obligatoires.');
+                    this._notify('Veuillez remplir tous les champs obligatoires.', 'warning');
                     return;
                 }
                 controller.addSchedule(data);
@@ -71,7 +79,7 @@ export default class ManagementSchedulesView {
             saveClassGridBtn.addEventListener('click', async () => {
                 const classId = (document.getElementById('sched-grid-classe')?.value || '').trim();
                 if (!classId) {
-                    alert('Veuillez sélectionner une classe.');
+                    this._notify('Veuillez sélectionner une classe.', 'warning');
                     return;
                 }
 
@@ -290,13 +298,13 @@ export default class ManagementSchedulesView {
     _exportClassGridCSV() {
         const classId = (document.getElementById('sched-grid-classe')?.value || '').trim();
         if (!classId) {
-            alert('Veuillez sélectionner une classe.');
+            this._notify('Veuillez sélectionner une classe.', 'warning');
             return;
         }
 
         const grid = this._collectGridTableForExport();
         if (!grid || !grid.rows.length) {
-            alert('Aucune grille à exporter.');
+            this._notify('Aucune grille à exporter.', 'warning');
             return;
         }
 
@@ -337,19 +345,19 @@ export default class ManagementSchedulesView {
     _exportClassGridPDF() {
         const classId = (document.getElementById('sched-grid-classe')?.value || '').trim();
         if (!classId) {
-            alert('Veuillez sélectionner une classe.');
+            this._notify('Veuillez sélectionner une classe.', 'warning');
             return;
         }
 
         const grid = this._collectGridTableForExport();
         if (!grid || !grid.rows.length) {
-            alert('Aucune grille à exporter.');
+            this._notify('Aucune grille à exporter.', 'warning');
             return;
         }
 
         const jsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
         if (!jsPDF) {
-            alert('Bibliothèque PDF non chargée.');
+            this._notify('Bibliothèque PDF non chargée.', 'error');
             return;
         }
 
@@ -681,42 +689,35 @@ export default class ManagementSchedulesView {
         const selectedTeacherId = s.id_professeur || '';
         this.parent._showModal(`
             <h3>Modifier l'horaire</h3>
-            <div class="form-container">
-                <div class="schedule-field-group">
-                    <label for="edit-sched-classe">Classe :</label>
-                    <select id="edit-sched-classe">${this.parent._renderClassOptions(selectedClassId, true)}</select>
-                </div>
-                <div class="schedule-field-group">
-                    <label for="edit-sched-matiere">Matières :</label>
-                    <select id="edit-sched-matiere">${this.parent._renderMatiereOptions(selectedMatiereId, true)}</select>
-                </div>
-                <div class="schedule-field-group">
-                    <label for="edit-sched-jour">Jour :</label>
-                    <select id="edit-sched-jour">
+            <div class="form-container modal-form-grid">
+                <label for="edit-sched-classe">Classe</label>
+                <select id="edit-sched-classe">${this.parent._renderClassOptions(selectedClassId, true)}</select>
+
+                <label for="edit-sched-matiere">Matière</label>
+                <select id="edit-sched-matiere">${this.parent._renderMatiereOptions(selectedMatiereId, true)}</select>
+
+                <label for="edit-sched-jour">Jour</label>
+                <select id="edit-sched-jour">
                     <option value="lundi" ${s.jour_semaine === 'lundi' ? 'selected' : ''}>Lundi</option>
                     <option value="mardi" ${s.jour_semaine === 'mardi' ? 'selected' : ''}>Mardi</option>
                     <option value="mercredi" ${s.jour_semaine === 'mercredi' ? 'selected' : ''}>Mercredi</option>
                     <option value="jeudi" ${s.jour_semaine === 'jeudi' ? 'selected' : ''}>Jeudi</option>
                     <option value="vendredi" ${s.jour_semaine === 'vendredi' ? 'selected' : ''}>Vendredi</option>
-                    </select>
-                </div>
-                <div class="schedule-field-group">
-                    <label for="edit-sched-debut">Début :</label>
-                    <select id="edit-sched-debut">${this.parent._renderCreneauDebutOptions(s.id_creneau_debut || '')}</select>
-                </div>
-                <div class="schedule-field-group">
-                    <label for="edit-sched-fin">Fin :</label>
-                    <select id="edit-sched-fin">${this.parent._renderCreneauFinOptions(s.id_creneau_fin || '')}</select>
-                </div>
-                <div class="schedule-field-group">
-                    <label for="edit-sched-local">Local :</label>
-                    <select id="edit-sched-local">${this.parent._renderLocalOptions(selectedLocalId, true)}</select>
-                </div>
-                <div class="schedule-field-group">
-                    <label for="edit-sched-professeur">Professeur :</label>
-                    <select id="edit-sched-professeur">${this.parent._renderTeacherOptions(selectedTeacherId, true)}</select>
-                </div>
-                <div style="display:flex;gap:8px;margin-top:8px;">
+                </select>
+
+                <label for="edit-sched-debut">Début</label>
+                <select id="edit-sched-debut">${this.parent._renderCreneauDebutOptions(s.id_creneau_debut || '')}</select>
+
+                <label for="edit-sched-fin">Fin</label>
+                <select id="edit-sched-fin">${this.parent._renderCreneauFinOptions(s.id_creneau_fin || '')}</select>
+
+                <label for="edit-sched-local">Local</label>
+                <select id="edit-sched-local">${this.parent._renderLocalOptions(selectedLocalId, true)}</select>
+
+                <label for="edit-sched-professeur">Professeur</label>
+                <select id="edit-sched-professeur">${this.parent._renderTeacherOptions(selectedTeacherId, true)}</select>
+
+                <div class="modal-row-full modal-form-actions">
                     <button id="modal-btn-save">Enregistrer</button>
                     <button id="modal-btn-cancel">Annuler</button>
                 </div>

@@ -9,6 +9,19 @@ export default class ManagementQrCodesView {
     constructor(parent) {
         this.parent = parent;
         this._allStudents = [];
+        this._lastGlobalInfoMessage = '';
+        this._lastGlobalInfoAt = 0;
+    }
+
+    _shouldSkipDuplicateInfo(message) {
+        const now = Date.now();
+        const normalized = String(message || '').trim();
+        if (!normalized) return false;
+
+        const isDuplicate = this._lastGlobalInfoMessage === normalized && (now - this._lastGlobalInfoAt) < 1200;
+        this._lastGlobalInfoMessage = normalized;
+        this._lastGlobalInfoAt = now;
+        return isDuplicate;
     }
 
     /**
@@ -167,12 +180,39 @@ export default class ManagementQrCodesView {
         return { hasFilter: true, results };
     }
 
+    _getNoFilterMessageBySection(section = '') {
+        switch (section) {
+            case 'passages':
+                return 'Sélectionnez une plage de dates pour afficher les passages.';
+            case 'schedules':
+                return 'Sélectionnez une classe pour afficher les horaires.';
+            case 'students':
+                return 'Sélectionnez une classe pour filtrer les étudiants.';
+            case 'qrcodes':
+                return 'Sélectionnez au moins un filtre pour afficher les étudiants.';
+            default:
+                return 'Sélectionnez au moins un filtre pour afficher les données.';
+        }
+    }
+
+    _isQrSectionActive() {
+        const section = document.getElementById('section-qrcodes');
+        if (!section) return false;
+        const computed = window.getComputedStyle(section);
+        return section.style.display !== 'none' && computed.display !== 'none';
+    }
+
     /**
      * Affiche un message dans la zone de notification de la section QR codes.
      * @param {string} [message=''] - Texte du message
      * @param {'info'|'error'} [type='info'] - Type de message
      */
-    _showMessage(message = '', type = 'info') {
+    _showMessage(message = '', type = 'info', useGlobal = true) {
+        if (useGlobal && message && window.AppNotifier && typeof window.AppNotifier.notify === 'function') {
+            window.AppNotifier.notify(message, type);
+            return;
+        }
+
         const box = document.getElementById('qrcodes-message');
         if (!box) return;
         box.textContent = message;
@@ -363,11 +403,22 @@ export default class ManagementQrCodesView {
         const listContainer = document.getElementById('qrcodes-students-list');
         if (!listContainer) return;
 
+        const activeSection = this.parent?.getActiveSection?.() || '';
+        const isQrSectionActive = this._isQrSectionActive();
+
         const { hasFilter, results } = this._filteredStudents();
         listContainer.innerHTML = '';
 
         if (!hasFilter) {
-            this._showMessage('Sélectionnez au moins un filtre pour afficher les étudiants.', 'info');
+            if (isQrSectionActive) {
+                const message = this._getNoFilterMessageBySection('qrcodes');
+                if (!this._shouldSkipDuplicateInfo(message)) {
+                    this._showMessage(message, 'info', true);
+                }
+            } else {
+                // Évite les notifications globales hors section QR.
+                this._showMessage('', 'info', false);
+            }
             this._updateExportAllButtonState(0);
             return;
         }

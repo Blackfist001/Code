@@ -176,6 +176,13 @@ class StudentsModel {
         ");
         try {
             $stmt->execute([':nom' => $nom, ':prenom' => $prenom, ':classe' => $classeId, ':photo' => $photo, ':autorisation_midi' => $autorisation_midi]);
+            if ($stmt->rowCount() > 0) {
+                \App\Service\AuditService::logDbChange('insert', 'etudiants', null, [
+                    'nom' => $nom,
+                    'prenom' => $prenom,
+                    'classe' => $classeId
+                ]);
+            }
             return true;
         } catch (Exception $e) {
             return false;
@@ -211,6 +218,9 @@ class StudentsModel {
                 ':date_naissance'    => $studentData['date_naissance']    ?? null,
                 ':autorisation_midi' => $studentData['autorisation_midi'] ?? 0,
             ]);
+            if ($stmt->rowCount() > 0) {
+                \App\Service\AuditService::logDbChange('insert', 'etudiants', null, $studentData);
+            }
             return true;
         } catch (Exception $e) {
             error_log('[StudentsModel] createStudent : ' . $e->getMessage());
@@ -220,8 +230,12 @@ class StudentsModel {
 
     public function deleteStudent($id) {
         $pdo = $this->db->getPdo();
+        $old = $this->getStudentById($id);
         $stmt = $pdo->prepare("DELETE FROM etudiants WHERE id_etudiant = :id");
         $stmt->execute([':id' => $id]);
+        if ($stmt->rowCount() > 0) {
+            \App\Service\AuditService::logDbChange('delete', 'etudiants', $old, null);
+        }
         return $stmt->rowCount() > 0;
     }
 
@@ -247,8 +261,13 @@ class StudentsModel {
             $params[':autorisation_midi'] = $data['autorisation_midi'] ? 1 : 0;
         }
         if (empty($setClauses)) return false;
+        $old = $this->getStudentById($id);
         $stmt = $pdo->prepare("UPDATE etudiants SET " . implode(', ', $setClauses) . " WHERE id_etudiant = :id");
         $stmt->execute($params);
+        if ($stmt->rowCount() > 0) {
+            $new = $this->getStudentById($id);
+            \App\Service\AuditService::logDbChange('update', 'etudiants', $old, $new);
+        }
         return $stmt->rowCount() > 0;
     }
 
@@ -275,8 +294,13 @@ class StudentsModel {
             }
         }
         if (empty($setClauses)) return false;
+        $old = $this->getStudentBySourcedId($sourcedId);
         $stmt = $pdo->prepare("UPDATE etudiants SET " . implode(', ', $setClauses) . " WHERE sourcedId = :sourcedId");
         $stmt->execute($params);
+        if ($stmt->rowCount() > 0) {
+            $new = $this->getStudentBySourcedId($sourcedId);
+            \App\Service\AuditService::logDbChange('update', 'etudiants', $old, $new);
+        }
         return $stmt->rowCount() > 0;
     }
 }

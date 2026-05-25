@@ -27,11 +27,12 @@ export default class ScanController {
             this.attachEventListeners();
             this.initQrScanner();
             this.setupAutoCleanup();
+            this.focusHiddenInput();
         });
     }
 
     /**
-     * Attache les écouteurs d'événements sur le champ de saisie, le bouton scan et les boutons caméra.
+     * Attache les écouteurs d'événements sur le champ de saisie caché et le switch caméra.
      */
     attachEventListeners() {
         const scanInput = document.getElementById('scan-input');
@@ -43,31 +44,19 @@ export default class ScanController {
                     this.processScan(val);
                 }
             });
+            scanInput.addEventListener('blur', () => {
+                window.setTimeout(() => this.focusHiddenInput(), 0);
+            });
         }
 
-        const scanButton = document.getElementById('btn-submit-scan');
-        if (scanButton) {
-            scanButton.addEventListener('click', () => {
-                const input = document.getElementById('scan-input');
-                if (input) {
-                    const val = input.value.trim();
-                    input.value = '';
-                    this.processScan(val);
+        const cameraToggle = document.getElementById('camera-toggle');
+        if (cameraToggle) {
+            cameraToggle.addEventListener('change', async () => {
+                if (cameraToggle.checked) {
+                    await this.startCamera();
+                } else {
+                    await this.stopCamera();
                 }
-            });
-        }
-
-        const startButton = document.getElementById('btn-start-camera');
-        if (startButton) {
-            startButton.addEventListener('click', async () => {
-                await this.startCamera();
-            });
-        }
-
-        const stopButton = document.getElementById('btn-stop-camera');
-        if (stopButton) {
-            stopButton.addEventListener('click', async () => {
-                await this.stopCamera();
             });
         }
     }
@@ -79,12 +68,14 @@ export default class ScanController {
     async initQrScanner() {
         const video = document.getElementById('qr-video');
         const cameraStatus = document.getElementById('camera-status');
+        const cameraToggle = document.getElementById('camera-toggle');
 
         if (!video) {
             return;
         }
 
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            this.updateCameraToggleState(false);
             if (cameraStatus) {
                 cameraStatus.textContent = 'Camera non disponible sur cet appareil.';
             }
@@ -108,6 +99,10 @@ export default class ScanController {
             await this.startCamera();
         } catch (error) {
             console.error('Erreur camera:', error);
+            if (cameraToggle) {
+                cameraToggle.checked = false;
+            }
+            this.updateCameraToggleState(false);
             this.view.displayMessage('Impossible de demarrer la camera.', true);
             if (cameraStatus) {
                 cameraStatus.textContent = 'Autorise la camera puis relance.';
@@ -160,6 +155,26 @@ export default class ScanController {
         this.processScan(value);
     }
 
+    focusHiddenInput() {
+        const input = document.getElementById('scan-input');
+        if (input) {
+            input.focus({ preventScroll: true });
+        }
+    }
+
+    updateCameraToggleState(isOn) {
+        const toggle = document.getElementById('camera-toggle');
+        const label = document.getElementById('camera-toggle-label');
+
+        if (toggle) {
+            toggle.checked = isOn;
+        }
+
+        if (label) {
+            label.textContent = isOn ? 'Camera allumee' : 'Camera eteinte';
+        }
+    }
+
     /**
      * Démarre la caméra QR.
      * @returns {Promise<void>}
@@ -172,9 +187,11 @@ export default class ScanController {
         const cameraStatus = document.getElementById('camera-status');
 
         await this.qrScanner.start();
+        this.updateCameraToggleState(true);
         if (cameraStatus) {
             cameraStatus.textContent = 'Camera active: presente la carte QR.';
         }
+        this.focusHiddenInput();
     }
 
     /**
@@ -189,6 +206,7 @@ export default class ScanController {
         const cameraStatus = document.getElementById('camera-status');
 
         this.qrScanner.stop();
+        this.updateCameraToggleState(false);
         if (cameraStatus) {
             cameraStatus.textContent = 'Camera arretee.';
         }
@@ -282,6 +300,18 @@ export default class ScanController {
         this.isProcessing = true;
 
         try {
+            const inferredStudent = await api.resolveStudentBySourcedId(sourcedId);
+            if (inferredStudent?.id_etudiant) {
+                await api.registerDailyPresence({
+                    studentId: inferredStudent.id_etudiant,
+                    classe: inferredStudent.classe || '',
+                    nom: inferredStudent.nom || '',
+                    prenom: inferredStudent.prenom || '',
+                    statut: 'Présent',
+                    typePassage: 'Entrée matin'
+                });
+            }
+
             // Le backend détermine automatiquement type_passage et statut
             const response = await api.scanStudent(sourcedId);
 
@@ -298,6 +328,15 @@ export default class ScanController {
                     response.statut_label
                 );
 
+                await api.registerDailyPresence({
+                    studentId: student.id,
+                    classe: student.classe || '',
+                    nom: student.nom || '',
+                    prenom: student.prenom || '',
+                    statut: response.statut || '',
+                    typePassage: response.type_passage || ''
+                });
+
                 // Emploi du temps du jour par classe
                 const jour = new Date().toLocaleDateString('fr-FR', { weekday: 'long' });
                 const scheduleResponse = await api.getScheduleByClass(student.classe || 'default', jour);
@@ -306,6 +345,9 @@ export default class ScanController {
                 } else {
                     this.view.displaySchedule([]);
                 }
+            } else if (response.queued) {
+                this.playFeedbackSound('success');
+                this.view.displayMessage(response.message || 'Scan mis en attente locale pour synchronisation automatique.', false);
             } else {
                 this.playFeedbackSound('error');
                 this.view.displayMessage(response.message || 'Erreur lors du scan', true);
@@ -315,6 +357,12 @@ export default class ScanController {
             this.view.displayMessage('Erreur: ' + error.message, true);
             console.error('Erreur:', error);
         } finally {
+            const input = document.getElementById('scan-input');
+            if (input) {
+                input.value = '';
+            }
+            this.focusHiddenInput();
+
             // Libérer le verrou après 1 seconde minimum entre deux scans
             setTimeout(() => { this.isProcessing = false; }, 1000);
         }

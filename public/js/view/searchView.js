@@ -15,6 +15,18 @@ export default class SearchView {
         this.results = [];
     }
 
+    _notify(message, type = 'info') {
+        if (message && window.AppNotifier && typeof window.AppNotifier.notify === 'function') {
+            window.AppNotifier.notify(message, type);
+            return;
+        }
+        const msg = document.getElementById('search-message');
+        if (msg) {
+            msg.textContent = message;
+            msg.className = `message message-${type}`;
+        }
+    }
+
     /**
      * Charge le HTML de la page recherche et initialise les écouteurs et les listes.
      */
@@ -24,9 +36,38 @@ export default class SearchView {
             .then(data => {
                 this.container.innerHTML = data;
                 this._loadStudents();
+                this._loadStatutOptions();
                 this.attachSearchHandler();
             })
             .catch(error => console.error('Error loading search:', error));
+    }
+
+    async _loadStatutOptions() {
+        const statutSelect = document.getElementById('search-statut');
+        if (!statutSelect) return;
+
+        try {
+            const response = await api.getPassageMetadata('statuses');
+            const labels = (response?.success ? (response.results || []) : [])
+                .map(item => String(item?.label || '').trim())
+                .filter(Boolean);
+
+            const statuses = labels;
+            const previous = statutSelect.value;
+            statutSelect.innerHTML = statuses.length
+                ? ('<option value="">Tous les statuts</option>'
+                    + statuses.map(status => `<option value="${status}">${status}</option>`).join(''))
+                : '<option value="">-- Statuts indisponibles --</option>';
+            if (statuses.includes(previous)) {
+                statutSelect.value = previous;
+            }
+            if (!statuses.length) {
+                this._notify('Impossible de charger les statuts depuis la base.', 'error');
+            }
+        } catch (_) {
+            statutSelect.innerHTML = '<option value="">-- Statuts indisponibles --</option>';
+            this._notify('Impossible de charger les statuts depuis la base.', 'error');
+        }
     }
 
     /**
@@ -322,8 +363,7 @@ export default class SearchView {
     _exportPDF() {
         const jsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
         if (!jsPDF) {
-            const msg = document.getElementById('search-message');
-            if (msg) { msg.textContent = 'Bibliothèque PDF non chargée.'; msg.className = 'message message-error'; }
+            this._notify('Bibliothèque PDF non chargée.', 'error');
             return;
         }
 
@@ -453,8 +493,7 @@ export default class SearchView {
      */
     _exportCSV() {
         if (!this.results || this.results.length === 0) {
-            const msg = document.getElementById('search-message');
-            if (msg) { msg.textContent = 'Aucun résultat à exporter.'; msg.className = 'message message-error'; }
+            this._notify('Aucun résultat à exporter.', 'warning');
             return;
         }
 

@@ -88,7 +88,7 @@ export default class AbsenceView {
         const paginationContainer = this._getOrCreatePaginationContainer();
         
         if (!this.absents || this.absents.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8">Aucun absent enregistré</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9">Aucun absent enregistré</td></tr>';
             if (paginationContainer) paginationContainer.innerHTML = '';
             return;
         }
@@ -108,6 +108,12 @@ export default class AbsenceView {
             const demiJourneeClass = totalDemiJournees >= 9 ? 'demi-journee-critical' : '';
             const typeLabel = absent.type_passage || '---';
             const typeClass = 'status-info';
+            const sourceMap = {
+                'missing-both-entries': 'Entrées matin + après-midi manquantes',
+                'missing-morning-entry': 'Entrée matin manquante',
+                'missing-afternoon-entry': 'Entrée après-midi manquante'
+            };
+            const sourceLabel = sourceMap[absent.absence_source] || '---';
 
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -115,9 +121,10 @@ export default class AbsenceView {
                 <td>${absent.nom || '---'}</td>
                 <td>${absent.prenom || '---'}</td>
                 <td>${absent.classe || '---'}</td>
-                <td><span class="${demiJourneeClass}">${totalDemiJournees}</span></td>
                 <td><span class="status-badge ${typeClass}">${typeLabel}</span></td>
                 <td><span class="status-badge ${badgeClass}">${statusLabel}</span></td>
+                <td><span class="${demiJourneeClass}">${totalDemiJournees}</span></td>
+                <td>${sourceLabel}</td>
                 <td>${absent.raison || absent.reason || '---'}</td>
             `;
             tbody.appendChild(row);

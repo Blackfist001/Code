@@ -71,9 +71,10 @@ export default class ManagementClassesView {
     showEditClassModal(controller, classId, currentClasse) {
         this.parent._showModal(`
             <h3>Modifier la classe</h3>
-            <div class="form-container">
-                <input type="text" id="edit-class-name" value="${currentClasse || ''}" placeholder="Classe">
-                <div style="display:flex;gap:8px;margin-top:8px;">
+            <div class="form-container modal-form-grid">
+                <label for="edit-class-name">Classe</label>
+                <input type="text" id="edit-class-name" value="${currentClasse || ''}">
+                <div class="modal-row-full modal-form-actions">
                     <button id="modal-btn-save">Enregistrer</button>
                     <button id="modal-btn-cancel">Annuler</button>
                 </div>

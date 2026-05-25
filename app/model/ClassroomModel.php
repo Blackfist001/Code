@@ -79,6 +79,9 @@ class ClassroomModel {
 
             $stmt = $pdo->prepare("INSERT INTO locaux (local) VALUES (:local)");
             $stmt->execute([':local' => $local]);
+            if ($stmt->rowCount() > 0) {
+                \App\Service\AuditService::logDbChange('insert', 'locaux', null, ['local' => $local]);
+            }
             return $stmt->rowCount() > 0;
         } catch (Exception $e) {
             error_log('addClassroom: ' . $e->getMessage());
@@ -99,6 +102,11 @@ class ClassroomModel {
         }
 
         try {
+            $old = $this->getClassroomById($id);
+            if (!$old) {
+                return false;
+            }
+
             $existing = $this->getClassroomByName($local);
             if ($existing && (int)$existing['id_local'] !== $id) {
                 error_log('updateClassroom: Local "' . $local . '" existe deja');
@@ -110,6 +118,10 @@ class ClassroomModel {
                 ':local' => $local,
                 ':id' => $id,
             ]);
+            if ($stmt->rowCount() > 0) {
+                $new = $this->getClassroomById($id);
+                \App\Service\AuditService::logDbChange('update', 'locaux', $old, $new);
+            }
             return $stmt->rowCount() > 0;
         } catch (Exception $e) {
             error_log('updateClassroom: ' . $e->getMessage());
@@ -139,6 +151,9 @@ class ClassroomModel {
 
             $stmt = $pdo->prepare("DELETE FROM locaux WHERE id_local = :id");
             $stmt->execute([':id' => $id]);
+            if ($stmt->rowCount() > 0) {
+                \App\Service\AuditService::logDbChange('delete', 'locaux', $classroom, null);
+            }
             return $stmt->rowCount() > 0;
         } catch (Exception $e) {
             error_log('deleteClassroom: ' . $e->getMessage());

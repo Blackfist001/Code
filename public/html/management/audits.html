@@ -1,0 +1,40 @@
+<div class="card">
+    <div class="mgmt-flex-between" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+        <h3 style="margin:0;">Audits</h3>
+        <button id="btn-audits-reload" type="button">Recharger</button>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Connexions</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Adresse IP</th>
+            </tr>
+        </thead>
+        <tbody id="audits-logins-body"></tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h3>Modifications DB</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>IP</th>
+                <th>Action</th>
+                <th>Entité</th>
+                <th>Anciennes données</th>
+                <th>Nouvelles données</th>
+            </tr>
+        </thead>
+        <tbody id="audits-db-body"></tbody>
+    </table>
+</div>

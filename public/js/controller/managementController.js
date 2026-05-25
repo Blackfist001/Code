@@ -4,6 +4,8 @@ import api from "../api.js";
 import ManagementUsersController from "./management/managementUsersController.js";
 import ManagementStudentsController from "./management/managementStudentsController.js";
 import ManagementPassagesController from "./management/managementPassagesController.js";
+import ManagementSettingsController from "./management/managementSettingsController.js";
+import ManagementPassageTypesController from "./management/managementPassageTypesController.js";
 import ManagementQrCodesController from "./management/managementQrCodesController.js";
 import ManagementSchedulesController from "./management/managementSchedulesController.js";
 import ManagementSlotsController from "./management/managementSlotsController.js";
@@ -11,6 +13,7 @@ import ManagementClassesController from "./management/managementClassesControlle
 import ManagementClassroomController from "./management/managementClassroomController.js";
 import ManagementMatieresController from "./management/managementMatieresController.js";
 import ManagementTeachersController from "./management/managementTeachersController.js";
+import ManagementAuditsController from "./management/managementAuditsController.js";
 
 /**
  * Contrôleur principal de la page de gestion.
@@ -24,6 +27,8 @@ export default class ManagementController {
         this.usersController = new ManagementUsersController(this, api);
         this.studentsController = new ManagementStudentsController(this, api);
         this.passagesController = new ManagementPassagesController(this, api);
+        this.settingsController = new ManagementSettingsController(this, api);
+        this.passageTypesController = new ManagementPassageTypesController(this, api);
         this.qrCodesController = new ManagementQrCodesController(this, api);
         this.schedulesController = new ManagementSchedulesController(this, api);
         this.slotsController = new ManagementSlotsController(this, api);
@@ -31,6 +36,7 @@ export default class ManagementController {
         this.classroomController = new ManagementClassroomController(this, api);
         this.matieresController = new ManagementMatieresController(this, api);
         this.teachersController = new ManagementTeachersController(this, api);
+        this.auditsController = new ManagementAuditsController(this, api);
 
         // Garde les mêmes points d'entrée publics qu'avant pour éviter les régressions.
         const delegate = (methodName, sectionController) => {
@@ -45,6 +51,12 @@ export default class ManagementController {
         ['loadPassages', 'loadPassagesByDateRange', 'addPassage', 'exportPassagesCSV', 'updatePassage', 'deletePassage']
             .forEach(m => delegate(m, this.passagesController));
 
+        ['loadSettings', 'updateSettings', 'saveSettingsWithSlotProposal']
+            .forEach(m => delegate(m, this.settingsController));
+
+        ['loadPassageMetadata', 'updatePassageMetadata', 'deletePassageMetadata']
+            .forEach(m => delegate(m, this.passageTypesController));
+
         ['loadQrCodes'].forEach(m => delegate(m, this.qrCodesController));
 
         ['loadScheduleOptions', 'refreshScheduleOptions', 'loadScheduleSlots', 'loadSchedules', 'addSchedule', 'updateSchedule', 'deleteSchedule', 'saveClassScheduleGrid']
@@ -58,6 +70,8 @@ export default class ManagementController {
         ['loadMatieres', 'addMatiere', 'updateMatiere', 'deleteMatiere'].forEach(m => delegate(m, this.matieresController));
         ['loadTeachers', 'addTeacher', 'updateTeacher', 'deleteTeacher']
             .forEach(m => delegate(m, this.teachersController));
+
+        ['loadAudits'].forEach(m => delegate(m, this.auditsController));
     }
 
     /**

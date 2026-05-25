@@ -1,0 +1,90 @@
+# Fiche de poste (1 page) - Surveillants
+
+## Objectif
+
+Assurer un enregistrement fiable des entrees/sorties eleves, rapidement et sans erreur.
+
+## Debut de poste (2 minutes)
+
+1. Se connecter avec son compte.
+2. Ouvrir l ecran Scanner.
+3. Verifier la camera:
+   - statut visible
+   - image active
+4. Faire un scan test si possible.
+
+## Pendant le flux eleves
+
+## 1) Mode normal: Scanner
+
+1. Presenter la carte devant la camera.
+2. Verifier immediatement:
+   - Nom
+   - Classe
+   - Type de passage
+   - Statut
+3. Passer a l eleve suivant.
+
+Regle simple:
+
+- Si le resultat ne s affiche pas correctement, ne pas insister 10 fois: passer en Encodage manuel.
+
+## 2) Si la carte ne passe pas: Encodage manuel
+
+1. Ouvrir Encodage manuel.
+2. Choisir Classe -> Nom -> Prenom.
+3. Choisir Type et Statut.
+4. Verifier Date/Heure.
+5. Cliquer Ajouter.
+6. Verifier le message de confirmation.
+
+## Situations courantes
+
+## Eleve en retard
+
+- Le statut peut apparaitre En retard automatiquement.
+- Ne pas modifier sauf consigne explicite.
+
+## Sortie/refus midi
+
+- Le statut peut etre Autorise ou Refuse selon les regles.
+- En cas de doute, noter le nom et prevenir la personne responsable.
+
+## Connexion instable
+
+- Continuer a scanner/encoder.
+- Les enregistrements peuvent etre mis en attente locale puis synchronises automatiquement.
+- Ne pas doubler les encodages a cause d un delai d affichage.
+
+## Controle rapide toutes les 30-60 min
+
+1. Ouvrir Tableau de bord (si accessible).
+2. Verifier Derniers passages.
+3. Signaler toute incoherence evidente.
+
+## Fin de poste (1 minute)
+
+1. Verifier qu il n y a plus d eleves a traiter.
+2. Signaler les cas particuliers (oubli carte, refus, correction demandee).
+3. Se deconnecter.
+
+## Erreurs a eviter absolument
+
+- Scanner plusieurs fois la meme carte par impatience.
+- Encoder manuellement sans verifier Nom + Prenom + Classe.
+- Laisser la session ouverte sur un poste partage.
+
+## En cas de probleme
+
+1. Recharger la page.
+2. Reessayer une seule fois.
+3. Basculer en Encodage manuel si urgent.
+4. Contacter un administrateur si le probleme persiste.
+
+## Raccourci memoire
+
+- Scanner d abord.
+- Encodage manuel en secours.
+- Verifier le resultat a chaque eleve.
+- Se deconnecter en fin de poste.
+

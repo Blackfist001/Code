@@ -1,3 +1,4 @@
+import api from '../../api.js';
 import { confirmDialog } from '../../utils/dialog.js';
 
 /**
@@ -8,6 +9,173 @@ export default class ManagementPassagesView {
     constructor(parent) {
         this.parent = parent;
         this._allPassageStudents = [];
+        this._typeOptions = null;
+        this._statusOptions = null;
+        this._reasonOptions = null;
+        this._passageMetadataReady = false;
+    }
+
+    async _ensurePassageMetadataLoaded() {
+        if (Array.isArray(this._typeOptions) && Array.isArray(this._statusOptions) && Array.isArray(this._reasonOptions)) {
+            return;
+        }
+
+        try {
+            const [typesResponse, statusesResponse, reasonsResponse] = await Promise.all([
+                api.getPassageMetadata('types'),
+                api.getPassageMetadata('statuses'),
+                api.getPassageMetadata('reasons'),
+            ]);
+
+            this._typeOptions = (typesResponse?.success ? (typesResponse.results || []) : [])
+                .map(item => String(item?.label || '').trim())
+                .filter(Boolean);
+            this._statusOptions = (statusesResponse?.success ? (statusesResponse.results || []) : [])
+                .map(item => String(item?.label || '').trim())
+                .filter(Boolean);
+            this._reasonOptions = (reasonsResponse?.success ? (reasonsResponse.results || []) : [])
+                .map(item => String(item?.label || '').trim())
+                .filter(Boolean);
+        } catch (_) {
+            this._typeOptions = [];
+            this._statusOptions = [];
+            this._reasonOptions = [];
+        }
+
+        this._passageMetadataReady = this._typeOptions.length > 0 && this._statusOptions.length > 0;
+
+        if (!this._passageMetadataReady) {
+            this._notify('Métadonnées types/statuts indisponibles depuis la base.', 'error');
+        }
+    }
+
+    _getStatutsByType(typePassage = '') {
+        const statutsParType = {
+            'Aucun': ['Présent'],
+            'Entrée matin': ['Présent', 'En retard'],
+            'Rentrée midi': ['Présent', 'En retard'],
+            'Entrée après-midi': ['Présent', 'En retard'],
+            'Sortie midi': ['Autorisé', 'Refusé'],
+            'Journée': ['Présent', 'Absent', 'Absence justifiée'],
+            'Sortie autorisée': ['Autorisé'],
+        };
+
+        const defaults = statutsParType[String(typePassage || '').trim()] || ['Présent'];
+        const available = Array.isArray(this._statusOptions) && this._statusOptions.length
+            ? this._statusOptions
+            : [];
+        const filtered = defaults.filter(status => available.includes(status));
+        return filtered.length ? filtered : [];
+    }
+
+    _isStatusHiddenForType(typePassage = '') {
+        return String(typePassage || '').trim().toLowerCase() === 'aucun';
+    }
+
+    _shouldShowReason(typePassage = '', statut = '') {
+        const normalizedType = String(typePassage || '').trim();
+        const normalizedStatus = String(statut || '').trim();
+
+        return normalizedType === 'Sortie autorisée'
+            || (normalizedType === 'Journée' && normalizedStatus === 'Absence justifiée');
+    }
+
+    async _getReasonOptions() {
+        await this._ensurePassageMetadataLoaded();
+        return this._reasonOptions;
+    }
+
+    _renderTypeOptions(selectedType = '') {
+        const options = [];
+        (this._typeOptions || []).forEach(type => {
+            const selected = String(selectedType || '') === String(type) ? ' selected' : '';
+            options.push(`<option value="${type}"${selected}>${type}</option>`);
+        });
+        if (!options.length) {
+            const fallbackLabel = String(selectedType || '').trim();
+            if (fallbackLabel) {
+                return `<option value="${fallbackLabel}">${fallbackLabel}</option>`;
+            }
+            return '<option value="">-- Type indisponible --</option>';
+        }
+        return options.join('');
+    }
+
+    _renderReasonOptions(selectedReason = '') {
+        const options = ['<option value="">-- Raison --</option>'];
+        (this._reasonOptions || []).forEach(reason => {
+            const selected = String(selectedReason || '') === String(reason) ? ' selected' : '';
+            options.push(`<option value="${reason}"${selected}>${reason}</option>`);
+        });
+        return options.join('');
+    }
+
+    _bindEditPassageDependentFields(passage) {
+        const typeSelect = document.getElementById('edit-type');
+        const statusSelect = document.getElementById('edit-statut');
+        const reasonLabel = document.getElementById('edit-reason-label');
+        const reasonWrapper = document.getElementById('edit-reason-wrapper');
+        const reasonSelect = document.getElementById('edit-reason');
+        if (!typeSelect || !statusSelect || !reasonWrapper || !reasonSelect) return;
+
+        const refresh = () => {
+            const type = typeSelect.value;
+            const previousStatus = statusSelect.value;
+            const statusOptions = this._getStatutsByType(type);
+
+            statusSelect.innerHTML = '';
+            statusOptions.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status;
+                option.textContent = status;
+                statusSelect.appendChild(option);
+            });
+
+            const fallbackStatus = statusOptions.includes(passage.statut) ? passage.statut : statusOptions[0];
+            statusSelect.value = statusOptions.includes(previousStatus) ? previousStatus : fallbackStatus;
+
+            const showReason = this._shouldShowReason(typeSelect.value, statusSelect.value);
+            if (reasonLabel) {
+                reasonLabel.style.display = showReason ? 'block' : 'none';
+            }
+            reasonWrapper.style.display = showReason ? 'block' : 'none';
+            if (!showReason) {
+                reasonSelect.value = '';
+            }
+        };
+
+        typeSelect.addEventListener('change', refresh);
+        statusSelect.addEventListener('change', () => {
+            const showReason = this._shouldShowReason(typeSelect.value, statusSelect.value);
+            if (reasonLabel) {
+                reasonLabel.style.display = showReason ? 'block' : 'none';
+            }
+            reasonWrapper.style.display = showReason ? 'block' : 'none';
+            if (!showReason) {
+                reasonSelect.value = '';
+            }
+        });
+
+        refresh();
+        if (this._shouldShowReason(typeSelect.value, statusSelect.value)) {
+            reasonSelect.value = passage.raison || passage.reason || '';
+        }
+    }
+
+    _notify(message, type = 'info') {
+        if (message && window.AppNotifier && typeof window.AppNotifier.notify === 'function') {
+            window.AppNotifier.notify(message, type);
+            return;
+        }
+        alert(message);
+    }
+
+    notify(message, type = 'info') {
+        this._notify(message, type);
+    }
+
+    _resolvePassageId(passage) {
+        return String(passage?.id_passage ?? passage?.id ?? passage?.id_mouvement ?? '').trim();
     }
 
     /**
@@ -36,7 +204,7 @@ export default class ManagementPassagesView {
                 if (dateFrom && dateTo) {
                     controller.exportPassagesCSV(dateFrom, dateTo);
                 } else {
-                    alert('Veuillez sélectionner une plage de dates');
+                    this._notify('Veuillez sélectionner une plage de dates', 'warning');
                 }
             });
         }
@@ -45,6 +213,36 @@ export default class ManagementPassagesView {
         const passageNom = document.getElementById('passage-name-student');
         const passagePrenom = document.getElementById('passage-surname-student');
         const addPassageBtn = document.getElementById('btn-add-passage');
+        const passageType = document.getElementById('passage-type');
+        const passageStatut = document.getElementById('passage-statut');
+        const passageStatutWrapper = document.getElementById('passage-statut-wrapper');
+        const passageReason = document.getElementById('passage-raison');
+        const passageReasonWrapper = document.getElementById('passage-reason-wrapper');
+
+        this._ensurePassageMetadataLoaded().then(() => {
+            if (passageType) {
+                const prevType = passageType.value;
+                passageType.innerHTML = this._renderTypeOptions(prevType);
+            }
+            if (passageReason) {
+                passageReason.innerHTML = this._renderReasonOptions(passageReason.value || '');
+            }
+            if (passageType && passageStatut) {
+                const statusOptions = this._getStatutsByType(passageType.value || (this._typeOptions?.[0] || ''));
+                const prevStatus = passageStatut.value;
+                passageStatut.innerHTML = '';
+                statusOptions.forEach(status => {
+                    const option = document.createElement('option');
+                    option.value = status;
+                    option.textContent = status;
+                    passageStatut.appendChild(option);
+                });
+                if (!statusOptions.length) {
+                    passageStatut.innerHTML = '<option value="">-- Statut indisponible --</option>';
+                }
+                passageStatut.value = statusOptions.includes(prevStatus) ? prevStatus : (statusOptions[0] || '');
+            }
+        }).catch(() => {});
 
         if (passageClasse) {
             passageClasse.addEventListener('change', () => this._refreshPassageNameOptions());
@@ -60,17 +258,78 @@ export default class ManagementPassagesView {
         }
         if (addPassageBtn) {
             addPassageBtn.addEventListener('click', () => {
+                if (!this._passageMetadataReady) {
+                    this._notify('Impossible d\'ajouter: métadonnées de passage indisponibles.', 'error');
+                    return;
+                }
                 const idEtudiant = document.getElementById('passage-id-student')?.value || '';
-                const typePassage = document.getElementById('passage-type')?.value || 'Entrée matin';
+                const typePassage = document.getElementById('passage-type')?.value || '';
                 const datePassage = document.getElementById('passage-date')?.value || '';
                 const heurePassage = document.getElementById('passage-time')?.value || '';
                 controller.addPassage({
                     id_etudiant: idEtudiant,
                     type_passage: typePassage,
+                    statut: passageStatut?.value || '',
+                    raison: this._shouldShowReason(typePassage, passageStatut?.value || '')
+                        ? (passageReason?.value || null)
+                        : null,
                     date_passage: datePassage,
                     heure_passage: heurePassage,
                 });
             });
+        }
+
+        const refreshAddPassageDependentFields = async () => {
+            if (!passageType || !passageStatut || !passageReason || !passageReasonWrapper) return;
+
+            await this._getReasonOptions();
+            passageReason.innerHTML = this._renderReasonOptions(passageReason.value || '');
+
+            const statusOptions = this._getStatutsByType(passageType.value);
+            const hideStatus = this._isStatusHiddenForType(passageType.value);
+            const safeStatusOptions = statusOptions.length
+                ? statusOptions
+                : (Array.isArray(this._statusOptions) && this._statusOptions.length ? [this._statusOptions[0]] : []);
+            const previousStatus = passageStatut.value;
+            passageStatut.innerHTML = '';
+            safeStatusOptions.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status;
+                option.textContent = status;
+                passageStatut.appendChild(option);
+            });
+            if (!safeStatusOptions.length) {
+                passageStatut.innerHTML = '<option value="">-- Statut indisponible --</option>';
+            }
+            passageStatut.value = safeStatusOptions.includes(previousStatus) ? previousStatus : (safeStatusOptions[0] || '');
+            if (passageStatutWrapper) {
+                passageStatutWrapper.style.display = hideStatus ? 'none' : 'block';
+            } else {
+                passageStatut.style.display = hideStatus ? 'none' : 'block';
+            }
+
+            const showReason = this._shouldShowReason(passageType.value, passageStatut.value);
+            passageReasonWrapper.style.display = showReason ? 'block' : 'none';
+            if (!showReason) {
+                passageReason.value = '';
+            }
+        };
+
+        if (passageType && passageStatut) {
+            passageType.addEventListener('change', () => {
+                refreshAddPassageDependentFields();
+            });
+            passageStatut.addEventListener('change', () => {
+                const showReason = this._shouldShowReason(passageType.value, passageStatut.value);
+                if (passageReasonWrapper) {
+                    passageReasonWrapper.style.display = showReason ? 'block' : 'none';
+                }
+                if (!showReason && passageReason) {
+                    passageReason.value = '';
+                }
+            });
+
+            refreshAddPassageDependentFields();
         }
 
         this._setDefaultDateTime();
@@ -234,6 +493,7 @@ export default class ManagementPassagesView {
         const STATUT_VERT = ['Présent', 'Autorisé'];
 
         passages.forEach(p => {
+            const passageId = this._resolvePassageId(p);
             const statut = p.statut || '---';
             const sc = STATUT_ROUGE.includes(statut) ? 'status-refuse' : STATUT_VERT.includes(statut) ? 'status-present' : 'status-info';
             const typeLabel = p.type_passage || '---';
@@ -249,15 +509,15 @@ export default class ManagementPassagesView {
                 <td><span class="status-badge ${sc}">${statut}</span></td>
                 <td><span class="status-badge status-info">${p.raison || p.reason || '---'}</span></td>
                 <td>
-                    <button class="btn-edit btn-edit-passage" data-id="${p.id_passage}">Modifier</button>
-                    <button class="btn-delete btn-delete-passage" data-id="${p.id_passage}">Supprimer</button>
+                    <button type="button" class="btn-edit btn-edit-passage" data-id="${passageId}">Modifier</button>
+                    <button type="button" class="btn-delete btn-delete-passage" data-id="${passageId}">Supprimer</button>
                 </td>`;
             tbody.appendChild(row);
         });
 
         tbody.querySelectorAll('.btn-edit-passage').forEach(btn => {
             btn.addEventListener('click', () => {
-                const passage = passages.find(p => String(p.id_passage) === btn.dataset.id);
+                const passage = passages.find(p => this._resolvePassageId(p) === String(btn.dataset.id || ''));
                 if (passage) this.showEditPassageModal(controller, passage);
             });
         });
@@ -274,46 +534,58 @@ export default class ManagementPassagesView {
      * @param {ManagementPassagesController} controller
      * @param {Object} passage - Données du passage sélectionné
      */
-    showEditPassageModal(controller, passage) {
+    async showEditPassageModal(controller, passage) {
+        await this._ensurePassageMetadataLoaded();
+
+        const initialType = String(passage.type_passage || '').trim();
+        const initialStatut = String(passage.statut || '').trim();
+        const initialReason = String(passage.raison || passage.reason || '').trim();
+
         this.parent._showModal(`
             <h3>Modifier le passage</h3>
-            <div class="form-container">
+            <div class="form-container modal-form-grid">
                 <label>Date</label>
-                <input type="date" id="edit-date" value="${passage.date_passage || ''}">
+                <p class="management-readonly-value">${passage.date_passage || '---'}</p>
                 <label>Heure</label>
-                <input type="time" id="edit-heure" value="${(passage.heure_passage || '').substring(0, 5)}">
-                <label>Type</label>
+                <p class="management-readonly-value">${(passage.heure_passage || '').substring(0, 5) || '---'}</p>
+                <label for="edit-type">Type</label>
                 <select id="edit-type">
-                    <option value="Entrée matin" ${passage.type_passage === 'Entrée matin' ? 'selected' : ''}>Entrée matin</option>
-                    <option value="Sortie midi" ${passage.type_passage === 'Sortie midi' ? 'selected' : ''}>Sortie midi</option>
-                    <option value="Rentrée midi" ${passage.type_passage === 'Rentrée midi' ? 'selected' : ''}>Rentrée midi</option>
-                    <option value="Entrée après-midi" ${passage.type_passage === 'Entrée après-midi' ? 'selected' : ''}>Entrée après-midi</option>
-                    <option value="Sortie autorisée" ${passage.type_passage === 'Sortie autorisée' ? 'selected' : ''}>Sortie autorisée</option>
-                    <option value="Journée" ${passage.type_passage === 'Journée' ? 'selected' : ''}>Journée</option>
+                    ${this._renderTypeOptions(initialType)}
                 </select>
-                <label>Statut</label>
-                <select id="edit-statut">
-                    <option value="Présent" ${passage.statut === 'Présent' ? 'selected' : ''}>Présent</option>
-                    <option value="Autorisé" ${passage.statut === 'Autorisé' ? 'selected' : ''}>Autorisé</option>
-                    <option value="En retard" ${passage.statut === 'En retard' ? 'selected' : ''}>En retard</option>
-                    <option value="Absent" ${passage.statut === 'Absent' ? 'selected' : ''}>Absent</option>
-                    <option value="Refusé" ${passage.statut === 'Refusé' ? 'selected' : ''}>Refusé</option>
-                    <option value="Absence justifiée" ${passage.statut === 'Absence justifiée' ? 'selected' : ''}>Absence justifiée</option>
-                    <option value="Sortie justifiée" ${passage.statut === 'Sortie justifiée' ? 'selected' : ''}>Sortie justifiée</option>
-                </select>
-                <div style="display:flex;gap:8px;margin-top:8px;">
+                <label for="edit-statut">Statut</label>
+                <select id="edit-statut"></select>
+                <label id="edit-reason-label" for="edit-reason" style="display:none;">Raison</label>
+                <div id="edit-reason-wrapper" style="display:none;">
+                    <select id="edit-reason">${this._renderReasonOptions(initialReason)}</select>
+                </div>
+                <div class="modal-row-full modal-form-actions">
                     <button id="modal-btn-save">Enregistrer</button>
                     <button id="modal-btn-cancel">Annuler</button>
                 </div>
             </div>
         `);
 
+        const statusSelect = document.getElementById('edit-statut');
+        if (statusSelect) {
+            const options = this._getStatutsByType(initialType);
+            statusSelect.innerHTML = options.map(status => {
+                const selected = status === initialStatut ? ' selected' : '';
+                return `<option value="${status}"${selected}>${status}</option>`;
+            }).join('');
+        }
+
+        this._bindEditPassageDependentFields(passage);
+
         document.getElementById('modal-btn-save').addEventListener('click', () => {
-            controller.updatePassage(passage.id_passage, {
-                date_passage: document.getElementById('edit-date').value,
-                heure_passage: document.getElementById('edit-heure').value,
-                type_passage: document.getElementById('edit-type').value,
-                statut: document.getElementById('edit-statut').value,
+            const selectedType = document.getElementById('edit-type').value;
+            const selectedStatut = document.getElementById('edit-statut').value;
+            const reasonSelect = document.getElementById('edit-reason');
+            controller.updatePassage(this._resolvePassageId(passage), {
+                type_passage: selectedType,
+                statut: selectedStatut,
+                raison: this._shouldShowReason(selectedType, selectedStatut)
+                    ? (reasonSelect?.value || null)
+                    : null,
             });
             this.parent._hideModal();
         });

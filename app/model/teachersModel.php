@@ -58,6 +58,9 @@ class TeachersModel {
                 ':username' => $data['username'] ?? null,
                 ':enabled_user' => !empty($data['enabled_user']) ? 1 : 0,
             ]);
+            if ($stmt->rowCount() > 0) {
+                \App\Service\AuditService::logDbChange('insert', 'professeurs', null, $data);
+            }
             return true;
         } catch (Exception $e) {
             error_log('TeachersModel::createTeacher: ' . $e->getMessage());
@@ -81,6 +84,9 @@ class TeachersModel {
                 ':username' => $data['username'] ?? null,
                 ':enabled_user' => !empty($data['enabled_user']) ? 1 : 1,
             ]);
+            if ($stmt->rowCount() > 0) {
+                \App\Service\AuditService::logDbChange('insert', 'professeurs', null, $data);
+            }
             return $stmt->rowCount() > 0;
         } catch (Exception $e) {
             error_log('TeachersModel::addTeacher: ' . $e->getMessage());
@@ -110,10 +116,19 @@ class TeachersModel {
             return false;
         }
 
+        $old = $this->getTeacherBySourcedId($sourcedId);
+        if (!$old) {
+            return false;
+        }
+
         $stmt = $pdo->prepare(
             "UPDATE professeurs SET " . implode(', ', $setClauses) . " WHERE sourcedId = :sourcedId"
         );
         $stmt->execute($params);
+        if ($stmt->rowCount() > 0) {
+            $new = $this->getTeacherBySourcedId($sourcedId);
+            \App\Service\AuditService::logDbChange('update', 'professeurs', $old, $new);
+        }
         return $stmt->rowCount() > 0;
     }
 
@@ -133,19 +148,32 @@ class TeachersModel {
             return false;
         }
 
+        $old = $this->getTeacherById($id);
+        if (!$old) {
+            return false;
+        }
+
         $stmt = $pdo->prepare(
             "UPDATE professeurs SET " . implode(', ', $setClauses) . " WHERE id_professeur = :id_professeur"
         );
         $stmt->execute($params);
+        if ($stmt->rowCount() > 0) {
+            $new = $this->getTeacherById($id);
+            \App\Service\AuditService::logDbChange('update', 'professeurs', $old, $new);
+        }
         return $stmt->rowCount() > 0;
     }
 
     public function deleteTeacher(int $id): bool {
         $pdo = $this->db->getPdo();
+        $old = $this->getTeacherById($id);
         $stmt = $pdo->prepare("DELETE FROM professeurs WHERE id_professeur = :id_professeur");
 
         try {
             $stmt->execute([':id_professeur' => $id]);
+            if ($stmt->rowCount() > 0) {
+                \App\Service\AuditService::logDbChange('delete', 'professeurs', $old ?: null, null);
+            }
             return $stmt->rowCount() > 0;
         } catch (Exception $e) {
             error_log('TeachersModel::deleteTeacher: ' . $e->getMessage());

@@ -198,6 +198,38 @@ CREATE TABLE IF NOT EXISTS `utilisateurs` (
 
 -- Les données exportées n'étaient pas sélectionnées.
 
+-- Listage de la structure de table sortie_ecole. audit_logins
+CREATE TABLE IF NOT EXISTS `audit_logins` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user` varchar(100) NOT NULL,
+  `ip` varchar(45) NOT NULL DEFAULT '0.0.0.0',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_audit_logins_created_at` (`created_at`),
+  KEY `idx_audit_logins_user_created_at` (`user`,`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table sortie_ecole. audit_db_changes
+CREATE TABLE IF NOT EXISTS `audit_db_changes` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user` varchar(100) NOT NULL,
+  `ip` varchar(45) NOT NULL DEFAULT '0.0.0.0',
+  `action` varchar(32) NOT NULL,
+  `entity` varchar(128) NOT NULL,
+  `old_data` json DEFAULT NULL,
+  `new_data` json DEFAULT NULL,
+  `meta` json DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_audit_db_changes_created_at` (`created_at`),
+  KEY `idx_audit_db_changes_entity_action_created_at` (`entity`,`action`,`created_at`),
+  KEY `idx_audit_db_changes_user_created_at` (`user`,`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;

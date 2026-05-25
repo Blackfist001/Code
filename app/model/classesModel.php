@@ -80,6 +80,9 @@ class ClassesModel {
 
             $stmt = $pdo->prepare("INSERT INTO classes (classe) VALUES (:classe)");
             $stmt->execute([':classe' => $classe]);
+            if ($stmt->rowCount() > 0) {
+                \App\Service\AuditService::logDbChange('insert', 'classes', null, ['classe' => $classe]);
+            }
             return $stmt->rowCount() > 0;
         } catch (Exception $e) {
             error_log('addClass: ' . $e->getMessage());
@@ -100,6 +103,11 @@ class ClassesModel {
         }
 
         try {
+            $old = $this->getClassById($id);
+            if (!$old) {
+                return false;
+            }
+
             // Vérifier si une autre classe porte ce nom
             $existing = $this->getClassByName($classe);
             if ($existing && $existing['id_classe'] != $id) {
@@ -112,6 +120,10 @@ class ClassesModel {
                 ':classe' => $classe,
                 ':id' => $id
             ]);
+            if ($stmt->rowCount() > 0) {
+                $new = $this->getClassById($id);
+                \App\Service\AuditService::logDbChange('update', 'classes', $old, $new);
+            }
             return $stmt->rowCount() > 0;
         } catch (Exception $e) {
             error_log('updateClass: ' . $e->getMessage());
@@ -154,6 +166,9 @@ class ClassesModel {
             // Supprimer la classe
             $stmt = $pdo->prepare("DELETE FROM classes WHERE id_classe = :id");
             $stmt->execute([':id' => $id]);
+            if ($stmt->rowCount() > 0) {
+                \App\Service\AuditService::logDbChange('delete', 'classes', $class, null);
+            }
             return $stmt->rowCount() > 0;
         } catch (Exception $e) {
             error_log('deleteClass: ' . $e->getMessage());

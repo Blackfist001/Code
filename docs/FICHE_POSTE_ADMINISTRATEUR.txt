@@ -1,0 +1,113 @@
+Fiche de poste (1 page) - Administrateur
+
+Objectif
+
+Garantir le bon fonctionnement global: qualite des donnees, gestion des parametres, supervision des audits et administration des comptes.
+
+Debut de poste (5 minutes)
+
+1. Se connecter en Administrateur.
+2. Verifier le Tableau de bord.
+3. Ouvrir Gestion > Audits et cliquer Recharger.
+4. Controler rapidement:
+   - Connexions recentes
+   - Modifications DB recentes
+
+Routine de pilotage
+
+1) Suivi operationnel
+
+- Verifier Scanner/Encodage manuel/Absents selon besoins terrain.
+- Assister le gestionnaire en cas d ecart complexe.
+
+2) Gestion des donnees (menu Gestion)
+
+Sections principales:
+
+- Passages: corriger/supprimer un enregistrement, filtrer, exporter.
+- Etudiants: ajouter/modifier/supprimer, autorisation midi.
+- QR Codes: gestion des codes eleves.
+- Horaires, Creneaux, Classes, Locaux, Matieres, Professeurs: maintien des referentiels.
+- Types de passage: coherence types/statuts/raisons.
+- Utilisateurs: comptes et roles.
+
+3) Parametres metier
+
+Dans Gestion > Parametres:
+
+1. Mettre a jour uniquement si decision validee.
+2. Verifier les champs:
+   - duree cours
+   - tolerance retard
+   - fenetres midi
+   - annees associees
+3. Cliquer Enregistrer.
+4. Verifier l historique des sauvegardes.
+
+Important
+
+- Les champs Entree matin jusqu a et Entree apres-midi a partir de sont calcules automatiquement.
+
+4) Traçabilite et conformite
+
+Dans Gestion > Audits:
+
+1. Verifier Connexions (qui, quand, IP).
+2. Verifier Modifications DB (action, entite, avant/apres).
+3. Conserver des captures/exports selon procedure interne.
+
+Cas pratiques
+
+Demande: Qui a modifie un enregistrement?
+
+1. Ouvrir Audits > Modifications DB.
+2. Filtrer visuellement par date/heure/utilisateur/entite.
+3. Comparer anciennes vs nouvelles donnees.
+
+Demande: Mauvais parametre applique en production
+
+1. Aller dans Parametres.
+2. Consulter Historique des sauvegardes.
+3. Restaurer la sauvegarde appropriee apres validation.
+4. Recontroler les ecrans impactes (scan, absents, historique).
+
+Demande: Acces utilisateur a ajuster
+
+1. Aller dans Gestion > Utilisateurs.
+2. Modifier role ou compte.
+3. Confirmer la mise a jour.
+4. Demander reconnexion de l utilisateur concerne.
+
+Erreurs a eviter
+
+- Modifier plusieurs parametres metier d un coup sans validation.
+- Changer les referentiels en heure de pointe sans communication.
+- Corriger des donnees sans verifier l impact aval (absents, stats, exports).
+
+Depannage rapide
+
+Comportement inattendu d un ecran
+
+1. Recharger la page.
+2. Verifier les audits pour action recente liee.
+3. Verifier Parametres et referentiels modifies.
+4. Appliquer correction minimale puis recontroler.
+
+Doute sur un role utilisateur
+
+1. Verifier dans Gestion > Utilisateurs.
+2. Corriger role si necessaire.
+3. Tester l acces apres reconnexion.
+
+Fin de poste (3 minutes)
+
+1. Verifier qu aucun changement critique n est en attente.
+2. Noter les actions admin du jour si procedure interne.
+3. Se deconnecter.
+
+Raccourci memoire
+
+- Audits pour tracer.
+- Parametres pour regler.
+- Gestion des donnees pour corriger.
+- Utilisateurs pour securiser les acces.

@@ -32,9 +32,10 @@ class SmartschoolSync {
     private CourseModel $courseModel;
     private DataBase $db;
     private ?bool $hasMatiereTeachersTable = null;
+    private bool $studentSchemaLogged = false;
 
-    public function __construct() {
-        $this->client = new SmartschoolWebServiceV3Client();
+    public function __construct(?SmartschoolWebServiceV3Client $client = null) {
+        $this->client = $client ?? new SmartschoolWebServiceV3Client();
         $this->studentsModel = new StudentsModel();
         $this->teachersModel = new TeachersModel();
         $this->classesModel = new ClassesModel();
@@ -56,6 +57,62 @@ class SmartschoolSync {
     }
 
     /**
+     * Synchronisation bornée pour le login (objectif UX: ne pas dépasser ~10s).
+     * Exécute prioritairement teachers + schedules, et n'exécute students que si
+     * le budget restant est suffisant.
+     *
+     * @return array<string,mixed>
+     */
+    public function syncForLogin(bool $dryRun = false, int $maxSeconds = 10): array {
+        $maxSeconds = max(1, $maxSeconds);
+        $startedAt = microtime(true);
+        $deadline = $startedAt + $maxSeconds;
+
+        $empty = ['total' => 0, 'inserted' => 0, 'updated' => 0, 'unchanged' => 0, 'skipped' => 0, 'errors' => 0];
+        $stats = [
+            'students' => $empty,
+            'teachers' => $empty,
+            'schedules' => $empty,
+            '_meta' => [
+                'timed_out' => false,
+                'stages_run' => [],
+                'stages_skipped' => [],
+                'max_seconds' => $maxSeconds,
+                'elapsed_ms' => 0,
+            ],
+        ];
+
+        $runStage = function (string $name, callable $fn) use (&$stats, $deadline): void {
+            if (microtime(true) >= $deadline) {
+                $stats['_meta']['timed_out'] = true;
+                $stats['_meta']['stages_skipped'][] = $name;
+                return;
+            }
+            $stats[$name] = $fn();
+            $stats['_meta']['stages_run'][] = $name;
+        };
+
+        // Priorité aux données les moins coûteuses et utiles immédiatement.
+        $runStage('teachers', fn() => $this->syncTeachers($dryRun));
+        $runStage('schedules', fn() => $this->syncSchedules($dryRun));
+
+        // Etudiants: potentiellement coûteux (par classe). Ne lancer que s'il reste du temps.
+        $remaining = $deadline - microtime(true);
+        if ($remaining >= 4.0) {
+            $runStage('students', fn() => $this->syncStudents($dryRun));
+        } else {
+            $stats['_meta']['stages_skipped'][] = 'students';
+        }
+
+        $stats['_meta']['elapsed_ms'] = (int)round((microtime(true) - $startedAt) * 1000);
+        if (($stats['_meta']['elapsed_ms'] / 1000) >= $maxSeconds) {
+            $stats['_meta']['timed_out'] = true;
+        }
+
+        return $stats;
+    }
+
+    /**
      * Synchronise les étudiants SOAP V3 vers la table etudiants.
      * Identifiant pivot : scannableCode → sourcedId
      *
@@ -69,6 +126,11 @@ class SmartschoolSync {
 
         foreach ($users as $user) {
             $stats['total']++;
+
+            if (!$this->studentSchemaLogged) {
+                $this->logStudentSchemaSample($user);
+                $this->studentSchemaLogged = true;
+            }
 
             $sourcedId = trim((string)($user['scannableCode'] ?? ''));
             if ($sourcedId === '' || !StudentsModel::validateSourcedId($sourcedId)) {
@@ -220,6 +282,7 @@ class SmartschoolSync {
         }
 
         $birthDate = $this->normalizeBirthDate($user['geboortedatum'] ?? null);
+        $autorisationMidi = $this->resolveAutorisationMidiFromUser($user);
 
         return [
             'sourcedId'        => $sourcedId,
@@ -233,7 +296,7 @@ class SmartschoolSync {
             'prenom'              => (string)($user['voornaam'] ?? ''),
             'classe'              => $classe,
             'date_naissance'      => $birthDate,
-            'autorisation_midi'   => 0,
+            'autorisation_midi'   => $autorisationMidi,
         ];
     }
 
@@ -332,5 +395,166 @@ class SmartschoolSync {
             return null;
         }
         return preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) ? $value : null;
+    }
+
+    private function normalizeSearchToken(string $value): string {
+        $value = trim($value);
+        if ($value === '') {
+            return '';
+        }
+
+        $ascii = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
+        if (!is_string($ascii) || $ascii === '') {
+            $ascii = $value;
+        }
+
+        $ascii = strtolower($ascii);
+        $ascii = preg_replace('/[^a-z0-9]+/', '', $ascii) ?? '';
+        return $ascii;
+    }
+
+    private function parseBooleanLike($value): ?int {
+        if (is_bool($value)) {
+            return $value ? 1 : 0;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return ((int)$value) === 0 ? 0 : 1;
+        }
+
+        if (!is_string($value)) {
+            return null;
+        }
+
+        $token = $this->normalizeSearchToken($value);
+        if ($token === '') {
+            return null;
+        }
+
+        $truthy = [
+            '1', 'true', 'yes', 'oui', 'o', 'y', 'ja', 'allowed', 'ok',
+            'autorise', 'autorisee', 'autorisation', 'actif', 'active'
+        ];
+        $falsy = [
+            '0', 'false', 'no', 'non', 'n', 'nee', 'denied', 'interdit', 'inactive',
+            'refuse', 'refusee'
+        ];
+
+        if (in_array($token, $truthy, true)) {
+            return 1;
+        }
+        if (in_array($token, $falsy, true)) {
+            return 0;
+        }
+
+        return null;
+    }
+
+    private function looksLikeAutorisationSortieLabel(string $label): bool {
+        $token = $this->normalizeSearchToken($label);
+        if ($token === '') {
+            return false;
+        }
+
+        $candidates = [
+            'autorisationdesortie',
+            'autorisationdesorties',
+            'autorisationsortie',
+            'autorisationsorties',
+            'autorisationmidi',
+            'sortieautorisee',
+            'sortieautorisee',
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (str_contains($token, $candidate)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function findAutorisationValueRecursive($node): ?int {
+        if (!is_array($node)) {
+            return null;
+        }
+
+        foreach ($node as $key => $value) {
+            if (is_string($key) && $this->looksLikeAutorisationSortieLabel($key)) {
+                $parsed = $this->parseBooleanLike($value);
+                if ($parsed !== null) {
+                    return $parsed;
+                }
+            }
+
+            if (is_array($value)) {
+                $label = '';
+                foreach (['label', 'name', 'key', 'title', 'omschrijving', 'description'] as $labelKey) {
+                    if (isset($value[$labelKey]) && is_string($value[$labelKey])) {
+                        $label = (string)$value[$labelKey];
+                        break;
+                    }
+                }
+
+                if ($label !== '' && $this->looksLikeAutorisationSortieLabel($label)) {
+                    foreach (['value', 'waarde', 'text', 'val', 'inhoud', 'content'] as $valueKey) {
+                        if (array_key_exists($valueKey, $value)) {
+                            $parsed = $this->parseBooleanLike($value[$valueKey]);
+                            if ($parsed !== null) {
+                                return $parsed;
+                            }
+                        }
+                    }
+                }
+
+                $nested = $this->findAutorisationValueRecursive($value);
+                if ($nested !== null) {
+                    return $nested;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function resolveAutorisationMidiFromUser(array $user): int {
+        // 1) Recherche directe sur les clés usuelles
+        foreach (['autorisation_midi', 'autorisationSortie', 'autorisation_de_sortie'] as $key) {
+            if (array_key_exists($key, $user)) {
+                $parsed = $this->parseBooleanLike($user[$key]);
+                if ($parsed !== null) {
+                    return $parsed;
+                }
+            }
+        }
+
+        // 2) Recherche récursive dans tout le payload (incluant "autres informations")
+        $parsedRecursive = $this->findAutorisationValueRecursive($user);
+        if ($parsedRecursive !== null) {
+            return $parsedRecursive;
+        }
+
+        return 0;
+    }
+
+    private function logStudentSchemaSample(array $user): void {
+        try {
+            $keys = array_keys($user);
+            $infoCandidates = [];
+            foreach ($keys as $k) {
+                $token = $this->normalizeSearchToken((string)$k);
+                if (str_contains($token, 'info') || str_contains($token, 'information') || str_contains($token, 'other')) {
+                    $infoCandidates[] = (string)$k;
+                }
+            }
+
+            error_log('[SmartschoolSync] student payload keys sample: ' . implode(', ', array_slice($keys, 0, 40)));
+            if (!empty($infoCandidates)) {
+                error_log('[SmartschoolSync] student info-like keys sample: ' . implode(', ', $infoCandidates));
+            }
+        } catch (\Throwable $e) {
+            // Ne jamais interrompre la synchronisation pour un log de diagnostic
+        }
     }
 }

@@ -90,6 +90,9 @@ ${formatSection('Total', stats)}
                     title: 'Synchronisation Smartschool',
                     html,
                     confirmButtonText: 'OK',
+                    showCloseButton: true,
+                    timer: 5000,
+                    timerProgressBar: true,
                 });
                 return;
             }
@@ -107,6 +110,9 @@ ${formatSection('Total', stats)}
                 title: 'Synchronisation Smartschool',
                 html: errorHtml,
                 confirmButtonText: 'OK',
+                showCloseButton: true,
+                timer: 5000,
+                timerProgressBar: true,
             });
             return;
         }

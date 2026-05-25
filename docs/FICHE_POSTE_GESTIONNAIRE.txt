@@ -1,0 +1,102 @@
+Fiche de poste (1 page) - Gestionnaire
+
+Objectif
+
+Superviser le suivi quotidien des passages et absences, traiter les cas d ecart, et produire les exports de suivi.
+
+Debut de poste (3 minutes)
+
+1. Se connecter avec son compte Gestionnaire.
+2. Verifier le Tableau de bord:
+   - Statistiques du jour
+   - Derniers passages
+3. Ouvrir Absents pour controler la situation du jour.
+
+Routine quotidienne recommandee
+
+1) Scanner (si vous remplacez/assistez le poste surveillant)
+
+1. Verifier la camera.
+2. Scanner les cartes.
+3. Controler Nom, Classe, Type, Statut.
+
+2) Encodage manuel (corrections terrain)
+
+1. Choisir Classe -> Nom -> Prenom.
+2. Completer Type, Statut, Raison si necessaire.
+3. Verifier Date/Heure.
+4. Cliquer Ajouter.
+
+3) Absents (controle metier)
+
+1. Ouvrir Absents.
+2. Verifier:
+   - type/statut
+   - demi-journees d absence
+   - source et raison
+3. Marquer une absence si necessaire avec le formulaire.
+
+4) Recherche (repondre aux demandes)
+
+1. Filtrer par classe, nom, prenom, statut.
+2. Verifier les lignes correspondantes.
+3. Exporter CSV/PDF pour transmission.
+
+5) Historique (analyse sur periode)
+
+1. Choisir Date debut et Date fin.
+2. Cliquer Filtrer.
+3. Exporter CSV/PDF si besoin de preuve ou reporting.
+
+Cas pratiques
+
+Eleve signale absent mais present selon famille
+
+1. Verifier dans Recherche puis Historique.
+2. Comparer date/heure/type/statut.
+3. Si correction necessaire, la faire via Encodage manuel ou demander intervention administrateur selon la regle interne.
+
+Demande de listing pour reunion
+
+1. Utiliser Recherche ou Historique.
+2. Appliquer les filtres demandes.
+3. Exporter en CSV (ou PDF) et transmettre.
+
+Controle qualite minimum (2 fois par jour)
+
+1. Matin: verifier coherence scans/absents.
+2. Midi: verifier statuts de sortie/retour.
+3. Fin de journee: verifier qu il n y a pas d ecarts evidents.
+
+Erreurs a eviter
+
+- Corriger sans verifier l identite complete (Nom + Prenom + Classe).
+- Exporter sans filtre date (risque de mauvais perimetre).
+- Laisser un cas litigieux sans trace (note interne recommandee).
+
+Depannage rapide
+
+Connexion impossible
+
+- Verifier identifiants et majuscules.
+- Reessayer quelques minutes plus tard.
+- Contacter un administrateur si blocage.
+
+Donnees qui semblent manquantes
+
+- Recharger la page.
+- Refaire le filtre (dates/classe/statut).
+- Verifier depuis un second ecran (Historique ou Recherche).
+
+Fin de poste (2 minutes)
+
+1. Verifier les cas non resolus du jour.
+2. Exporter si un suivi doit etre transmis.
+3. Se deconnecter.
+
+Raccourci memoire
+
+- Tableau de bord pour piloter.
+- Absents/Recherche/Historique pour verifier.
+- Encodage manuel pour corriger vite et propre.
+- Deconnexion systematique.

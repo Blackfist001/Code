@@ -63,6 +63,12 @@ class UsersModel {
                 ':password' => password_hash($password, PASSWORD_DEFAULT),
                 ':role' => $role
             ]);
+            if ($stmt->rowCount() > 0) {
+                \App\Service\AuditService::logDbChange('insert', 'utilisateurs', null, [
+                    'nom' => $username,
+                    'role' => $role
+                ]);
+            }
             return true;
         } catch (\RuntimeException $e) {
             throw $e;
@@ -80,7 +86,7 @@ class UsersModel {
     public function deleteUser($id) {
         $pdo = $this->db->getPdo();
         // Vérifier que ce n'est pas l'utilisateur admin (protégé)
-        $check = $pdo->prepare("SELECT nom FROM utilisateurs WHERE id_user = :id");
+        $check = $pdo->prepare("SELECT * FROM utilisateurs WHERE id_user = :id");
         $check->execute([':id' => $id]);
         $user = $check->fetch(\PDO::FETCH_ASSOC);
         if ($user && strtolower($user['nom']) === 'admin') {
@@ -88,6 +94,9 @@ class UsersModel {
         }
         $stmt = $pdo->prepare("DELETE FROM utilisateurs WHERE id_user = :id");
         $stmt->execute([':id' => $id]);
+        if ($stmt->rowCount() > 0) {
+            \App\Service\AuditService::logDbChange('delete', 'utilisateurs', $user, null);
+        }
         return $stmt->rowCount() > 0;
     }
 
@@ -102,7 +111,6 @@ class UsersModel {
         $pdo = $this->db->getPdo();
         $setClauses = [];
         $params = [':id' => $id];
-        
         // Mapper les noms de champs
         $fieldMap = [
             'username' => 'nom',
@@ -111,7 +119,6 @@ class UsersModel {
             'mot_de_passe' => 'mot_de_passe',
             'role' => 'role'
         ];
-
         foreach ($updateData as $key => $value) {
             $dbField = $fieldMap[$key] ?? $key;
             // Hash password if being updated
@@ -121,14 +128,18 @@ class UsersModel {
             $setClauses[] = "$dbField = :$dbField";
             $params[":$dbField"] = $value;
         }
-        
         if (empty($setClauses)) {
             return false;
         }
-        
+        // Récupérer l'ancien état
+        $old = $this->getUserById($id);
         $sql = "UPDATE utilisateurs SET " . implode(', ', $setClauses) . " WHERE id_user = :id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
+        if ($stmt->rowCount() > 0) {
+            $new = $this->getUserById($id);
+            \App\Service\AuditService::logDbChange('update', 'utilisateurs', $old, $new);
+        }
         return $stmt->rowCount() > 0;
     }
 

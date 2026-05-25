@@ -35,9 +35,14 @@ export default class DashboardView {
      * @param {'info'|'warning'|'error'} [type='info'] - Type de message
      */
     showMessage(message = '', type = 'info') {
+        if (!message) return;
+        if (window.AppNotifier && typeof window.AppNotifier.notify === 'function') {
+            window.AppNotifier.notify(message, type);
+            return;
+        }
+
         const box = document.getElementById('dashboard-message');
         if (!box) return;
-
         box.textContent = message;
         box.className = message ? `message message-${type}` : 'message';
     }
@@ -91,8 +96,12 @@ export default class DashboardView {
         this._bindCriticalAbsenceEvents();
     }
 
+    updateStats(stats) {
+        this.populateStats(stats);
+    }
+
     /**
-     * Peuple le tableau des derniers passages (type 'Journée' uniquement).
+     * Peuple le tableau des 10 derniers passages.
      * @param {Array} movements - Liste des passages
      */
     populateMovements(movements) {
@@ -101,11 +110,9 @@ export default class DashboardView {
         
         tbody.innerHTML = '';
 
-        const dayMovements = (movements || []).filter(movement =>
-            String(movement.type_passage || '').toLowerCase() === 'journée'
-        );
-        
-        if (!dayMovements.length) {
+        const latestMovements = Array.isArray(movements) ? movements : [];
+
+        if (!latestMovements.length) {
             tbody.innerHTML = '<tr><td colspan="7">Aucun passage enregistré</td></tr>';
             return;
         }
@@ -113,7 +120,7 @@ export default class DashboardView {
         const STATUT_ROUGE = ['Absent', 'Refusé', 'En retard'];
         const STATUT_VERT  = ['Présent', 'Autorisé'];
 
-        dayMovements.slice(0, 10).forEach(movement => {
+        latestMovements.slice(0, 10).forEach(movement => {
             const statut = movement.statut || '---';
             const statutClass = STATUT_ROUGE.includes(statut)
                 ? 'status-refuse'

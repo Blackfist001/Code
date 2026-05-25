@@ -47,12 +47,17 @@ export default class ManagementPassagesController {
             alert('Veuillez sélectionner un étudiant');
             return;
         }
+        if (!data.type_passage || !data.statut) {
+            this.parent.view.passagesView?.notify('Type et statut sont obligatoires.', 'error');
+            return;
+        }
 
         try {
             const movementData = {
                 id_etudiant: data.id_etudiant,
-                type_passage: data.type_passage || 'Entrée matin',
-                statut: 'Autorisé',
+                type_passage: data.type_passage,
+                statut: data.statut,
+                raison: data.raison || null,
                 date_passage: data.date_passage || new Date().toISOString().split('T')[0],
                 heure_passage: data.heure_passage || new Date().toTimeString().split(' ')[0],
                 scan: false,
@@ -95,12 +100,14 @@ export default class ManagementPassagesController {
         try {
             const response = await this.api.updateMovement(id, data);
             if (response.success) {
+                this.parent.view.passagesView?.notify('Passage modifié avec succès.', 'success');
                 await this.loadPassages();
             } else {
-                alert(response.message || 'Erreur lors de la modification');
+                this.parent.view.passagesView?.notify(response.message || 'Erreur lors de la modification.', 'error');
             }
         } catch (error) {
             console.error('Erreur updatePassage:', error);
+            this.parent.view.passagesView?.notify('Erreur lors de la modification.', 'error');
         }
     }
 

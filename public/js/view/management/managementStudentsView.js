@@ -2,7 +2,7 @@ import { confirmDialog } from '../../utils/dialog.js';
 
 /**
  * Sous-vue de gestion des étudiants.
- * Affiche le tableau des étudiants, les filtres classe/ midi, et la modale d'édition.
+ * Affiche le tableau des étudiants, les filtres classe/nom/midi, et la modale d'édition.
  */
 export default class ManagementStudentsView {
     constructor(parent) {
@@ -27,10 +27,17 @@ export default class ManagementStudentsView {
             });
         }
 
-        ['students-filter-classe', 'students-filter-midi'].forEach(id => {
+        ['students-filter-classe', 'students-filter-nom', 'students-filter-midi'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.addEventListener('change', () => this._applyFilters(controller));
         });
+
+        const classeFilter = document.getElementById('students-filter-classe');
+        if (classeFilter) {
+            classeFilter.addEventListener('change', () => {
+                this._refreshNameFilterOptions();
+            });
+        }
     }
 
     /**
@@ -57,6 +64,7 @@ export default class ManagementStudentsView {
      */
     _getFilteredStudents() {
         const classeFilter = (document.getElementById('students-filter-classe')?.value || '').trim();
+        const nomFilter = (document.getElementById('students-filter-nom')?.value || '').trim().toLowerCase();
         const midiFilter = document.getElementById('students-filter-midi')?.value ?? '';
 
         return (this._allStudents || []).filter(s => {
@@ -71,9 +79,47 @@ export default class ManagementStudentsView {
                 }
             }
 
+            if (nomFilter) {
+                const studentNom = String(s.nom || '').trim().toLowerCase();
+                if (studentNom !== nomFilter) return false;
+            }
+
             if (midiFilter !== '' && String(s.autorisation_midi ?? '') !== midiFilter) return false;
             return true;
         });
+    }
+
+    _refreshNameFilterOptions() {
+        const nomFilterSelect = document.getElementById('students-filter-nom');
+        if (!nomFilterSelect) return;
+
+        const classeFilter = (document.getElementById('students-filter-classe')?.value || '').trim();
+        const previous = nomFilterSelect.value;
+
+        const byClass = (this._allStudents || []).filter(s => {
+            if (!classeFilter) return true;
+
+            const classId = String(s.classe_id ?? s.id_classe ?? '');
+            const classNom = String(s.classe || '').toLowerCase();
+            const classObj = (this.parent._classes || []).find(c => String(c.id_classe) === classeFilter);
+            if (classObj) {
+                return classNom === classObj.classe.toLowerCase();
+            }
+            return classId === classeFilter;
+        });
+
+        const names = [...new Set(
+            byClass
+                .map(s => String(s.nom || '').trim())
+                .filter(Boolean)
+        )].sort((a, b) => a.localeCompare(b, 'fr', { sensitivity: 'base' }));
+
+        nomFilterSelect.innerHTML = '<option value="">-- Tous les noms --</option>'
+            + names.map(name => `<option value="${name}">${name}</option>`).join('');
+
+        if (names.includes(previous)) {
+            nomFilterSelect.value = previous;
+        }
     }
 
     /**
@@ -140,6 +186,7 @@ export default class ManagementStudentsView {
      */
     displayStudents(controller, students = []) {
         this._allStudents = Array.isArray(students) ? students : [];
+        this._refreshNameFilterOptions();
         this._applyFilters(controller);
     }
 
@@ -151,16 +198,25 @@ export default class ManagementStudentsView {
     showEditStudentModal(controller, student) {
         this.parent._showModal(`
             <h3>Modifier l'étudiant</h3>
-            <div class="form-container">
-                <input type="text" id="edit-nom" value="${student.nom || ''}" placeholder="Nom">
-                <input type="text" id="edit-prenom" value="${student.prenom || ''}" placeholder="Prénom">
-                <input type="text" id="edit-classe" value="${student.classe || ''}" placeholder="Classe (ex: 2A)">
+            <div class="form-container modal-form-grid">
+                <label for="edit-nom">Nom</label>
+                <input type="text" id="edit-nom" value="${student.nom || ''}">
+
+                <label for="edit-prenom">Prénom</label>
+                <input type="text" id="edit-prenom" value="${student.prenom || ''}">
+
+                <label for="edit-classe">Classe</label>
+                <input type="text" id="edit-classe" value="${student.classe || ''}" placeholder="Ex: 2A">
+
+                <label for="edit-naissance">Date de naissance</label>
                 <input type="date" id="edit-naissance" value="${student.date_naissance || ''}">
-                <label style="display:flex;align-items:center;gap:8px;">
+
+                <label for="edit-midi">Autorisation sortie midi</label>
+                <div class="modal-inline-check">
                     <input type="checkbox" id="edit-midi" ${student.autorisation_midi == 1 ? 'checked' : ''}>
-                    Autorisation sortie midi
-                </label>
-                <div style="display:flex;gap:8px;margin-top:8px;">
+                </div>
+
+                <div class="modal-row-full modal-form-actions">
                     <button id="modal-btn-save">Enregistrer</button>
                     <button id="modal-btn-cancel">Annuler</button>
                 </div>

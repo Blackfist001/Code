@@ -2,6 +2,7 @@
 namespace App\Model;
 
 use App\Core\DataBase;
+use App\Service\AuditService;
 use PDO;
 use Exception;
 
@@ -108,6 +109,11 @@ class TimeSlotModel {
         try {
             $stmt = $pdo->prepare("INSERT INTO {$table} (creneau) VALUES (:creneau)");
             $stmt->execute([':creneau' => $normalized]);
+            if ($stmt->rowCount() > 0) {
+                AuditService::logDbChange('insert', $table, null, ['creneau' => $normalized], [
+                    'type' => strtolower($type),
+                ]);
+            }
             return $stmt->rowCount() > 0;
         } catch (Exception $e) {
             error_log('TimeSlotModel::addSlot: ' . $e->getMessage());
@@ -120,10 +126,20 @@ class TimeSlotModel {
         $table = $this->tableForType($type);
         $idCol = $this->idColumnForType($type);
         $normalized = $this->normalizeTime($time);
+        $previous = $this->getById($id, $type);
 
         try {
             $stmt = $pdo->prepare("UPDATE {$table} SET creneau = :creneau WHERE {$idCol} = :id");
             $stmt->execute([':creneau' => $normalized, ':id' => $id]);
+            if ($stmt->rowCount() > 0) {
+                AuditService::logDbChange(
+                    'update',
+                    $table,
+                    $previous,
+                    ['id_creneau' => $id, 'creneau' => $normalized],
+                    ['type' => strtolower($type)]
+                );
+            }
             return $stmt->rowCount() > 0;
         } catch (Exception $e) {
             error_log('TimeSlotModel::updateSlot: ' . $e->getMessage());
@@ -135,10 +151,16 @@ class TimeSlotModel {
         $pdo = $this->db->getPdo();
         $table = $this->tableForType($type);
         $idCol = $this->idColumnForType($type);
+        $previous = $this->getById($id, $type);
 
         try {
             $stmt = $pdo->prepare("DELETE FROM {$table} WHERE {$idCol} = :id");
             $stmt->execute([':id' => $id]);
+            if ($stmt->rowCount() > 0) {
+                AuditService::logDbChange('delete', $table, $previous, null, [
+                    'type' => strtolower($type),
+                ]);
+            }
             return $stmt->rowCount() > 0;
         } catch (Exception $e) {
             error_log('TimeSlotModel::deleteSlot: ' . $e->getMessage());

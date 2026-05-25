@@ -255,6 +255,10 @@ class CourseModel {
 
             $matiereId = (int)$pdo->lastInsertId();
             $this->replaceMatiereTeachers($matiereId, $teacherIds);
+            if ($matiereId > 0) {
+                $new = $this->getMatiereById($matiereId);
+                \App\Service\AuditService::logDbChange('insert', 'matieres', null, $new ?: $data);
+            }
             return $matiereId > 0;
         } catch (\RuntimeException $e) {
             throw $e;
@@ -282,6 +286,11 @@ class CourseModel {
             $teacherIds = $this->normalizeTeacherIds($data['id_professeurs']);
         } elseif (array_key_exists('id_professeur', $data)) {
             $teacherIds = $this->normalizeTeacherIds($data['id_professeur']);
+        }
+
+        $old = $this->getMatiereById($id);
+        if (!$old) {
+            return false;
         }
 
         try {
@@ -331,6 +340,11 @@ class CourseModel {
                 return false;
             }
 
+            if ($updatedRow) {
+                $new = $this->getMatiereById($id);
+                \App\Service\AuditService::logDbChange('update', 'matieres', $old, $new ?: $old);
+            }
+
             return $updatedRow;
         } catch (\RuntimeException $e) {
             throw $e;
@@ -349,6 +363,7 @@ class CourseModel {
      */
     public function deleteMatiere(int $id): bool {
         $pdo = $this->db->getPdo();
+        $old = $this->getMatiereById($id);
 
         try {
             $check = $pdo->prepare("SELECT COUNT(*) AS count FROM horaires_cours WHERE id_matiere = :id_matiere");
@@ -360,6 +375,9 @@ class CourseModel {
 
             $stmt = $pdo->prepare("DELETE FROM matieres WHERE id_matiere = :id");
             $stmt->execute([':id' => $id]);
+            if ($stmt->rowCount() > 0) {
+                \App\Service\AuditService::logDbChange('delete', 'matieres', $old ?: ['id_matiere' => $id], null);
+            }
             return $stmt->rowCount() > 0;
         } catch (\RuntimeException $e) {
             throw $e;

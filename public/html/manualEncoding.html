@@ -15,27 +15,15 @@
             <input type="hidden" id="encoding-id-student">
             <div id="encoding-student-info" style="display:none;padding:6px 0;color:#2c3e50;font-weight:bold;"></div>
             <select id="encoding-type" style="width:auto;">
-                <option value="Entrée matin">Entrée matin</option>
-                <option value="Sortie midi">Sortie midi</option>
-                <option value="Rentrée midi">Rentrée midi</option>
-                <option value="Entrée après-midi">Entrée après-midi</option>
-                <option value="Sortie autorisée">Sortie autorisée</option>
-                <option value="Journée">Journée</option>
+                <option value="">-- Type --</option>
             </select>
-            <select id="encoding-status" style="width:auto;">
-                <option value="Présent">Présent</option>
-                <option value="Autorisé">Autorisé</option>
-                <option value="En retard">En retard</option>
-                <option value="Refusé">Refusé</option>
-                <option value="Absent">Absent</option>
-                <option value="Absence justifiée">Absence justifiée</option>
-                <option value="Sortie justifiée">Sortie justifiée</option>
-            </select>
+            <div id="encoding-status-wrapper" style="display:block;">
+                <select id="encoding-status" style="width:auto;">
+                    <option value="">-- Statut --</option>
+                </select>
+            </div>
             <select id="encoding-reason" style="display:none;width:auto;">
                 <option value="">-- Raison --</option>
-                <option value="medical">Certificat médical</option>
-                <option value="parental">Justificatif des parents</option>
-                <option value="other">Autre</option>
             </select>
             <input type="date" id="encoding-date" style="width:auto;">
             <input type="time" id="encoding-time" style="width:auto;">
@@ -49,22 +37,9 @@
         <div class="form-container" style="flex-direction:row;flex-wrap:wrap;align-items:flex-end;justify-content:flex-start;gap:10px;margin-bottom:10px;">
             <select id="encoding-filter-type" style="width:auto;">
                 <option value="">Tous les types</option>
-                <option value="Entrée matin">Entrée matin</option>
-                <option value="Sortie midi">Sortie midi</option>
-                <option value="Rentrée midi">Rentrée midi</option>
-                <option value="Entrée après-midi">Entrée après-midi</option>
-                <option value="Sortie autorisée">Sortie autorisée</option>
-                <option value="Journée">Journée</option>
             </select>
             <select id="encoding-filter-statut" style="width:auto;">
                 <option value="">Tous les statuts</option>
-                <option value="Présent">Présent</option>
-                <option value="Autorisé">Autorisé</option>
-                <option value="En retard">En retard</option>
-                <option value="Refusé">Refusé</option>
-                <option value="Absent">Absent</option>
-                <option value="Absence justifiée">Absence justifiée</option>
-                <option value="Sortie justifiée">Sortie justifiée</option>
             </select>
             <select id="encoding-filter-raison" style="width:auto;">
                 <option value="">Toutes les raisons</option>

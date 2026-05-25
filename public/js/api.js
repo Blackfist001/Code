@@ -8,6 +8,16 @@ class API {
         this.baseUrl = baseUrl;
         this.csrfToken = null;
         this.csrfTokenPromise = null;
+        this.localPassagesKey = 'client_passages_journal_v1';
+        this.localSchedulesKey = 'client_schedules_cache_v1';
+        this.localStudentsKey = 'client_students_cache_v1';
+        this.localDailyAbsenceStateKey = 'client_daily_absence_state_v1';
+        this.retryIntervalMs = 60000;
+        this.retryTimer = null;
+        this.dailyAbsenceTimer = null;
+
+        this.startPendingPassagesSync();
+        this.startDailyAbsenceLoop();
     }
 
     shouldAttachCsrf(endpoint, method) {
@@ -130,6 +140,473 @@ class API {
         }
     }
 
+    _isBrowserStorageAvailable() {
+        return typeof window !== 'undefined' && !!window.localStorage;
+    }
+
+    _readJsonStorage(key, fallback = null) {
+        if (!this._isBrowserStorageAvailable()) return fallback;
+        try {
+            const raw = window.localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : fallback;
+        } catch (_) {
+            return fallback;
+        }
+    }
+
+    _writeJsonStorage(key, value) {
+        if (!this._isBrowserStorageAvailable()) return;
+        try {
+            window.localStorage.setItem(key, JSON.stringify(value));
+        } catch (error) {
+            console.warn('Stockage local indisponible:', error);
+        }
+    }
+
+    _getLocalPassagesJournal() {
+        return this._readJsonStorage(this.localPassagesKey, []);
+    }
+
+    _saveLocalPassagesJournal(entries) {
+        this._writeJsonStorage(this.localPassagesKey, entries);
+    }
+
+    _appendLocalPassage(entry) {
+        const journal = this._getLocalPassagesJournal();
+        journal.push(entry);
+        this._saveLocalPassagesJournal(journal);
+    }
+
+    _updateLocalPassage(localId, patch = {}) {
+        const journal = this._getLocalPassagesJournal();
+        const idx = journal.findIndex((item) => item.local_id === localId);
+        if (idx === -1) return;
+
+        journal[idx] = { ...journal[idx], ...patch };
+        this._saveLocalPassagesJournal(journal);
+    }
+
+    _isDuplicatePassageMessage(message = '') {
+        const msg = String(message || '').toLowerCase();
+        return msg.includes('déjà') || msg.includes('deja') || msg.includes('already');
+    }
+
+    _buildLocalPassageEntry(endpoint, payload) {
+        const now = new Date().toISOString();
+        return {
+            local_id: `${Date.now()}_${Math.random().toString(16).slice(2, 10)}`,
+            endpoint,
+            payload,
+            status: 'pending',
+            created_at: now,
+            updated_at: now,
+            saved_at: null,
+            retry_count: 0,
+            last_error: null
+        };
+    }
+
+    async _sendPassageWithLocalTracking(endpoint, payload) {
+        const entry = this._buildLocalPassageEntry(endpoint, payload);
+        this._appendLocalPassage(entry);
+
+        try {
+            const response = await this.request(endpoint, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+
+            if (response?.success || this._isDuplicatePassageMessage(response?.message)) {
+                this._updateLocalPassage(entry.local_id, {
+                    status: 'saved',
+                    updated_at: new Date().toISOString(),
+                    saved_at: new Date().toISOString(),
+                    last_error: null
+                });
+            } else {
+                this._updateLocalPassage(entry.local_id, {
+                    status: 'failed',
+                    updated_at: new Date().toISOString(),
+                    last_error: response?.message || 'Échec applicatif'
+                });
+            }
+
+            return response;
+        } catch (error) {
+            this._updateLocalPassage(entry.local_id, {
+                status: 'pending',
+                updated_at: new Date().toISOString(),
+                retry_count: 1,
+                last_error: error?.message || 'Erreur réseau'
+            });
+
+            return {
+                success: false,
+                queued: true,
+                message: 'Réseau instable: passage stocké localement et re-tenté automatiquement.'
+            };
+        }
+    }
+
+    startPendingPassagesSync() {
+        if (typeof window === 'undefined') return;
+        if (this.retryTimer) return;
+
+        this.retryTimer = window.setInterval(() => {
+            this.flushPendingPassages();
+        }, this.retryIntervalMs);
+
+        window.addEventListener('online', () => {
+            this.flushPendingPassages();
+        });
+    }
+
+    async flushPendingPassages() {
+        const journal = this._getLocalPassagesJournal();
+        const pendings = journal.filter((item) => item.status === 'pending');
+
+        for (const item of pendings) {
+            try {
+                const response = await this.request(item.endpoint, {
+                    method: 'POST',
+                    body: JSON.stringify(item.payload)
+                });
+
+                if (response?.success || this._isDuplicatePassageMessage(response?.message)) {
+                    this._updateLocalPassage(item.local_id, {
+                        status: 'saved',
+                        updated_at: new Date().toISOString(),
+                        saved_at: new Date().toISOString(),
+                        last_error: null
+                    });
+                } else {
+                    this._updateLocalPassage(item.local_id, {
+                        status: 'failed',
+                        updated_at: new Date().toISOString(),
+                        last_error: response?.message || 'Échec applicatif'
+                    });
+                }
+            } catch (error) {
+                this._updateLocalPassage(item.local_id, {
+                    status: 'pending',
+                    updated_at: new Date().toISOString(),
+                    retry_count: Number(item.retry_count || 0) + 1,
+                    last_error: error?.message || 'Erreur réseau'
+                });
+            }
+        }
+    }
+
+    _readScheduleCache() {
+        return this._readJsonStorage(this.localSchedulesKey, {});
+    }
+
+    _writeScheduleCache(cache) {
+        this._writeJsonStorage(this.localSchedulesKey, cache || {});
+    }
+
+    _saveScheduleCacheEntry(key, data) {
+        const cache = this._readScheduleCache();
+        cache[key] = {
+            data,
+            saved_at: new Date().toISOString()
+        };
+        this._writeScheduleCache(cache);
+    }
+
+    _getScheduleCacheEntry(key) {
+        const cache = this._readScheduleCache();
+        return cache[key] || null;
+    }
+
+    _getTodayDateString() {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    _getDayNameFr(date = new Date()) {
+        const day = String(date.toLocaleDateString('fr-FR', { weekday: 'long' }) || '').toLowerCase();
+        const map = {
+            'lundi': 'lundi',
+            'mardi': 'mardi',
+            'mercredi': 'mercredi',
+            'jeudi': 'jeudi',
+            'vendredi': 'vendredi',
+            'samedi': 'samedi',
+            'dimanche': 'dimanche'
+        };
+        return map[day] || day;
+    }
+
+    _getStudentsCache() {
+        const cached = this._readJsonStorage(this.localStudentsKey, null);
+        if (!cached || !Array.isArray(cached.results)) return null;
+        return cached;
+    }
+
+    _saveStudentsCache(results = []) {
+        this._writeJsonStorage(this.localStudentsKey, {
+            saved_at: new Date().toISOString(),
+            results: Array.isArray(results) ? results : []
+        });
+    }
+
+    _getDailyAbsenceState() {
+        return this._readJsonStorage(this.localDailyAbsenceStateKey, null);
+    }
+
+    _saveDailyAbsenceState(state) {
+        this._writeJsonStorage(this.localDailyAbsenceStateKey, state);
+    }
+
+    _buildEmptyDailyAbsenceState(dateStr) {
+        return {
+            date: dateStr,
+            school_open: false,
+            opened_at: null,
+            students: {},
+            persisted_by_class: {}
+        };
+    }
+
+    _ensureDailyAbsenceState(dateStr = this._getTodayDateString()) {
+        const current = this._getDailyAbsenceState();
+        if (!current || current.date !== dateStr) {
+            const empty = this._buildEmptyDailyAbsenceState(dateStr);
+            this._saveDailyAbsenceState(empty);
+            return empty;
+        }
+        return current;
+    }
+
+    _normalizePresenceStatus(statut = '') {
+        const s = String(statut || '').trim();
+        if (s === 'En retard') return 'late';
+        if (s === 'Présent') return 'present';
+        return null;
+    }
+
+    async resolveStudentBySourcedId(sourcedId) {
+        if (!sourcedId) return null;
+
+        const cached = this._getStudentsCache();
+        const fromCache = cached?.results?.find((s) => String(s?.sourcedId || '') === String(sourcedId));
+        if (fromCache) return fromCache;
+
+        try {
+            const fresh = await this.getAllStudents();
+            const list = Array.isArray(fresh?.results) ? fresh.results : [];
+            return list.find((s) => String(s?.sourcedId || '') === String(sourcedId)) || null;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    async registerDailyPresence({ studentId, classe = '', nom = '', prenom = '', statut = 'Présent', typePassage = '' } = {}) {
+        if (!studentId) return;
+
+        const today = this._getTodayDateString();
+        let state = this._ensureDailyAbsenceState(today);
+
+        if (!state.school_open) {
+            let students = [];
+            try {
+                const studentsResponse = await this.getAllStudents();
+                students = Array.isArray(studentsResponse?.results) ? studentsResponse.results : [];
+            } catch (_) {
+                const cache = this._getStudentsCache();
+                students = Array.isArray(cache?.results) ? cache.results : [];
+            }
+
+            const map = {};
+            students.forEach((s) => {
+                const id = Number(s?.id_etudiant || 0);
+                if (!id) return;
+                map[id] = {
+                    id_etudiant: id,
+                    nom: s?.nom || '',
+                    prenom: s?.prenom || '',
+                    classe: s?.classe || '',
+                    state: 'absent',
+                    last_type: null,
+                    last_statut: null,
+                    updated_at: null,
+                    absent_persisted: false
+                };
+            });
+
+            state = {
+                date: today,
+                school_open: true,
+                opened_at: new Date().toISOString(),
+                students: map,
+                persisted_by_class: {}
+            };
+        }
+
+        const id = Number(studentId);
+        if (!state.students[id]) {
+            state.students[id] = {
+                id_etudiant: id,
+                nom: nom || '',
+                prenom: prenom || '',
+                classe: classe || '',
+                state: 'absent',
+                last_type: null,
+                last_statut: null,
+                updated_at: null,
+                absent_persisted: false
+            };
+        }
+
+        if (nom) state.students[id].nom = nom;
+        if (prenom) state.students[id].prenom = prenom;
+        if (classe) state.students[id].classe = classe;
+
+        const localPresence = this._normalizePresenceStatus(statut);
+        if (localPresence) {
+            state.students[id].state = localPresence;
+        }
+        state.students[id].last_statut = statut || state.students[id].last_statut;
+        state.students[id].last_type = typePassage || state.students[id].last_type;
+        state.students[id].updated_at = new Date().toISOString();
+
+        this._saveDailyAbsenceState(state);
+        await this.evaluateDailyAbsencePersistence();
+    }
+
+    _parseDateAndTime(dateStr, timeStr) {
+        const [y, m, d] = String(dateStr).split('-').map(Number);
+        const parts = String(timeStr || '00:00:00').split(':').map(Number);
+        const hh = Number(parts[0] || 0);
+        const mm = Number(parts[1] || 0);
+        const ss = Number(parts[2] || 0);
+        return new Date(y, (m || 1) - 1, d || 1, hh, mm, ss, 0);
+    }
+
+    async _computeClassThresholds(dateStr) {
+        try {
+            const schedules = await this.getAllSchedules();
+            const rows = Array.isArray(schedules?.results) ? schedules.results : [];
+            const todayFr = this._getDayNameFr(this._parseDateAndTime(dateStr, '00:00:00'));
+
+            const firstSlotByClass = {};
+            rows.forEach((row) => {
+                const day = String(row?.jour_semaine || '').toLowerCase().trim();
+                if (day !== todayFr) return;
+
+                const classe = String(row?.classe || '').trim();
+                const heureDebut = String(row?.heure_debut || '').slice(0, 8);
+                if (!classe || !heureDebut) return;
+
+                if (!firstSlotByClass[classe] || heureDebut < firstSlotByClass[classe]) {
+                    firstSlotByClass[classe] = heureDebut;
+                }
+            });
+
+            const thresholds = {};
+            Object.entries(firstSlotByClass).forEach(([classe, startTime]) => {
+                const threshold = this._parseDateAndTime(dateStr, startTime);
+                threshold.setMinutes(threshold.getMinutes() + 20);
+                thresholds[classe] = threshold.toISOString();
+            });
+
+            return thresholds;
+        } catch (_) {
+            return {};
+        }
+    }
+
+    startDailyAbsenceLoop() {
+        if (typeof window === 'undefined') return;
+        if (this.dailyAbsenceTimer) return;
+
+        this.dailyAbsenceTimer = window.setInterval(() => {
+            this.evaluateDailyAbsencePersistence();
+        }, this.retryIntervalMs);
+
+        window.addEventListener('online', () => {
+            this.evaluateDailyAbsencePersistence();
+        });
+    }
+
+    async persistAbsenceBatch(payload) {
+        return this.request('absents/persist-batch', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+    }
+
+    async evaluateDailyAbsencePersistence() {
+        const today = this._getTodayDateString();
+        const state = this._ensureDailyAbsenceState(today);
+        if (!state.school_open) return;
+
+        const thresholds = await this._computeClassThresholds(today);
+        if (!thresholds || Object.keys(thresholds).length === 0) return;
+
+        const now = new Date();
+        const students = state.students || {};
+        const persistedByClass = state.persisted_by_class || {};
+
+        const absentByClass = {};
+        Object.values(students).forEach((s) => {
+            if (!s || s.state !== 'absent' || s.absent_persisted) return;
+            const classe = String(s.classe || '').trim();
+            if (!classe) return;
+            if (!absentByClass[classe]) absentByClass[classe] = [];
+            absentByClass[classe].push(Number(s.id_etudiant));
+        });
+
+        for (const [classe, thresholdIso] of Object.entries(thresholds)) {
+            if (persistedByClass[classe]) continue;
+            const threshold = new Date(thresholdIso);
+            if (Number.isNaN(threshold.getTime()) || now < threshold) continue;
+
+            const absentIds = absentByClass[classe] || [];
+            if (absentIds.length === 0) {
+                persistedByClass[classe] = {
+                    persisted_at: new Date().toISOString(),
+                    inserted: 0,
+                    skipped: 0
+                };
+                continue;
+            }
+
+            try {
+                const response = await this.persistAbsenceBatch({
+                    date_passage: today,
+                    classe,
+                    student_ids: absentIds
+                });
+
+                if (response?.success) {
+                    absentIds.forEach((id) => {
+                        if (students[id]) {
+                            students[id].absent_persisted = true;
+                            students[id].updated_at = new Date().toISOString();
+                        }
+                    });
+
+                    persistedByClass[classe] = {
+                        persisted_at: new Date().toISOString(),
+                        inserted: Number(response.inserted || 0),
+                        skipped: Math.max(absentIds.length - Number(response.inserted || 0), 0)
+                    };
+                }
+            } catch (_) {
+                // Réessaiera automatiquement au tick suivant.
+            }
+        }
+
+        state.students = students;
+        state.persisted_by_class = persistedByClass;
+        this._saveDailyAbsenceState(state);
+    }
+
     // ==================== ÉTUDIANTS ====================
     
     /**
@@ -153,7 +630,25 @@ class API {
      * Obtient tous les étudiants
      */
     async getAllStudents() {
-        return this.request('students');
+        try {
+            const response = await this.request('students');
+            if (response?.success && Array.isArray(response.results)) {
+                this._saveStudentsCache(response.results);
+            }
+            return response;
+        } catch (error) {
+            const cached = this._getStudentsCache();
+            if (cached?.results) {
+                return {
+                    success: true,
+                    count: cached.results.length,
+                    results: cached.results,
+                    from_cache: true,
+                    message: 'Étudiants chargés depuis le cache local.'
+                };
+            }
+            throw error;
+        }
     }
 
     /**
@@ -199,10 +694,7 @@ class API {
      * Ajoute un passage
      */
     async addMovement(movementData) {
-        return this.request('movements/add', {
-            method: 'POST',
-            body: JSON.stringify(movementData)
-        });
+        return this._sendPassageWithLocalTracking('movements/add', movementData);
     }
 
     /**
@@ -277,6 +769,54 @@ class API {
             method: 'POST',
             body: JSON.stringify({ id: movementId, ...movementData })
         });
+    }
+
+    async getPassageMetadata(kind) {
+        return this.request(`passage-metadata/${encodeURIComponent(kind)}`);
+    }
+
+    async createPassageMetadata(kind, data) {
+        return this.request(`passage-metadata/${encodeURIComponent(kind)}/create`, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    async updatePassageMetadata(kind, id, data) {
+        return this.request(`passage-metadata/${encodeURIComponent(kind)}/update`, {
+            method: 'POST',
+            body: JSON.stringify({ id, ...data })
+        });
+    }
+
+    async deletePassageMetadata(kind, id) {
+        return this.request(`passage-metadata/${encodeURIComponent(kind)}/delete`, {
+            method: 'POST',
+            body: JSON.stringify({ id })
+        });
+    }
+
+    async getSettings() {
+        return this.request('settings');
+    }
+
+    async getSettingsBackups() {
+        return this.request('settings/backups');
+    }
+
+    async updateSettings(settingsData) {
+        return this.request('settings/update', {
+            method: 'POST',
+            body: JSON.stringify(settingsData)
+        });
+    }
+
+    async getAuditLogins() {
+        return this.request('audits/logins');
+    }
+
+    async getAuditDbChanges() {
+        return this.request('audits/db-changes');
     }
 
     // ==================== UTILISATEURS ====================
@@ -421,11 +961,45 @@ class API {
     // ==================== HORAIRES ====================
 
     async getAllSchedules() {
-        return this.request('schedules');
+        const cacheKey = 'all';
+        try {
+            const response = await this.request('schedules');
+            if (response?.success) {
+                this._saveScheduleCacheEntry(cacheKey, response);
+            }
+            return response;
+        } catch (error) {
+            const cached = this._getScheduleCacheEntry(cacheKey);
+            if (cached?.data) {
+                return {
+                    ...cached.data,
+                    from_cache: true,
+                    message: 'Horaires chargés depuis le cache local.'
+                };
+            }
+            throw error;
+        }
     }
 
     async getScheduleSlots() {
-        return this.request('schedules/creneaux');
+        const cacheKey = 'slots';
+        try {
+            const response = await this.request('schedules/creneaux');
+            if (response?.success) {
+                this._saveScheduleCacheEntry(cacheKey, response);
+            }
+            return response;
+        } catch (error) {
+            const cached = this._getScheduleCacheEntry(cacheKey);
+            if (cached?.data) {
+                return {
+                    ...cached.data,
+                    from_cache: true,
+                    message: 'Créneaux chargés depuis le cache local.'
+                };
+            }
+            throw error;
+        }
     }
 
     async addScheduleSlot(data) {
@@ -523,11 +1097,28 @@ class API {
      * Récupère l'emploi du temps d'une classe pour un jour donné
      */
     async getScheduleByClass(classe, jour = null) {
+        const cacheKey = `class:${String(classe || '').toLowerCase()}|jour:${String(jour || '').toLowerCase()}`;
         let endpoint = `schedules/${encodeURIComponent(classe)}`;
         if (jour) {
             endpoint += `?jour=${encodeURIComponent(jour)}`;
         }
-        return this.request(endpoint);
+        try {
+            const response = await this.request(endpoint);
+            if (response?.success) {
+                this._saveScheduleCacheEntry(cacheKey, response);
+            }
+            return response;
+        } catch (error) {
+            const cached = this._getScheduleCacheEntry(cacheKey);
+            if (cached?.data) {
+                return {
+                    ...cached.data,
+                    from_cache: true,
+                    message: 'Emploi du temps chargé depuis le cache local.'
+                };
+            }
+            throw error;
+        }
     }
 
     /**
@@ -591,10 +1182,7 @@ class API {
      * en fonction de l'heure et des données de l'étudiant.
      */
     async scanStudent(sourcedId) {
-        return this.request('scan', {
-            method: 'POST',
-            body: JSON.stringify({ sourcedId })
-        });
+        return this._sendPassageWithLocalTracking('scan', { sourcedId });
     }
 }
 

@@ -104,6 +104,12 @@ class ScanController {
                 ],
             ]);
 
+        } catch (\RuntimeException $e) {
+            ob_end_clean();
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
         } catch (\Throwable $e) {
             ob_end_clean();
             error_log('[ScanController] ' . $e->getMessage());

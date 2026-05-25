@@ -19,6 +19,38 @@
 CREATE DATABASE IF NOT EXISTS `sortie_ecole` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `sortie_ecole`;
 
+-- Listage de la structure de table sortie_ecole. audit_db_changes
+CREATE TABLE IF NOT EXISTS `audit_db_changes` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user` varchar(100) NOT NULL,
+  `ip` varchar(45) NOT NULL DEFAULT '0.0.0.0',
+  `action` varchar(32) NOT NULL,
+  `entity` varchar(128) NOT NULL,
+  `old_data` json DEFAULT NULL,
+  `new_data` json DEFAULT NULL,
+  `meta` json DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_audit_db_changes_created_at` (`created_at`),
+  KEY `idx_audit_db_changes_entity_action_created_at` (`entity`,`action`,`created_at`),
+  KEY `idx_audit_db_changes_user_created_at` (`user`,`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table sortie_ecole. audit_logins
+CREATE TABLE IF NOT EXISTS `audit_logins` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user` varchar(100) NOT NULL,
+  `ip` varchar(45) NOT NULL DEFAULT '0.0.0.0',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_audit_logins_created_at` (`created_at`),
+  KEY `idx_audit_logins_user_created_at` (`user`,`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
 -- Listage de la structure de table sortie_ecole. classes
 CREATE TABLE IF NOT EXISTS `classes` (
   `id_classe` int NOT NULL AUTO_INCREMENT,
@@ -76,9 +108,9 @@ CREATE TABLE IF NOT EXISTS `horaires_cours` (
   `id` int NOT NULL AUTO_INCREMENT,
   `jour_semaine` varchar(10) NOT NULL,
   `id_local` int DEFAULT NULL,
-  `id_matiere` int NOT NULL,
-  `id_classe` int NOT NULL,
-  `id_creneau_debut` int NOT NULL,
+  `id_matiere` int DEFAULT NULL,
+  `id_classe` int DEFAULT NULL,
+  `id_creneau_debut` int DEFAULT NULL,
   `id_creneau_fin` int DEFAULT NULL,
   `id_professeur` int DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -94,7 +126,7 @@ CREATE TABLE IF NOT EXISTS `horaires_cours` (
   CONSTRAINT `fk_horaires_local` FOREIGN KEY (`id_local`) REFERENCES `locaux` (`id_local`),
   CONSTRAINT `fk_horaires_matiere` FOREIGN KEY (`id_matiere`) REFERENCES `matieres` (`id_matiere`),
   CONSTRAINT `fk_horaires_professeur` FOREIGN KEY (`id_professeur`) REFERENCES `professeurs` (`id_professeur`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=139 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=235 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -281,16 +313,22 @@ CREATE TABLE IF NOT EXISTS `passages` (
   `id_etudiant` int DEFAULT NULL,
   `date_passage` date DEFAULT NULL,
   `heure_passage` time DEFAULT NULL,
-  `type_passage` enum('Aucun','Entrée matin','Sortie midi','Rentrée midi','Entrée après-midi','Sortie autorisée','Journée') DEFAULT NULL,
-  `statut` enum('Autorisé','Refusé','Absence justifiée','Sortie justifiée','Absent','En retard','Présent') DEFAULT NULL,
-  `raison` enum('Certificat médical','Autorisation  des parents','Autre') DEFAULT NULL,
+  `id_type_passage` int DEFAULT NULL,
+  `id_statut_passage` int DEFAULT NULL,
+  `id_raison_passage` int DEFAULT NULL,
   `scan` tinyint NOT NULL DEFAULT '0',
   `manualEncoding` tinyint NOT NULL DEFAULT '0',
   `demi_journee_absence` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id_passage`),
   KEY `id_etudiant` (`id_etudiant`),
+  KEY `fk_passages_type_idx` (`id_type_passage`),
+  KEY `fk_passages_statut_idx` (`id_statut_passage`),
+  KEY `fk_passages_raison_idx` (`id_raison_passage`),
+  CONSTRAINT `fk_passages_raison` FOREIGN KEY (`id_raison_passage`) REFERENCES `raisons_passage` (`id_raison_passage`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_passages_statut` FOREIGN KEY (`id_statut_passage`) REFERENCES `statuts_passage` (`id_statut_passage`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_passages_type` FOREIGN KEY (`id_type_passage`) REFERENCES `types_passage` (`id_type_passage`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `passages_ibfk_1` FOREIGN KEY (`id_etudiant`) REFERENCES `etudiants` (`id_etudiant`)
-) ENGINE=InnoDB AUTO_INCREMENT=293 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=300 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -308,7 +346,52 @@ CREATE TABLE IF NOT EXISTS `professeurs` (
   `enabled_user` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id_professeur`),
   UNIQUE KEY `uq_professeurs_sourcedId` (`sourcedId`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table sortie_ecole. raisons_passage
+CREATE TABLE IF NOT EXISTS `raisons_passage` (
+  `id_raison_passage` int NOT NULL AUTO_INCREMENT,
+  `code` varchar(64) NOT NULL,
+  `legacy_value` varchar(100) DEFAULT NULL,
+  `label` varchar(100) NOT NULL,
+  `is_system` tinyint(1) NOT NULL DEFAULT '1',
+  `sort_order` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id_raison_passage`),
+  UNIQUE KEY `uq_raisons_passage_code` (`code`),
+  UNIQUE KEY `uq_raisons_passage_legacy_value` (`legacy_value`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table sortie_ecole. statuts_passage
+CREATE TABLE IF NOT EXISTS `statuts_passage` (
+  `id_statut_passage` int NOT NULL AUTO_INCREMENT,
+  `code` varchar(64) NOT NULL,
+  `legacy_value` varchar(100) DEFAULT NULL,
+  `label` varchar(100) NOT NULL,
+  `is_system` tinyint(1) NOT NULL DEFAULT '1',
+  `sort_order` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id_statut_passage`),
+  UNIQUE KEY `uq_statuts_passage_code` (`code`),
+  UNIQUE KEY `uq_statuts_passage_legacy_value` (`legacy_value`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table sortie_ecole. types_passage
+CREATE TABLE IF NOT EXISTS `types_passage` (
+  `id_type_passage` int NOT NULL AUTO_INCREMENT,
+  `code` varchar(64) NOT NULL,
+  `legacy_value` varchar(100) DEFAULT NULL,
+  `label` varchar(100) NOT NULL,
+  `is_system` tinyint(1) NOT NULL DEFAULT '1',
+  `sort_order` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id_type_passage`),
+  UNIQUE KEY `uq_types_passage_code` (`code`),
+  UNIQUE KEY `uq_types_passage_legacy_value` (`legacy_value`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 

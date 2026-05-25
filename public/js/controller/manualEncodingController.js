@@ -37,13 +37,30 @@ export default class ManualEncodingController {
             alert('Veuillez spécifier l\'ID de l\'etudiant');
             return;
         }
+        if (!encodingData.type_passage || !encodingData.statut) {
+            this.view.displayMessage('Type et statut sont obligatoires.', true);
+            return;
+        }
         
         try {
+            const studentsResponse = await api.getAllStudents();
+            const students = Array.isArray(studentsResponse?.results) ? studentsResponse.results : [];
+            const selectedStudent = students.find((s) => String(s?.id_etudiant) === String(encodingData.id_etudiant));
+
+            await api.registerDailyPresence({
+                studentId: encodingData.id_etudiant,
+                classe: selectedStudent?.classe || '',
+                nom: selectedStudent?.nom || '',
+                prenom: selectedStudent?.prenom || '',
+                statut: encodingData.statut,
+                typePassage: encodingData.type_passage
+            });
+
             // Préparer les données
             const movementData = {
                 id_etudiant:  encodingData.id_etudiant,
-                type_passage: encodingData.type_passage || 'Entrée matin',
-                statut:       encodingData.statut || 'Autorisé',
+                type_passage: encodingData.type_passage,
+                statut:       encodingData.statut,
                 raison:       encodingData.raison ?? null,
                 date_passage: encodingData.date || new Date().toISOString().split('T')[0],
                 heure_passage: encodingData.heure || new Date().toTimeString().split(' ')[0],
@@ -57,6 +74,9 @@ export default class ManualEncodingController {
                 this.view.clearForm();
                 this.view.displayMessage('Passage enregistré avec succès', false);
                 await this.view.refreshHistory();
+            } else if (response.queued) {
+                this.view.clearForm();
+                this.view.displayMessage(response.message || 'Passage stocké localement, synchronisation automatique en cours.', false);
             } else {
                 this.view.displayMessage(response.message || 'Erreur lors de l\'enregistrement', true);
             }

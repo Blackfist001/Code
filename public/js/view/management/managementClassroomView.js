@@ -71,9 +71,10 @@ export default class ManagementClassroomView {
     showEditClassroomModal(controller, classroomId, currentLocal) {
         this.parent._showModal(`
             <h3>Modifier le local</h3>
-            <div class="form-container">
-                <input type="text" id="edit-classroom-name" value="${currentLocal || ''}" placeholder="Local">
-                <div style="display:flex;gap:8px;margin-top:8px;">
+            <div class="form-container modal-form-grid">
+                <label for="edit-classroom-name">Local</label>
+                <input type="text" id="edit-classroom-name" value="${currentLocal || ''}">
+                <div class="modal-row-full modal-form-actions">
                     <button id="modal-btn-save">Enregistrer</button>
                     <button id="modal-btn-cancel">Annuler</button>
                 </div>

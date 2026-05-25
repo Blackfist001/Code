@@ -10,6 +10,7 @@ import sessionController from "./controller/sessionController.js";
 import routeController from "./controller/routeController.js";
 import scanController from './controller/scanController.js';
 import './utils/sweetalert-setup.js';
+import './utils/global-notifier.js';
 
 const session = new sessionController();
 const route = new routeController();

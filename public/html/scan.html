@@ -2,23 +2,27 @@
     <h2>Scanner</h2>
     <div id="scan-main-card" class="card scan-main-card">
         <h3>Scanner la carte étudiant</h3>
-        <div class="camera-container">
-            <video id="qr-video" class="qr-video" muted playsinline></video>
-            <p id="camera-status" class="camera-status">Initialisation de la camera...</p>
-            <div class="camera-actions">
-                <button id="btn-start-camera" type="button">Demarrer la camera</button>
-                <button id="btn-stop-camera" type="button">Arreter la camera</button>
+        <div class="scan-top-layout">
+            <div class="camera-container scan-camera-panel">
+                <video id="qr-video" class="qr-video" muted playsinline></video>
+                <p id="camera-status" class="camera-status">Initialisation de la camera...</p>
+                <div class="camera-actions">
+                    <label class="camera-switch" for="camera-toggle">
+                        <input id="camera-toggle" type="checkbox" checked>
+                        <span class="camera-switch-slider" aria-hidden="true"></span>
+                        <span id="camera-toggle-label" class="camera-switch-label">Camera allumee</span>
+                    </label>
+                </div>
+            </div>
+            <div id="scan-result" class="scan-result scan-student-panel">
+                <p>Nom : <span id="name-value">---</span></p>
+                <p>Classe : <span id="class-value">---</span></p>
+                <p>Type de passage : <span id="type-value">---</span></p>
+                <p>Statut : <span id="status-value" class="status-badge">---</span></p>
             </div>
         </div>
-        <div class="form-container">
-            <input type="text" id="scan-input" placeholder="Scanner la carte ou entrer l'ID étudiant" autofocus>
-            <button id="btn-submit-scan">Soumettre</button>
-        </div>
-        <div id="scan-result" class="scan-result" style="display:none;">
-            <p>Nom : <span id="name-value">---</span></p>
-            <p>Classe : <span id="class-value">---</span></p>
-            <p>Type de passage : <span id="type-value">---</span></p>
-            <p>Statut : <span id="status-value" class="status-badge">---</span></p>
+        <div class="form-container scan-input-hidden" aria-hidden="true">
+            <input type="text" id="scan-input" placeholder="Scanner la carte ou entrer l'ID étudiant" autofocus autocomplete="off">
         </div>
         <div id="message" class="message"></div>
     </div>

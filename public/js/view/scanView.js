@@ -51,7 +51,14 @@ export default class ScanView {
             statusEl.textContent = statutLabel;
             statusEl.className = `status-badge ${isPositive ? 'status-present' : 'status-refuse'}`;
 
-            resultDiv.style.display = 'block';
+            resultDiv.classList.remove('scan-card-success', 'scan-card-error');
+            if (STATUT_VERT.includes(statut)) {
+                resultDiv.classList.add('scan-card-success');
+            } else if (STATUT_ROUGE.includes(statut)) {
+                resultDiv.classList.add('scan-card-error');
+            }
+
+            resultDiv.style.display = 'flex';
         }
 
         if (scanCard) {
@@ -206,6 +213,11 @@ export default class ScanView {
      * @param {boolean} [isError=false] - Si true, texte en rouge
      */
     displayMessage(text, isError = false) {
+        if (text && window.AppNotifier && typeof window.AppNotifier.notify === 'function') {
+            window.AppNotifier.notify(text, isError ? 'error' : 'success');
+            return;
+        }
+
         const messageDiv = document.getElementById('message');
         if (messageDiv) {
             messageDiv.textContent = text;

@@ -73,9 +73,12 @@ class HistoricalController {
             
             $pdo = (new \App\Core\DataBase())->getPdo();
             
-            $query = "SELECT p.*, e.nom, e.prenom, e.classe
+            $query = "SELECT p.*, tp.label AS type_passage, sp.label AS statut, rp.label AS raison, e.nom, e.prenom, e.classe
                       FROM passages p
                       JOIN etudiants e ON p.id_etudiant = e.id_etudiant
+                      LEFT JOIN types_passage tp ON tp.id_type_passage = p.id_type_passage
+                      LEFT JOIN statuts_passage sp ON sp.id_statut_passage = p.id_statut_passage
+                      LEFT JOIN raisons_passage rp ON rp.id_raison_passage = p.id_raison_passage
                       WHERE p.date_passage BETWEEN :date_from AND :date_to";
             
             $bindParams = [
@@ -89,7 +92,7 @@ class HistoricalController {
             }
             
             if ($typePassage) {
-                $query .= " AND p.type_passage = :type_passage";
+                $query .= " AND tp.label = :type_passage";
                 $bindParams[':type_passage'] = $typePassage;
             }
             
@@ -127,14 +130,15 @@ class HistoricalController {
             $query = "SELECT 
                         p.date_passage,
                         COUNT(*) as total,
-                                                SUM(CASE WHEN p.statut = 'Autorisé' THEN 1 ELSE 0 END) as autorise_count,
-                                                SUM(CASE WHEN p.statut = 'Refusé' THEN 1 ELSE 0 END) as refuse_count,
-                                                SUM(CASE WHEN p.statut = 'Absence justifiée' THEN 1 ELSE 0 END) as absence_justifiee_count,
-                                                SUM(CASE WHEN p.statut = 'Sortie justifiée' THEN 1 ELSE 0 END) as sortie_justifiee_count,
-                                                SUM(CASE WHEN p.statut = 'Absent' THEN 1 ELSE 0 END) as absent_count,
-                                                SUM(CASE WHEN p.statut = 'En retard' THEN 1 ELSE 0 END) as en_retard_count,
-                                                SUM(CASE WHEN p.statut = 'Présent' THEN 1 ELSE 0 END) as present_count
+                                                SUM(CASE WHEN sp.label = 'Autorisé' THEN 1 ELSE 0 END) as autorise_count,
+                                                SUM(CASE WHEN sp.label = 'Refusé' THEN 1 ELSE 0 END) as refuse_count,
+                                                SUM(CASE WHEN sp.label = 'Absence justifiée' THEN 1 ELSE 0 END) as absence_justifiee_count,
+                                                SUM(CASE WHEN sp.label = 'Sortie justifiée' THEN 1 ELSE 0 END) as sortie_justifiee_count,
+                                                SUM(CASE WHEN sp.label = 'Absent' THEN 1 ELSE 0 END) as absent_count,
+                                                SUM(CASE WHEN sp.label = 'En retard' THEN 1 ELSE 0 END) as en_retard_count,
+                                                SUM(CASE WHEN sp.label = 'Présent' THEN 1 ELSE 0 END) as present_count
                       FROM passages p
+                      LEFT JOIN statuts_passage sp ON sp.id_statut_passage = p.id_statut_passage
                       WHERE p.date_passage BETWEEN :date_from AND :date_to
                       GROUP BY p.date_passage
                       ORDER BY p.date_passage DESC";
@@ -174,9 +178,12 @@ class HistoricalController {
             
             $pdo = (new \App\Core\DataBase())->getPdo();
             
-            $query = "SELECT p.*, e.nom, e.prenom, e.classe
+            $query = "SELECT p.*, tp.label AS type_passage, sp.label AS statut, rp.label AS raison, e.nom, e.prenom, e.classe
                       FROM passages p
                       JOIN etudiants e ON p.id_etudiant = e.id_etudiant
+                      LEFT JOIN types_passage tp ON tp.id_type_passage = p.id_type_passage
+                      LEFT JOIN statuts_passage sp ON sp.id_statut_passage = p.id_statut_passage
+                      LEFT JOIN raisons_passage rp ON rp.id_raison_passage = p.id_raison_passage
                       WHERE p.date_passage BETWEEN :date_from AND :date_to
                       ORDER BY p.date_passage DESC";
             
@@ -241,14 +248,15 @@ class HistoricalController {
             
             $pdo = (new \App\Core\DataBase())->getPdo();
             
-            $query = "SELECT 
+                        $query = "SELECT 
                                                 e.classe as classe,
-                        COUNT(DISTINCT e.id_etudiant) as total_students,
-                        COUNT(p.id_passage) as total_passages,
-                        COUNT(DISTINCT CASE WHEN p.statut = 'Absent' THEN p.id_etudiant END) as total_absents
-                      FROM etudiants e
-                      LEFT JOIN passages p ON e.id_etudiant = p.id_etudiant 
-                                            AND p.date_passage BETWEEN :date_from AND :date_to
+                                                COUNT(DISTINCT e.id_etudiant) as total_students,
+                                                COUNT(p.id_passage) as total_passages,
+                                                COUNT(DISTINCT CASE WHEN sp.label = 'Absent' THEN p.id_etudiant END) as total_absents
+                                            FROM etudiants e
+                                            LEFT JOIN passages p ON e.id_etudiant = p.id_etudiant
+                                                                                     AND p.date_passage BETWEEN :date_from AND :date_to
+                                            LEFT JOIN statuts_passage sp ON sp.id_statut_passage = p.id_statut_passage
                                             GROUP BY e.classe
                                             ORDER BY e.classe";
             

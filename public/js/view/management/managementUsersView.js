@@ -86,15 +86,21 @@ export default class ManagementUsersView {
     showEditUserModal(controller, userId, currentUsername, currentRole) {
         this.parent._showModal(`
             <h3>Modifier l'utilisateur</h3>
-            <div class="form-container">
-                <input type="text" id="edit-user-username" value="${currentUsername}" placeholder="Nom d'utilisateur">
-                <input type="password" id="edit-user-password" placeholder="Nouveau mot de passe (laisser vide)">
+            <div class="form-container modal-form-grid">
+                <label for="edit-user-username">Nom d'utilisateur</label>
+                <input type="text" id="edit-user-username" value="${currentUsername}">
+
+                <label for="edit-user-password">Nouveau mot de passe</label>
+                <input type="password" id="edit-user-password" placeholder="Laisser vide pour ne pas changer">
+
+                <label for="edit-user-role">Rôle</label>
                 <select id="edit-user-role">
                     <option value="Surveillant" ${currentRole === 'Surveillant' ? 'selected' : ''}>Surveillant</option>
                     <option value="Gestionnaire" ${currentRole === 'Gestionnaire' ? 'selected' : ''}>Gestionnaire</option>
                     <option value="Administrateur" ${currentRole === 'Administrateur' ? 'selected' : ''}>Administrateur</option>
                 </select>
-                <div style="display:flex;gap:8px;margin-top:8px;">
+
+                <div class="modal-row-full modal-form-actions">
                     <button id="modal-btn-save">Enregistrer</button>
                     <button id="modal-btn-cancel">Annuler</button>
                 </div>
