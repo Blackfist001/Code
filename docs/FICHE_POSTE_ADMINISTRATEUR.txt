@@ -39,14 +39,15 @@ Dans Gestion > Parametres:
 2. Verifier les champs:
    - duree cours
    - tolerance retard
-   - fenetres midi
-   - annees associees
+   - regle MIDI du planning
+   - champs midi1 / midi2 en secours de compatibilite
 3. Cliquer Enregistrer.
 4. Verifier l historique des sauvegardes.
 
 Important
 
 - Les champs Entree matin jusqu a et Entree apres-midi a partir de sont calcules automatiquement.
+- Le temps de midi est determine par la matiere MIDI dans l'horaire de cours de l'etudiant.
 
 4) Traçabilite et conformite
 

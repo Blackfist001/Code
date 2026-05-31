@@ -7,13 +7,15 @@ Ce document est aligné avec les règles déjà implémentées dans [app/core/Sc
 - Un étudiant mineur ne peut sortir que si autorisation_midi est vraie.
 - Sans autorisation, le statut est Refusé.
 
-2. Fenêtres de midi par année
-- 1re et 2e années : 11h50 -> 12h40.
-- 3e à 6e années : 12h40 -> 13h30.
+2. Fenetre de midi definie par le planning
+- Le temps de midi est deduit de l'horaire de cours de l'etudiant.
+- La presence d'une ligne de matiere MIDI dans le planning definit la fenetre de midi pour cette journee.
+- En l'absence de ligne MIDI, le systeme conserve un repli de compatibilite.
 
-3. Applicabilité du temps de midi
-- Le temps de midi est pris en compte seulement s'il existe des cours avant et après la fenêtre midi de l'étudiant.
-- Si ce n'est pas le cas, le scan est traité comme une arrivée (Entrée matin).
+3. Applicabilite du temps de midi
+- Le temps de midi est pris en compte a partir du planning du jour de l'etudiant.
+- Les regles d'age et d'autorisation parentale restent appliquees pour la Sortie midi.
+- Si aucun creaneau MIDI n'est present, le scan retombe sur le comportement de secours pour rester exploitable.
 
 4. Détermination du type de passage pendant midi
 - Si un passage Sortie midi existe déjà dans la journée et qu'aucun passage Rentrée midi n'existe encore, le scan devient Rentrée midi (statut Autorisé).

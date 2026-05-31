@@ -10,15 +10,28 @@ export default class ManagementSettingsController {
 
     async loadSettings() {
         try {
-            const [settingsResponse, backupsResponse, slotsResponse] = await Promise.all([
+            const [settingsResponse, backupsResponse, slotsResponse, matieresResponse] = await Promise.all([
                 this.api.getSettings(),
                 this.api.getSettingsBackups(),
                 this.api.getScheduleSlots(),
+                this.api.getAllMatieres(),
             ]);
 
             const payload = settingsResponse?.success ? (settingsResponse.results || {}) : {};
             const backups = backupsResponse?.success ? (backupsResponse.results || []) : [];
             const slots = slotsResponse?.success ? (slotsResponse.results || {}) : { debut: [], fin: [] };
+            const loadedMatieres = matieresResponse?.success ? (matieresResponse.results || []) : [];
+
+            if (!payload.midi_matiere_id && Array.isArray(loadedMatieres)) {
+                const midiMatiere = loadedMatieres.find(item => String(item?.matiere || '').trim().toUpperCase() === 'MIDI');
+                if (midiMatiere?.id_matiere) {
+                    payload.midi_matiere_id = String(midiMatiere.id_matiere);
+                }
+            }
+
+            if (typeof this.parent.view?.setScheduleMatieres === 'function') {
+                this.parent.view.setScheduleMatieres(loadedMatieres);
+            }
 
             this._currentSettings = payload;
             this.parent.view.displaySettings(payload, backups, slots);

@@ -29,8 +29,9 @@ class ScanRules {
     /**
      * Calcule le type_passage et le statut pour un scan.
      *
-     * @param array $student         Ligne etudiants (id_etudiant, classe, date_naissance, autorisation_midi)
-     * @param array $coursAujourdhui Résultat de SchedulesModel::getScheduleByClassAndDay(), trié heure_debut ASC
+    * @param array $student         Ligne etudiants (id_etudiant, classe, date_naissance, autorisation_midi)
+    * @param array $coursAujourdhui Résultat de SchedulesModel::getScheduleByClassAndDay(), trié heure_debut ASC
+    *                               Le créneau midi est prioritairement déduit de la ligne dont la matière est 'MIDI'.
      * @param array $passagesTypes   Résultat de MovementsModel::getTodayPassageTypes() (types déjà enregistrés aujourd'hui)
      * @param \DateTime|null $now    Moment du scan (null = maintenant)
      *
@@ -50,23 +51,22 @@ class ScanRules {
         preg_match('/(\d+)/', $student['classe'] ?? '', $matches);
         $annee = isset($matches[1]) ? (int)$matches[1] : 0;
 
-        // Fenêtre midi de l'étudiant selon son année
-        [$midiDebut, $midiFin] = $this->fenetreMidi($annee, $settings);
+        // Fenêtre midi: priorité au planning de l'étudiant (matière MIDI),
+        // fallback legacy si la donnée n'est pas encore présente.
+        $midiWindow = $this->resolveMidiWindow($coursAujourdhui, $annee, $settings);
+        $midiDebut = (float)$midiWindow['debut'];
+        $midiFin = (float)$midiWindow['fin'];
 
-        // Le temps de midi n'existe que si l'étudiant a des cours avant ET après la fenêtre
-        $hasMidi = $this->hasMidi($coursAujourdhui, $midiDebut, $midiFin);
+        [$morningEntryEnd, $afternoonEntryStart] = $this->deriveEntryBoundaries($midiDebut, $midiFin, $settings);
 
         $aUneSortieMidi = in_array('Sortie midi', $passagesTypes, true);
         $aUneRentreeMidi = in_array('Rentrée midi', $passagesTypes, true);
-        $aUneEntreeMatin = in_array('Entrée matin', $passagesTypes, true);
 
         // Seuil de retard = heure_debut du 1er cours + tolérance
         $limiteRetard = $this->limiteRetard($coursAujourdhui, (int)$settings['late_tolerance_min']);
 
         // On est dans la fenêtre midi ET le midi est applicable
-        $estMidi = $hasMidi
-            && $aUneEntreeMatin
-            && $heureDecimale >= $midiDebut
+        $estMidi = $heureDecimale >= $midiDebut
             && $heureDecimale <= $midiFin;
 
         if ($estMidi) {
@@ -81,8 +81,8 @@ class ScanRules {
             $heureDecimale,
             $limiteRetard,
             $passagesTypes,
-            (float)$settings['morning_entry_end_decimal'],
-            (float)$settings['afternoon_entry_start_decimal']
+            $morningEntryEnd,
+            $afternoonEntryStart
         );
     }
 
@@ -169,6 +169,8 @@ class ScanRules {
 
     /**
      * Retourne [debut, fin] de la fenêtre midi selon l'année scolaire.
+     *
+     * Conserve la logique historique comme solution de repli uniquement.
      */
     private function fenetreMidi(int $annee, array $settings): array {
         $midi1Years = $settings['midi1_years'] ?? [1, 2];
@@ -179,17 +181,76 @@ class ScanRules {
     }
 
     /**
-     * Vérifie qu'il y a des cours avant ET après la fenêtre midi.
+     * Extrait la fenêtre midi depuis le planning du jour en se basant sur la matière MIDI.
+     *
+     * @return array{debut:float,fin:float,source:string}|null
      */
-    private function hasMidi(array $cours, float $midiDebut, float $midiFin): bool {
-        $avant  = false;
-        $apres  = false;
+    private function extractMidiWindowFromSchedule(array $cours): ?array {
+        $midiDebut = null;
+        $midiFin = null;
+
         foreach ($cours as $c) {
-            $d = $this->toDecimal($c['heure_debut']);
-            if ($d < $midiDebut) $avant  = true;
-            if ($d >= $midiFin)  $apres  = true;
+            $matiere = trim((string)($c['matiere'] ?? ''));
+            if ($matiere === '' || strcasecmp($matiere, 'MIDI') !== 0) {
+                continue;
+            }
+
+            $heureDebut = trim((string)($c['heure_debut'] ?? ''));
+            $heureFin = trim((string)($c['heure_fin'] ?? ''));
+            if ($heureDebut === '' || $heureFin === '') {
+                continue;
+            }
+
+            $debut = $this->toDecimal($heureDebut);
+            $fin = $this->toDecimal($heureFin);
+            if ($midiDebut === null || $debut < $midiDebut) {
+                $midiDebut = $debut;
+            }
+            if ($midiFin === null || $fin > $midiFin) {
+                $midiFin = $fin;
+            }
         }
-        return $avant && $apres;
+
+        if ($midiDebut === null || $midiFin === null || $midiDebut >= $midiFin) {
+            return null;
+        }
+
+        return [
+            'debut' => $midiDebut,
+            'fin' => $midiFin,
+            'source' => 'schedule',
+        ];
+    }
+
+    /**
+     * Résout la fenêtre midi prioritairement depuis le planning du jour.
+     * Retourne un fallback historique si le planning ne contient pas encore de ligne MIDI.
+     *
+     * @return array{debut:float,fin:float,source:string}
+     */
+    private function resolveMidiWindow(array $cours, int $annee, array $settings): array {
+        $scheduleWindow = $this->extractMidiWindowFromSchedule($cours);
+        if ($scheduleWindow !== null) {
+            return $scheduleWindow;
+        }
+
+        return [
+            'debut' => (float)$this->fenetreMidi($annee, $settings)[0],
+            'fin' => (float)$this->fenetreMidi($annee, $settings)[1],
+            'source' => 'legacy',
+        ];
+    }
+
+    /**
+     * Construit les seuils d'entrée matin / après-midi à partir de la fenêtre midi.
+     *
+     * @return array{0:float,1:float}
+     */
+    private function deriveEntryBoundaries(float $midiDebut, float $midiFin, array $settings): array {
+        $morningEntryEnd = max(0.0, $midiDebut - (1 / 60));
+        $afternoonEntryStart = min(23.983333333333, $midiFin + (1 / 60));
+
+        return [$morningEntryEnd, $afternoonEntryStart];
     }
 
     /**

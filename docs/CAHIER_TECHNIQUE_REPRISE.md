@@ -90,9 +90,9 @@ Perimetre: etat actuel du depot sur la branche principale.
 1. Frontend envoie sourcedId a POST /api/scan.
 2. Backend charge etudiant + horaire du jour + passages deja presents.
 3. ScanRules calcule type_passage et statut selon:
-   - fenetre midi par annee
-   - autorisation de sortie
-   - retard selon premier cours + tolerance
+  - fenetre midi deduite du planning via la matiere MIDI
+  - autorisation de sortie
+  - retard selon premier cours + tolerance
 4. Movement est insere dans passages.
 5. Frontend affiche resultat et met a jour presence journaliere locale.
 

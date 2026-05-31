@@ -11,6 +11,7 @@ class SettingsModel {
     private array $defaults = [
         'course_duration_min' => '50',
         'late_tolerance_min' => '5',
+        'midi_matiere_id' => '',
         'midi1_start' => '11:50',
         'midi1_end' => '12:40',
         'midi2_start' => '12:40',
@@ -120,6 +121,7 @@ class SettingsModel {
         $keys = [
             'morning_break_duration_min',
             'morning_break_time',
+            'midi_matiere_id',
             'midi1_start',
             'midi1_end',
             'midi2_start',

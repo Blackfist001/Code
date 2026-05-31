@@ -163,17 +163,19 @@ Le menu Gestion contient des sections de parametres et de referentiels.
 
 Permet de regler le comportement global:
 
-- duree d un cours
-- battement retard
-- recreation du matin
-- fenetres midi 1 / midi 2
-- annees associees a chaque fenetre
+ - duree d un cours
+ - battement retard
+ - recreation du matin
+ - les regles de midi restent alignees sur la matiere MIDI du planning
+ - les anciens reglages midi1 / midi2 servent de secours de compatibilite
 
 Important:
 
-- Entree matin jusqu a et Entree apres-midi a partir de sont calcules automatiquement.
-- Cliquer sur Enregistrer apres toute modification.
-- Utiliser Historique des sauvegardes pour comparer/restaurer un etat precedent.
+ - Entree matin jusqu a et Entree apres-midi a partir de sont calcules automatiquement.
+ - La logique de midi s'appuie sur le planning de l'etudiant, pas sur son annee.
+ - Cliquer sur Enregistrer apres toute modification.
+ - Utiliser Historique des sauvegardes pour comparer/restaurer un etat precedent.
+
 
 ## 4.7 Audits
 

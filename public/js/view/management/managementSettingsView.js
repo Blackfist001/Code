@@ -16,19 +16,9 @@ export default class ManagementSettingsView {
         const saveBtn = document.getElementById('btn-settings-save');
         const reloadBtn = document.getElementById('btn-settings-reload');
         const backupSelect = document.getElementById('settings-backup-select');
-        const midi1StartSelect = document.getElementById('settings-midi1-start');
-        const midi2EndSelect = document.getElementById('settings-midi2-end');
 
         if (reloadBtn) {
             reloadBtn.addEventListener('click', () => controller.loadSettings());
-        }
-
-        const syncDerivedEntries = () => this._syncDerivedEntryBounds();
-        if (midi1StartSelect) {
-            midi1StartSelect.addEventListener('change', syncDerivedEntries);
-        }
-        if (midi2EndSelect) {
-            midi2EndSelect.addEventListener('change', syncDerivedEntries);
         }
 
         if (saveBtn) {
@@ -89,14 +79,28 @@ export default class ManagementSettingsView {
     displaySettings(settings = {}, backups = [], slots = { debut: [], fin: [] }) {
         this._slotsSnapshot = slots;
         this._renderMorningBreakTimeOptions(slots, settings?.morning_break_time ?? '09:55');
-        this._renderMidiTimeOptions(slots, {
-            midi1Start: settings?.midi1_start ?? '11:50',
-            midi1End: settings?.midi1_end ?? '12:40',
-            midi2Start: settings?.midi2_start ?? '12:40',
-            midi2End: settings?.midi2_end ?? '13:30',
-        });
+        const midiSelect = document.getElementById('settings-midi-matiere-id');
+        if (midiSelect) {
+            const matieres = Array.isArray(this.parent._matieres) ? this.parent._matieres : [];
+            const options = ['<option value="">-- Choisir une matière --</option>'];
+            matieres.forEach(matiere => {
+                const id = String(matiere?.id_matiere || '');
+                const label = String(matiere?.matiere || '').trim();
+                if (!id || !label) {
+                    return;
+                }
+                const selected = String(settings?.midi_matiere_id || '') === id ? ' selected' : '';
+                options.push(`<option value="${id}"${selected}>${label}</option>`);
+            });
+            midiSelect.innerHTML = options.join('');
+            if (!midiSelect.value) {
+                const fallback = matieres.find(matiere => String(matiere?.matiere || '').trim().toUpperCase() === 'MIDI');
+                if (fallback?.id_matiere) {
+                    midiSelect.value = String(fallback.id_matiere);
+                }
+            }
+        }
         this._applySettingsToForm(settings);
-        this._syncDerivedEntryBounds();
         this._renderBackups(backups);
     }
 
@@ -253,27 +257,12 @@ export default class ManagementSettingsView {
         this._setValue('settings-late-tolerance-min', settings.late_tolerance_min ?? 5);
         this._setValue('settings-morning-break-duration-min', settings.morning_break_duration_min ?? 15);
         this._setValue('settings-morning-break-time', settings.morning_break_time ?? '09:55');
-        this._setValueFromOptions('settings-midi1-start', settings.midi1_start ?? '11:50');
-        this._setValueFromOptions('settings-midi1-end', settings.midi1_end ?? '12:40');
-        this._setValueFromOptions('settings-midi2-start', settings.midi2_start ?? '12:40');
-        this._setValueFromOptions('settings-midi2-end', settings.midi2_end ?? '13:30');
-        this._setValue('settings-midi1-years', settings.midi1_years ?? '1,2');
-        this._setValue('settings-midi2-years', settings.midi2_years ?? '3,4,5,6,7,8');
+        const midiMatiereValue = String(settings.midi_matiere_id ?? '').trim();
+        if (midiMatiereValue) {
+            this._setValue('settings-midi-matiere-id', midiMatiereValue);
+        }
         this._setValue('settings-morning-entry-end', settings.morning_entry_end ?? '11:49');
         this._setValue('settings-afternoon-entry-start', settings.afternoon_entry_start ?? '13:31');
-        this._syncDerivedEntryBounds();
-    }
-
-    _syncDerivedEntryBounds() {
-        const midi1StartMin = this._toMinutes(this._getValue('settings-midi1-start', ''));
-        if (midi1StartMin !== null) {
-            this._setValue('settings-morning-entry-end', this._toHHMM(midi1StartMin - 1));
-        }
-
-        const midi2EndMin = this._toMinutes(this._getValue('settings-midi2-end', ''));
-        if (midi2EndMin !== null) {
-            this._setValue('settings-afternoon-entry-start', this._toHHMM(midi2EndMin + 1));
-        }
     }
 
     async _showBackupComparisonModal(currentSettings = {}, backupSettings = {}, modifiedAt = '', trackedChanges = {}) {
@@ -282,12 +271,7 @@ export default class ManagementSettingsView {
             ['late_tolerance_min', 'Battement retard'],
             ['morning_break_duration_min', 'Récréation du matin'],
             ['morning_break_time', 'Heure de récréation'],
-            ['midi1_start', 'Midi 1 - Début'],
-            ['midi1_end', 'Midi 1 - Fin'],
-            ['midi2_start', 'Midi 2 - Début'],
-            ['midi2_end', 'Midi 2 - Fin'],
-            ['midi1_years', 'Midi 1 - Années'],
-            ['midi2_years', 'Midi 2 - Années'],
+            ['midi_matiere_id', 'Matière MIDI'],
             ['morning_entry_end', "Entrée matin jusqu'à"],
             ['afternoon_entry_start', "Entrée après-midi à partir de"],
         ];
@@ -297,8 +281,12 @@ export default class ManagementSettingsView {
                 <h4 style="margin:0 0 10px 0;color:#2c3e50;">${title}</h4>
                 <div style="display:grid;gap:8px;">
                     ${fields.map(([key, label]) => {
-                        const value = String(source?.[key] ?? '---');
-                        const other = String(compareTo?.[key] ?? '---');
+                        const value = key === 'midi_matiere_id'
+                            ? this._describeMatiereValue(source?.[key])
+                            : String(source?.[key] ?? '---');
+                        const other = key === 'midi_matiere_id'
+                            ? this._describeMatiereValue(compareTo?.[key])
+                            : String(compareTo?.[key] ?? '---');
                         const changed = value !== other;
                         return `
                             <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;border-bottom:1px solid #f1f5f9;padding:6px 8px;border-radius:8px;background:${changed ? '#fdecec' : 'transparent'};">
@@ -314,10 +302,7 @@ export default class ManagementSettingsView {
         const trackedLabels = {
             morning_break_duration_min: 'Récréation du matin (durée)',
             morning_break_time: 'Heure de récréation',
-            midi1_start: 'Midi 1 - Début',
-            midi1_end: 'Midi 1 - Fin',
-            midi2_start: 'Midi 2 - Début',
-            midi2_end: 'Midi 2 - Fin',
+            midi_matiere_id: 'Matière MIDI',
             morning_entry_end: "Entrée matin jusqu'à",
             afternoon_entry_start: "Entrée après-midi à partir de",
         };
@@ -493,6 +478,7 @@ export default class ManagementSettingsView {
             late_tolerance_min: this._getInt('settings-late-tolerance-min', 5),
             morning_break_duration_min: this._getInt('settings-morning-break-duration-min', 15),
             morning_break_time: this._getValue('settings-morning-break-time', '09:55'),
+            midi_matiere_id: this._getValue('settings-midi-matiere-id', ''),
             midi1_start: this._getValue('settings-midi1-start', '11:50'),
             midi1_end: this._getValue('settings-midi1-end', '12:40'),
             midi2_start: this._getValue('settings-midi2-start', '12:40'),
@@ -507,6 +493,17 @@ export default class ManagementSettingsView {
     _getValue(id, fallback = '') {
         const el = document.getElementById(id);
         return String(el?.value || fallback).trim();
+    }
+
+    _describeMatiereValue(value) {
+        const normalizedId = String(value ?? '').trim();
+        if (!normalizedId) {
+            return '---';
+        }
+
+        const matieres = Array.isArray(this.parent._matieres) ? this.parent._matieres : [];
+        const matiere = matieres.find(item => String(item?.id_matiere || '') === normalizedId);
+        return matiere?.matiere ? String(matiere.matiere) : normalizedId;
     }
 
     _getInt(id, fallback = 0) {
@@ -558,6 +555,10 @@ export default class ManagementSettingsView {
 
         if (data.morning_break_duration_min < 0 || data.morning_break_duration_min > 120) {
             issues.push('La récréation du matin doit être comprise entre 0 et 120 minutes.');
+        }
+
+        if (!String(data.midi_matiere_id || '').trim()) {
+            issues.push('La matière MIDI doit être sélectionnée.');
         }
 
         const m1s = this._toMinutes(data.midi1_start);

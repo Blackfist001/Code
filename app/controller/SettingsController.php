@@ -76,6 +76,7 @@ class SettingsController {
     private function validateAndNormalize(array $input): array {
         $courseDurationMin = (int)($input['course_duration_min'] ?? 50);
         $lateToleranceMin = (int)($input['late_tolerance_min'] ?? 5);
+        $midiMatiereId = trim((string)($input['midi_matiere_id'] ?? ''));
 
         $midi1Start = $this->normalizeTime((string)($input['midi1_start'] ?? '11:50'), 'midi1_start');
         $midi1End = $this->normalizeTime((string)($input['midi1_end'] ?? '12:40'), 'midi1_end');
@@ -103,6 +104,10 @@ class SettingsController {
 
         if ($morningBreakDurationMin < 0 || $morningBreakDurationMin > 120) {
             throw new \InvalidArgumentException('La durée de récréation du matin doit être comprise entre 0 et 120 minutes.');
+        }
+
+        if ($midiMatiereId !== '' && !ctype_digit($midiMatiereId)) {
+            throw new \\InvalidArgumentException('La matière MIDI sélectionnée est invalide.');
         }
 
         $m1s = $this->toMinutes($midi1Start);
@@ -136,6 +141,7 @@ class SettingsController {
         return [
             'course_duration_min' => $courseDurationMin,
             'late_tolerance_min' => $lateToleranceMin,
+            'midi_matiere_id' => $midiMatiereId,
             'midi1_start' => $midi1Start,
             'midi1_end' => $midi1End,
             'midi2_start' => $midi2Start,

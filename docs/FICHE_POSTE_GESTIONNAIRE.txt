@@ -68,6 +68,8 @@ Controle qualite minimum (2 fois par jour)
 2. Midi: verifier statuts de sortie/retour.
 3. Fin de journee: verifier qu il n y a pas d ecarts evidents.
 
+Le temps de midi est determine par la matiere MIDI dans l'horaire de cours, pas par l'annee de l'etudiant.
+
 Erreurs a eviter
 
 - Corriger sans verifier l identite complete (Nom + Prenom + Classe).
